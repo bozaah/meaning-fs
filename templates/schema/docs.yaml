@@ -1,0 +1,102 @@
+version: "0.1"
+project_type: docs
+
+relationship_types:
+  # Content structure
+  - name: references
+    description: "Source references/links to target document"
+    direction: source_to_target
+
+  - name: includes
+    description: "Source includes content from target"
+    direction: source_to_target
+
+  - name: parent
+    description: "Source is parent/index for target documents"
+    direction: source_to_target
+
+  # Documentation relationships
+  - name: documents
+    description: "Source documents target (code, API, etc.)"
+    direction: source_to_target
+
+  - name: explains
+    description: "Source explains concepts in target"
+    direction: source_to_target
+
+  - name: tutorials
+    description: "Source is tutorial for target feature/concept"
+    direction: source_to_target
+
+  # Content flow
+  - name: prerequisite
+    description: "Target should be read before source"
+    direction: source_to_target
+
+  - name: continues
+    description: "Source continues from target (series/sequence)"
+    direction: source_to_target
+
+  - name: supersedes
+    description: "Source replaces outdated target"
+    direction: source_to_target
+
+  # Media
+  - name: illustrates
+    description: "Source image/diagram illustrates target"
+    direction: source_to_target
+
+  - name: transcribes
+    description: "Source transcribes target video/audio"
+    direction: source_to_target
+
+tag_vocabulary:
+  domain:
+    - api
+    - guide
+    - tutorial
+    - reference
+    - changelog
+    - faq
+    - troubleshooting
+    - architecture
+    - contributing
+
+  concern:
+    - getting-started
+    - installation
+    - configuration
+    - usage
+    - examples
+    - best-practices
+    - migration
+    - security
+    - performance
+
+  audience:
+    - beginner
+    - intermediate
+    - advanced
+    - internal
+    - external
+    - contributor
+    - maintainer
+
+  file_type:
+    - markdown
+    - rst
+    - adoc
+    - html
+    - image
+    - diagram
+    - video
+    - config
+
+# Allow custom tags with prefix
+custom_prefix: "x-"
+
+statuses:
+  - active
+  - draft
+  - deprecated
+  - generated

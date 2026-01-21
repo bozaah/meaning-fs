@@ -1,0 +1,130 @@
+version: "0.1"
+project_type: node
+
+relationship_types:
+  # Code structure
+  - name: imports
+    description: "Source file imports/requires target module"
+    direction: source_to_target
+
+  - name: implements
+    description: "Source implements interface/type defined in target"
+    direction: source_to_target
+
+  - name: extends
+    description: "Source class extends target class"
+    direction: source_to_target
+
+  # Data flow
+  - name: calls
+    description: "Source calls functions/methods in target"
+    direction: source_to_target
+
+  - name: transforms
+    description: "Source transforms data and passes to target"
+    direction: source_to_target
+
+  - name: validates
+    description: "Source validates data for/from target"
+    direction: bidirectional
+
+  - name: serializes
+    description: "Source serializes/deserializes data for target"
+    direction: bidirectional
+
+  # Documentation & testing
+  - name: documents
+    description: "Source documents target (README, JSDoc, etc.)"
+    direction: source_to_target
+
+  - name: tests
+    description: "Source contains tests for target"
+    direction: source_to_target
+
+  - name: fixtures
+    description: "Source provides test fixtures for target tests"
+    direction: source_to_target
+
+  # Lifecycle
+  - name: supersedes
+    description: "Source replaces deprecated target"
+    direction: source_to_target
+
+  - name: configures
+    description: "Source provides configuration for target"
+    direction: source_to_target
+
+  # Node-specific
+  - name: middleware
+    description: "Source provides middleware used by target"
+    direction: source_to_target
+
+  - name: routes
+    description: "Source defines routes handled by target"
+    direction: source_to_target
+
+  - name: exports
+    description: "Source re-exports from target"
+    direction: source_to_target
+
+tag_vocabulary:
+  domain:
+    - api
+    - auth
+    - database
+    - ui
+    - cli
+    - config
+    - utils
+    - external
+    - core
+    - models
+    - routes
+    - components
+
+  concern:
+    - parsing
+    - validation
+    - error-handling
+    - logging
+    - caching
+    - security
+    - transforms
+    - serialization
+    - async
+    - streaming
+
+  layer:
+    - controller
+    - service
+    - repository
+    - model
+    - schema
+    - util
+    - test
+    - fixture
+    - doc
+    - config
+    - middleware
+    - route
+    - component
+    - hook
+
+  file_type:
+    - module
+    - index
+    - script
+    - test
+    - config
+    - migration
+    - fixture
+    - type-definition
+
+# Allow custom tags with prefix
+custom_prefix: "x-"
+
+statuses:
+  - active
+  - draft
+  - deprecated
+  - generated

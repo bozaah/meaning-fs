@@ -1,0 +1,107 @@
+version: "0.1"
+
+# Files and directories to exclude from indexing
+exclude:
+  patterns:
+    # Version control
+    - ".git/**"
+    - ".svn/**"
+    - ".hg/**"
+
+    # Dependencies
+    - "node_modules/**"
+    - "vendor/**"
+    - ".venv/**"
+    - "venv/**"
+    - "__pycache__/**"
+    - "*.egg-info/**"
+    - ".eggs/**"
+    - "target/**"          # Rust
+    - "pkg/**"             # Go vendor
+
+    # Build outputs
+    - "dist/**"
+    - "build/**"
+    - "out/**"
+    - "*.min.js"
+    - "*.min.css"
+    - "*.bundle.js"
+    - "*.bundle.css"
+
+    # IDE and editor
+    - ".idea/**"
+    - ".vscode/**"
+    - "*.swp"
+    - "*.swo"
+    - "*~"
+
+    # Compiled files
+    - "*.pyc"
+    - "*.pyo"
+    - "*.class"
+    - "*.o"
+    - "*.so"
+    - "*.dylib"
+    - "*.dll"
+    - "*.exe"
+
+    # Lock files (usually auto-generated)
+    - "*.lock"
+    - "package-lock.json"
+    - "yarn.lock"
+    - "pnpm-lock.yaml"
+    - "Cargo.lock"
+    - "poetry.lock"
+    - "Pipfile.lock"
+    - "go.sum"
+
+    # Logs and temp files
+    - "*.log"
+    - "*.tmp"
+    - "*.temp"
+    - ".cache/**"
+    - ".tmp/**"
+
+    # Environment and secrets (NEVER index these)
+    - ".env*"
+    - "*.pem"
+    - "*.key"
+    - "secrets/**"
+    - ".secrets/**"
+
+    # Coverage and test artifacts
+    - "coverage/**"
+    - ".coverage"
+    - "htmlcov/**"
+    - ".nyc_output/**"
+    - ".pytest_cache/**"
+    - ".tox/**"
+
+    # Meaning directory itself
+    - ".meaning/**"
+
+  paths: []
+
+# Files to include even if they match exclude patterns
+include:
+  paths: []
+
+# Behavior settings
+settings:
+  # Every file must have an intent description
+  require_intent: true
+
+  # Tags are optional by default
+  require_tags: false
+
+  # Warn (but don't fail) on tags not in schema vocabulary
+  warn_on_unknown_tags: true
+
+  # Maximum length for intent field (characters)
+  max_intent_length: 280
+
+  # Flag entries not verified within this many days
+  stale_threshold_days: 7
+
+  # Automatically set needs_review when files are modified
+  auto_flag_modified: true

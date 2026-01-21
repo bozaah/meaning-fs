@@ -1,0 +1,129 @@
+version: "0.1"
+project_type: rust
+
+relationship_types:
+  # Code structure
+  - name: uses
+    description: "Source file uses target module/crate"
+    direction: source_to_target
+
+  - name: implements
+    description: "Source implements trait defined in target"
+    direction: source_to_target
+
+  - name: derives
+    description: "Source derives from target (proc macros)"
+    direction: source_to_target
+
+  # Data flow
+  - name: calls
+    description: "Source calls functions in target"
+    direction: source_to_target
+
+  - name: transforms
+    description: "Source transforms data and passes to target"
+    direction: source_to_target
+
+  - name: validates
+    description: "Source validates data for/from target"
+    direction: bidirectional
+
+  - name: serializes
+    description: "Source serializes/deserializes data for target (serde)"
+    direction: bidirectional
+
+  # Documentation & testing
+  - name: documents
+    description: "Source documents target (rustdoc, README)"
+    direction: source_to_target
+
+  - name: tests
+    description: "Source contains tests for target"
+    direction: source_to_target
+
+  - name: fixtures
+    description: "Source provides test fixtures for target tests"
+    direction: source_to_target
+
+  # Lifecycle
+  - name: supersedes
+    description: "Source replaces deprecated target"
+    direction: source_to_target
+
+  - name: configures
+    description: "Source provides configuration for target"
+    direction: source_to_target
+
+  # Rust-specific
+  - name: exposes
+    description: "Source (lib.rs/mod.rs) exposes target module publicly"
+    direction: source_to_target
+
+  - name: errors
+    description: "Source defines error types for target"
+    direction: source_to_target
+
+  - name: macros
+    description: "Source provides macros used by target"
+    direction: source_to_target
+
+tag_vocabulary:
+  domain:
+    - api
+    - auth
+    - database
+    - cli
+    - config
+    - utils
+    - external
+    - core
+    - models
+    - ffi
+    - wasm
+
+  concern:
+    - parsing
+    - validation
+    - error-handling
+    - logging
+    - caching
+    - security
+    - transforms
+    - serialization
+    - async
+    - concurrency
+    - unsafe
+    - memory
+
+  layer:
+    - lib
+    - bin
+    - mod
+    - trait
+    - impl
+    - test
+    - bench
+    - fixture
+    - doc
+    - config
+    - macro
+    - proc-macro
+    - build
+
+  file_type:
+    - lib
+    - bin
+    - mod
+    - test
+    - bench
+    - build-script
+    - config
+
+# Allow custom tags with prefix
+custom_prefix: "x-"
+
+statuses:
+  - active
+  - draft
+  - deprecated
+  - generated

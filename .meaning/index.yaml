@@ -1,0 +1,135 @@
+version: "0.1"
+generated_at: 2026-01-21T04:11:00Z
+last_updated: 2026-01-21T04:11:00Z
+
+concepts:
+  - name: project-documentation
+    description: "Project-level documentation for human and AI understanding"
+    files:
+      - README.md
+      - AGENTS.md
+      - CLAUDE.md
+      - IMPLEMENTATION-PLAN.md
+      - CHANGELOG.md
+      - .agent-sessions/README.md
+      - .agent-sessions/2026-01-21-dogfooding-inference-plan.md
+    entry_point: README.md
+
+  - name: core-library
+    description: "Core Python library implementing semantic index operations"
+    files:
+      - src/meaning_core.py
+    entry_point: src/meaning_core.py
+
+  - name: development-tooling
+    description: "Scripts and tools for development and validation"
+    files:
+      - scripts/validate-meaning.sh
+    entry_point: scripts/validate-meaning.sh
+
+files:
+  - path: README.md
+    intent: "Project overview and quick start guide for users"
+    tags: [doc, core, overview]
+    status: active
+    needs_review: false
+    last_verified: 2026-01-21T04:11:00Z
+    relationships:
+      - type: documents
+        target: src/meaning_core.py
+      - type: documents
+        target: .agent-sessions/README.md
+      - type: documents
+        target: IMPLEMENTATION-PLAN.md
+      - type: documents
+        target: AGENTS.md
+
+  - path: AGENTS.md
+    intent: "Symlink to CLAUDE.md providing development guide for all AI agents"
+    tags: [doc, core, dev-guide, ai]
+    status: active
+    needs_review: false
+    last_verified: 2026-01-21T04:11:00Z
+    relationships:
+      - type: documents
+        target: CLAUDE.md
+
+  - path: CLAUDE.md
+    intent: "Development guide and architectural reference for AI agents working on Meaning"
+    tags: [doc, core, dev-guide, ai]
+    status: active
+    needs_review: false
+    last_verified: 2026-01-21T04:11:00Z
+    relationships:
+      - type: documents
+        target: IMPLEMENTATION-PLAN.md
+      - type: documents
+        target: src/meaning_core.py
+
+  - path: IMPLEMENTATION-PLAN.md
+    intent: "Complete technical specification including data structures, operations, and design decisions"
+    tags: [doc, core, spec]
+    status: active
+    needs_review: false
+    last_verified: 2026-01-21T04:11:00Z
+    relationships:
+      - type: documents
+        target: src/meaning_core.py
+
+  - path: CHANGELOG.md
+    intent: "Chronological record of project changes, decisions, and milestones"
+    tags: [doc, core, history]
+    status: active
+    needs_review: false
+    last_verified: 2026-01-21T04:11:00Z
+    relationships:
+      - type: documents
+        target: .agent-sessions/2026-01-21-dogfooding-inference-plan.md
+
+  - path: src/meaning_core.py
+    intent: "Core Python library implementing YAML parsing, validation, data structures, and index operations"
+    tags: [core, module, api, parsing, validation]
+    status: active
+    needs_review: false
+    last_verified: 2026-01-21T04:11:00Z
+    relationships:
+      - type: implements
+        target: IMPLEMENTATION-PLAN.md
+
+  - path: .agent-sessions/README.md
+    intent: "Guide for AI agents on documenting sessions and maintaining project continuity"
+    tags: [doc, dev-guide, ai]
+    status: active
+    needs_review: false
+    last_verified: 2026-01-21T04:11:00Z
+    relationships:
+      - type: documents
+        target: .agent-sessions/2026-01-21-dogfooding-inference-plan.md
+
+  - path: .agent-sessions/2026-01-21-dogfooding-inference-plan.md
+    intent: "Session summary documenting dog-fooding initialization, pain points, and inference engine planning"
+    tags: [doc, history, dev-guide]
+    status: active
+    needs_review: false
+    last_verified: 2026-01-21T04:11:00Z
+    relationships:
+      - type: documents
+        target: README.md
+      - type: documents
+        target: CLAUDE.md
+      - type: documents
+        target: IMPLEMENTATION-PLAN.md
+      - type: documents
+        target: CHANGELOG.md
+      - type: documents
+        target: src/meaning_core.py
+
+  - path: scripts/validate-meaning.sh
+    intent: "Validation script to check .meaning/ index health with formatted output"
+    tags: [script, validation, util]
+    status: active
+    needs_review: false
+    last_verified: 2026-01-21T04:11:00Z
+    relationships:
+      - type: calls
+        target: src/meaning_core.py
