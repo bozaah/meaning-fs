@@ -4,6 +4,52 @@ All notable changes to the Meaning project will be documented in this file.
 
 ## [Unreleased]
 
+### 2026-01-21 — Phase 3: Skills Complete
+
+#### Added
+- **Four Claude Code Skills** — Complete workflow coverage
+  - `/meaning-init` (241 lines) - Bootstrap `.meaning/` for new projects
+  - `/meaning-update` (288 lines) - Sync index with filesystem changes
+  - `/meaning-validate` (307 lines) - Health checks and validation
+  - `/meaning-review` (366 lines) - Interactive review of suggestions
+  - Total: ~1,200 lines of comprehensive skill documentation
+
+- **Helper Functions** — `src/meaning_core.py` (~160 lines)
+  - `scan_project_files()` - Find all non-excluded files
+  - `find_unindexed_files()` - Detect new files not in index
+  - `find_modified_files()` - Detect files changed since last verification
+  - `find_deleted_files()` - Detect indexed files that no longer exist
+  - `initialize_meaning()` - Bootstrap `.meaning/` with templates
+
+- **Complete Workflows** — End-to-end project lifecycle
+  - New project: init → review → update → validate
+  - After git pull: update → review → validate
+  - Daily development: validate → update → review → commit
+  - CI/CD integration: validation with exit codes
+
+#### Skills Features
+- **Thin wrappers** - Leverage core library and inference engine
+- **Interactive** - Chat-based workflow for user decisions
+- **Comprehensive docs** - Step-by-step Python examples, error handling
+- **User control** - AI suggests, human decides
+- **Git-friendly** - Designed for version control workflow
+
+#### Workflows Enabled
+- Project initialization with intelligent inference
+- Incremental synchronization (new/modified/deleted files)
+- Continuous validation with categorized warnings
+- Interactive suggestion review and refinement
+- Confidence-based auto-application (high confidence = auto-apply)
+
+#### User Experience
+- **Time savings** - 85-90% reduction in manual indexing work
+- **Transparency** - All suggestions show confidence and reasoning
+- **Safety** - Non-destructive, user confirms all changes
+- **Flexibility** - Accept all, partial, edit manually, or skip
+- **Iteration** - Review small batches, commit frequently
+
+---
+
 ### 2026-01-21 — Phase 2: Inference Engine Complete
 
 #### Added

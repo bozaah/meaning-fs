@@ -6,16 +6,15 @@ Core library for parsing, validating, and manipulating .meaning/ indexes.
 
 from __future__ import annotations
 
+import fnmatch
 import os
 import re
-import fnmatch
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
 import yaml
-
 
 # =============================================================================
 # Constants
@@ -37,9 +36,11 @@ VALID_STATUSES = {"active", "draft", "deprecated", "generated"}
 # Data Classes
 # =============================================================================
 
+
 @dataclass
 class Relationship:
     """A typed connection between two files."""
+
     type: str
     target: str | None = None
     source: str | None = None
@@ -68,6 +69,7 @@ class Relationship:
 @dataclass
 class FileEntry:
     """Semantic metadata for a single file."""
+
     path: str
     intent: str
     status: str = "active"
@@ -102,9 +104,7 @@ class FileEntry:
         elif last_verified is None:
             last_verified = datetime.now(timezone.utc)
 
-        relationships = [
-            Relationship.from_dict(r) for r in data.get("relationships", [])
-        ]
+        relationships = [Relationship.from_dict(r) for r in data.get("relationships", [])]
 
         return cls(
             path=data["path"],
@@ -130,6 +130,7 @@ class FileEntry:
 @dataclass
 class Concept:
     """A cross-file semantic grouping."""
+
     name: str
     description: str
     files: list[str] = field(default_factory=list)
@@ -158,6 +159,7 @@ class Concept:
 @dataclass
 class MeaningIndex:
     """The complete semantic index for a project."""
+
     version: str = VERSION
     generated_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     last_updated: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
@@ -258,7 +260,9 @@ class MeaningIndex:
                 results.append(f)
         return results
 
-    def find_related(self, path: str, relationship_types: list[str] | None = None) -> list[tuple[str, FileEntry]]:
+    def find_related(
+        self, path: str, relationship_types: list[str] | None = None
+    ) -> list[tuple[str, FileEntry]]:
         """
         Find files related to the given path.
         Returns list of (relationship_type, file_entry) tuples.
@@ -282,6 +286,7 @@ class MeaningIndex:
 @dataclass
 class RelationshipType:
     """Definition of a relationship type from schema."""
+
     name: str
     description: str
     direction: str = "source_to_target"  # source_to_target | target_to_source | bidirectional
@@ -305,6 +310,7 @@ class RelationshipType:
 @dataclass
 class MeaningSchema:
     """Project-specific vocabulary and relationship definitions."""
+
     version: str = VERSION
     project_type: str = "mixed"
     relationship_types: list[RelationshipType] = field(default_factory=list)
@@ -360,6 +366,7 @@ class MeaningSchema:
 @dataclass
 class MeaningConfig:
     """Project settings and exclusion patterns."""
+
     version: str = VERSION
     exclude_patterns: list[str] = field(default_factory=list)
     exclude_paths: list[str] = field(default_factory=list)
@@ -440,6 +447,7 @@ class MeaningConfig:
 # File I/O
 # =============================================================================
 
+
 def load_yaml(filepath: Path) -> dict[str, Any]:
     """Load and parse a YAML file."""
     with open(filepath, "r", encoding="utf-8") as f:
@@ -504,9 +512,11 @@ def save_config(project_root: Path, config: MeaningConfig) -> None:
 # Validation
 # =============================================================================
 
+
 @dataclass
 class ValidationResult:
     """Result of validating a meaning index."""
+
     is_valid: bool
     errors: list[str] = field(default_factory=list)
     warnings: list[str] = field(default_factory=list)
@@ -562,22 +572,16 @@ def validate_index(
         # Check relationship types valid
         for rel in entry.relationships:
             if not schema.is_valid_relationship_type(rel.type):
-                result.add_warning(
-                    f"Unknown relationship type '{rel.type}' on file: {entry.path}"
-                )
+                result.add_warning(f"Unknown relationship type '{rel.type}' on file: {entry.path}")
 
             # Check relationship targets exist
             target = rel.target or rel.source
             if target and target not in indexed_paths:
-                result.add_error(
-                    f"Dangling relationship to '{target}' from: {entry.path}"
-                )
+                result.add_error(f"Dangling relationship to '{target}' from: {entry.path}")
 
         # Check staleness
         if entry.is_stale(config.stale_threshold_days):
-            result.add_warning(
-                f"Stale entry (>{config.stale_threshold_days} days): {entry.path}"
-            )
+            result.add_warning(f"Stale entry (>{config.stale_threshold_days} days): {entry.path}")
 
     # Check for unindexed files
     for root, dirs, files in os.walk(project_root):
@@ -640,6 +644,7 @@ def is_git_repo(project_root: Path) -> bool:
 # Skeleton Creation
 # =============================================================================
 
+
 def create_skeleton_entry(path: str) -> FileEntry:
     """Create a skeleton file entry for a new/modified file."""
     return FileEntry(
@@ -662,13 +667,159 @@ def create_meaning_dir(project_root: Path) -> Path:
     """Create the .meaning directory structure."""
     meaning_path = project_root / MEANING_DIR
     meaning_path.mkdir(exist_ok=True)
-    (meaning_path / "scripts").mkdir(exist_ok=True)
     return meaning_path
+
+
+def scan_project_files(project_root: Path, config: MeaningConfig) -> list[str]:
+    """
+    Scan project directory for all non-excluded files.
+
+    Args:
+        project_root: Project root directory
+        config: Configuration with exclusion patterns
+
+    Returns:
+        List of relative file paths
+    """
+    files = []
+    for path in project_root.rglob("*"):
+        if path.is_file():
+            rel_path = str(path.relative_to(project_root))
+            if not config.is_excluded(rel_path):
+                files.append(rel_path)
+    return sorted(files)
+
+
+def find_unindexed_files(
+    project_root: Path, index: MeaningIndex, config: MeaningConfig
+) -> list[str]:
+    """
+    Find files that exist but aren't in the index.
+
+    Args:
+        project_root: Project root directory
+        index: Current meaning index
+        config: Configuration with exclusion patterns
+
+    Returns:
+        List of unindexed file paths
+    """
+    all_files = scan_project_files(project_root, config)
+    indexed_paths = {entry.path for entry in index.files}
+    return [f for f in all_files if f not in indexed_paths]
+
+
+def find_deleted_files(project_root: Path, index: MeaningIndex) -> list[str]:
+    """
+    Find files in index that no longer exist on filesystem.
+
+    Args:
+        project_root: Project root directory
+        index: Current meaning index
+
+    Returns:
+        List of deleted file paths
+    """
+    deleted = []
+    for entry in index.files:
+        full_path = project_root / entry.path
+        if not full_path.exists():
+            deleted.append(entry.path)
+    return deleted
+
+
+def find_modified_files(project_root: Path, index: MeaningIndex) -> list[str]:
+    """
+    Find files that have been modified since last verification.
+
+    Uses file modification time vs last_verified timestamp.
+
+    Args:
+        project_root: Project root directory
+        index: Current meaning index
+
+    Returns:
+        List of modified file paths
+    """
+    modified = []
+    for entry in index.files:
+        full_path = project_root / entry.path
+        if full_path.exists():
+            mtime = datetime.fromtimestamp(full_path.stat().st_mtime, tz=timezone.utc)
+            if mtime > entry.last_verified:
+                modified.append(entry.path)
+    return modified
+
+
+def initialize_meaning(
+    project_root: Path,
+    project_type: str | None = None,
+    template_dir: Path | None = None,
+) -> tuple[MeaningIndex, MeaningSchema, MeaningConfig]:
+    """
+    Initialize .meaning/ directory with templates.
+
+    Args:
+        project_root: Project root directory
+        project_type: Project type (python, node, rust, docs) or None to detect
+        template_dir: Directory containing templates (default: package templates/)
+
+    Returns:
+        Tuple of (index, schema, config)
+
+    Raises:
+        FileExistsError: If .meaning/ already exists
+        ValueError: If project_type is invalid
+    """
+    if meaning_dir_exists(project_root):
+        raise FileExistsError(f".meaning/ already exists in {project_root}")
+
+    # Detect project type if not provided
+    if project_type is None:
+        project_type = detect_project_type(project_root)
+
+    # Default to package templates
+    if template_dir is None:
+        template_dir = Path(__file__).parent.parent / "templates"
+
+    # Validate project type
+    schema_file = template_dir / "schema" / f"{project_type}.yaml"
+    if not schema_file.exists():
+        raise ValueError(f"Unknown project type: {project_type}")
+
+    # Create .meaning/ directory
+    meaning_path = create_meaning_dir(project_root)
+
+    # Copy schema template
+    schema_content = schema_file.read_text()
+    (meaning_path / SCHEMA_FILENAME).write_text(schema_content)
+
+    # Copy config template
+    config_template = template_dir / CONFIG_FILENAME
+    config_content = config_template.read_text()
+    (meaning_path / CONFIG_FILENAME).write_text(config_content)
+
+    # Create empty index
+    now = datetime.now(timezone.utc)
+    index = MeaningIndex(
+        version=VERSION,
+        generated_at=now,
+        last_updated=now,
+        concepts=[],
+        files=[],
+    )
+
+    # Load the schemas we just created
+    schema = load_schema(project_root)
+    config = load_config(project_root)
+
+    return index, schema, config
 
 
 # =============================================================================
 # CLI Entry Point (for testing)
 # =============================================================================
+
 
 def main() -> None:
     """Simple CLI for testing."""
