@@ -33,8 +33,16 @@ if [ ! -f "$INDEX_FILE" ]; then
     exit 0
 fi
 
+# Find Python interpreter (prefer venv)
+PYTHON_CMD="python3"
+if [ -f "$PROJECT_ROOT/.venv/bin/python" ]; then
+    PYTHON_CMD="$PROJECT_ROOT/.venv/bin/python"
+elif [ -f "$PROJECT_ROOT/venv/bin/python" ]; then
+    PYTHON_CMD="$PROJECT_ROOT/venv/bin/python"
+fi
+
 # Run validation using Python
-python3 << 'PYTHON_SCRIPT'
+"$PYTHON_CMD" << 'PYTHON_SCRIPT'
 import sys
 import os
 import yaml

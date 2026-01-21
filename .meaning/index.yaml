@@ -1,6 +1,6 @@
 version: '0.1'
 generated_at: '2026-01-21T04:11:00+00:00'
-last_updated: '2026-01-21T08:28:47.306590+00:00'
+last_updated: '2026-01-21T08:38:02.621656+00:00'
 concepts:
 - name: project-documentation
   description: Project-level documentation for human and AI understanding
@@ -12,6 +12,7 @@ concepts:
   - CHANGELOG.md
   - .agent-sessions/README.md
   - .agent-sessions/2026-01-21-dogfooding-inference-plan.md
+  - .agent-sessions/2026-01-21-phase4-dogfooding.md
   entry_point: README.md
 - name: core-library
   description: Core Python library implementing semantic index operations
@@ -36,7 +37,7 @@ files:
   intent: Project overview and quick start guide for users
   status: active
   needs_review: false
-  last_verified: '2026-01-21T08:28:47.306382+00:00'
+  last_verified: '2026-01-21T08:37:47.092155+00:00'
   tags:
   - doc
   - core
@@ -95,7 +96,7 @@ files:
   intent: Chronological record of project changes, decisions, and milestones
   status: active
   needs_review: false
-  last_verified: '2026-01-21T08:28:47.306382+00:00'
+  last_verified: '2026-01-21T08:37:47.092155+00:00'
   tags:
   - doc
   - core
@@ -362,7 +363,7 @@ files:
   intent: Post-write hook that flags modified files for review in .meaning/index.yaml
   status: active
   needs_review: false
-  last_verified: '2026-01-21T08:28:47.306382+00:00'
+  last_verified: '2026-01-21T08:34:34.635323+00:00'
   tags:
   - script
   - util
@@ -373,7 +374,7 @@ files:
   intent: Session-end validation hook checking .meaning/ index health
   status: active
   needs_review: false
-  last_verified: '2026-01-21T08:28:47.306382+00:00'
+  last_verified: '2026-01-21T08:34:34.635496+00:00'
   tags:
   - script
   - validation
@@ -435,3 +436,18 @@ files:
   last_verified: '2026-01-21T08:28:47.306382+00:00'
   tags:
   - fixture
+- path: .agent-sessions/2026-01-21-phase4-dogfooding.md
+  intent: Session summary documenting Phase 4 dog-fooding, batch review workflow,
+    and hook bug fixes
+  status: active
+  needs_review: false
+  last_verified: '2026-01-21T08:38:02.621435+00:00'
+  tags:
+  - doc
+  - history
+  - dev-guide
+  relationships:
+  - type: documents
+    target: scripts/meaning-validate.sh
+  - type: documents
+    target: scripts/meaning-post-write.sh

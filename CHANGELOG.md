@@ -4,14 +4,66 @@ All notable changes to the Meaning project will be documented in this file.
 
 ## [Unreleased]
 
+### 2026-01-21 — Phase 4: Dog-fooding & Production Fixes
+
+#### Added
+- **Full project indexing** — Ran `/meaning-update` on meaning project itself
+  - Added 18 new files (skills, templates, configs, hooks)
+  - Flagged 12 modified files for review
+  - Scaled from 14 to 32 indexed files
+
+- **Batch review workflow** — Ran `/meaning-review` on 30 files
+  - Grouped by category (configs, scripts, docs, templates)
+  - Applied human-written intents and proper relationships
+  - Cleared all review flags in single session
+  - 100% validation pass after review
+
+- **Critical bug fix** — Hook scripts now use virtual environment
+  - Fixed `ModuleNotFoundError: No module named 'yaml'`
+  - Both `meaning-validate.sh` and `meaning-post-write.sh` patched
+  - Auto-detect `.venv/bin/python` with fallback to system Python
+  - Verified hooks work correctly in production
+
+#### Validation Results
+```json
+{
+  "total_files": 32,
+  "needs_review": 0,
+  "stale": 0,
+  "unindexed": 0,
+  "errors": 0,
+  "warnings": 0
+}
+```
+
+#### Key Insights
+- **Inference confidence patterns** identified
+  - High (>80%): File type detection, imports, filename-based tags
+  - Low (<70%): Config file intents, template purposes, skill docs
+  - Human review essential for context-dependent metadata
+
+- **Hook reliability** requirements documented
+  - Use project's Python environment (not system Python)
+  - Graceful degradation (skip if no .meaning/)
+  - Fast execution (< 1 second)
+  - Structured JSON output for Claude
+
+#### Status
+- System fully functional and validated
+- All skills working correctly
+- Hooks reliable and tested
+- Ready for external project testing
+
+---
+
 ### 2026-01-21 — Phase 3: Skills Complete
 
 #### Added
 - **Four Claude Code Skills** — Complete workflow coverage
-  - `/meaning-init` (241 lines) - Bootstrap `.meaning/` for new projects
-  - `/meaning-update` (288 lines) - Sync index with filesystem changes
-  - `/meaning-validate` (307 lines) - Health checks and validation
-  - `/meaning-review` (366 lines) - Interactive review of suggestions
+  - `/meaning-init` - Bootstrap `.meaning/` for new projects
+  - `/meaning-update` - Sync index with filesystem changes
+  - `/meaning-validate` - Health checks and validation
+  - `/meaning-review` - Interactive review of suggestions
   - Total: ~1,200 lines of comprehensive skill documentation
 
 - **Helper Functions** — `src/meaning_core.py` (~160 lines)

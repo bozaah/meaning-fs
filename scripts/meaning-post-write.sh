@@ -8,7 +8,7 @@ set -euo pipefail
 # Read JSON input from stdin
 INPUT=$(cat)
 
-# Extract the file path from tool_input
+# Extract the file path from tool_input (uses system python - no deps needed)
 # Handles different tool input formats
 FILE_PATH=$(echo "$INPUT" | python3 -c "
 import sys
@@ -55,8 +55,16 @@ if [ ! -f "$INDEX_FILE" ]; then
     exit 0
 fi
 
+# Find Python interpreter (prefer venv from project root)
+PYTHON_CMD="python3"
+if [ -f "$PROJECT_ROOT/.venv/bin/python" ]; then
+    PYTHON_CMD="$PROJECT_ROOT/.venv/bin/python"
+elif [ -f "$PROJECT_ROOT/venv/bin/python" ]; then
+    PYTHON_CMD="$PROJECT_ROOT/venv/bin/python"
+fi
+
 # Make path relative to project root
-REL_PATH=$(python3 -c "
+REL_PATH=$("$PYTHON_CMD" -c "
 import os
 import sys
 
@@ -78,7 +86,7 @@ print(rel)
 " "$FILE_PATH" "$PROJECT_ROOT")
 
 # Update the index using Python
-python3 << PYTHON_SCRIPT
+"$PYTHON_CMD" << PYTHON_SCRIPT
 import sys
 import os
 import yaml
