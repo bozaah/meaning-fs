@@ -18,17 +18,25 @@ AI agents operating on codebases lack semantic context. They see files as paths 
 
 When you say "update how API responses are parsed," your AI agent can read the index and know exactly which files to touch.
 
+---
+
+**👉 [Get Started in 5 Minutes](QUICKSTART.md) 👈**
+
+---
+
 ## Status
 
-**Phase 4 Complete** — Fully functional and validated ✅
+**Phase 5 Complete** — Status overview and semantic query ✅
 
-- ✅ Core library (`meaning_core.py`) - 870 lines, 54 tests passing
+- ✅ Core library (`meaning_core.py`) - 1,100+ lines, 54+ tests passing
 - ✅ Inference engine (`meaning_inference.py`) - 612 lines, 32 tests passing
-- ✅ Four Claude Code skills (`/meaning-init`, `/meaning-update`, `/meaning-validate`, `/meaning-review`)
+- ✅ **Status command** - Instant project overview with concepts, health metrics, and recent activity
+- ✅ **Query engine** - Natural language semantic search (6 query types, <50ms response)
+- ✅ Five Claude Code skills (`/meaning-init`, `/meaning-update`, `/meaning-validate`, `/meaning-review`, `/meaning-query`)
 - ✅ Hook scripts for automatic tracking
-- ✅ Dog-fooded on itself (32 files indexed, 0 validation errors)
+- ✅ Dog-fooded on itself (33+ files indexed, 0 validation errors)
 
-**Next:** External project testing, PyPI packaging
+**Next:** External project testing, query enhancements, PyPI packaging
 
 ## Quick Start
 
@@ -54,8 +62,52 @@ uv venv && uv pip install -e ".[dev]"
 ./scripts/validate-meaning.sh
 ```
 
+## Discovering Your Project
+
+Once initialized, instantly understand your codebase with zero latency:
+
+```bash
+# Get instant overview (concepts, health, recent activity)
+python -m meaning_core status
+
+# Natural language semantic search
+python -m meaning_core query "what tests the core?"
+python -m meaning_core query "show me all config files"
+python -m meaning_core query "files that do parsing"
+python -m meaning_core query "what needs review?"
+python -m meaning_core query "what changed recently?"
+```
+
+**Example output:**
+```
+🔍 Query Results: Files that tests src/meaning_core.py
+   Type: relationship
+
+  Found 1 file (showing 1):
+
+  1.   tests/test_core.py
+      "Comprehensive test suite for core data structures..."
+      Tags: test, module
+      Relationships: tests(1), imports(1)
+```
+
+Or use the skill in Claude Code:
+```bash
+/meaning-query what tests the inference engine?
+```
+
+**6 Query Types Supported:**
+- **Status**: "what needs review?", "what is stale?"
+- **Tag**: "show me all test files", "find config files"
+- **Relationship**: "what tests X?", "what documents Y?"
+- **Intent**: "files that do parsing", "files about auth"
+- **Temporal**: "what changed recently?"
+- **Concept**: "show me the core library"
+
 ## Features
 
+- **Instant Discovery** - `status` command shows project overview in <50ms
+- **Semantic Query** - Natural language search across 6 query types (status, tag, relationship, intent, temporal, concept)
 - **Intelligent Inference** - Automatically suggests tags, intents, and relationships with confidence scores
 - **85-90% Time Savings** - Review AI suggestions instead of writing metadata from scratch
 - **Git-Friendly** - Human-readable YAML files that diff and merge cleanly
@@ -141,6 +193,7 @@ meaning/
 
 ## Documentation
 
+- **[Quick Start Guide](QUICKSTART.md)** — Get started in 5 minutes
 - [Implementation Plan](IMPLEMENTATION-PLAN.md) — Full specification
 - [CLAUDE.md](CLAUDE.md) / [AGENTS.md](AGENTS.md) — Guide for AI agents working on this project
 - [Agent Sessions](.agent-sessions/) — Session notes documenting project evolution

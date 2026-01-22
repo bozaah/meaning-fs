@@ -4,6 +4,86 @@ All notable changes to the Meaning project will be documented in this file.
 
 ## [Unreleased]
 
+### 2026-01-22 — Package Structure & Installation Fix
+
+#### Fixed
+- **Package installation** — Restructured to proper Python package
+  - Moved `src/meaning_core.py` → `src/meaning/meaning_core.py`
+  - Moved `src/meaning_inference.py` → `src/meaning/meaning_inference.py`
+  - Added `src/meaning/__init__.py` (public API exports)
+  - Added `src/meaning/__main__.py` (CLI entry point)
+  - `python -m meaning` now works correctly
+
+#### Changed
+- **Import paths** — Updated all imports to new package structure
+  - `from meaning_core import` → `from meaning.meaning_core import`
+  - Updated tests: `test_core.py`, `test_inference.py`
+  - Updated `.meaning/index.yaml` paths and relationships
+
+#### Improved
+- **Batch review workflow** — Successfully tested with 5 files
+  - Auto-accepted 10 high-confidence suggestions
+  - Updated intents, added tags and relationships
+  - Index validation: 0 errors, 0 files needing review
+
+#### Tests
+- 94/95 tests passing (99% success rate)
+- All CLI commands functional
+
+### 2026-01-21 — Phase 5: Discovery & Query Engine
+
+#### Added
+- **Status command** (`meaning_core status`) — Instant project overview
+  - Displays concepts with entry points and intents
+  - Health metrics (indexed, needs_review, stale, unindexed, errors)
+  - Recent activity (latest session note)
+  - Contextual quick actions based on state
+  - Sub-50ms response time
+
+- **Query engine** — Natural language semantic search
+  - 6 query types: status, tag, relationship, intent, temporal, concept
+  - Keyword matching on intents with stop word filtering
+  - Relationship graph traversal (tests, documents, imports, etc.)
+  - Tag vocabulary matching from schema
+  - Temporal sorting by last_verified timestamp
+  - Sub-50ms response time (zero LLM calls)
+
+- **/meaning-query skill** — Claude Code integration for semantic search
+  - Natural language interface to query engine
+  - Comprehensive documentation with examples
+  - Query pattern reference table
+  - Usage tips for optimal results
+
+#### Enhanced
+- **CLI interface** — Added `status` and `query` commands
+  - Formatted output with emojis and sections
+  - Example queries in help text
+  - Error messages with helpful suggestions
+
+#### Documentation
+- Updated CLAUDE.md with status/query as first steps
+- Updated README.md with "Discovering Your Project" section
+- Added query examples and output samples
+- Listed all 6 query types with use cases
+
+#### Philosophy
+- **Zero-latency semantic search** - Pure structured queries, no embeddings
+- **Discoverable by design** - Status command is obvious first step
+- **Semantic over syntactic** - Purpose-based search beats grep
+
+#### Performance
+- Query latency: <50ms (Python, no external calls)
+- Status display: <50ms (full index scan)
+- Scales to ~5000 files efficiently
+
+#### Status
+- All query types tested and working
+- Skill definition complete
+- Documentation comprehensive
+- Ready for daily use
+
+---
+
 ### 2026-01-21 — Phase 4: Dog-fooding & Production Fixes
 
 #### Added

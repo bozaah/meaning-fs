@@ -14,7 +14,7 @@ import os
 import sys
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
-from meaning_core import (
+from meaning.meaning_core import (
     Relationship,
     FileEntry,
     Concept,
@@ -23,12 +23,14 @@ from meaning_core import (
     MeaningSchema,
     MeaningConfig,
     ValidationResult,
+    QueryResult,
     validate_index,
     detect_project_type,
     is_git_repo,
     create_skeleton_entry,
     load_yaml,
     save_yaml,
+    query_index,
     VERSION,
     VALID_STATUSES,
 )
@@ -513,6 +515,162 @@ class TestYamlIO:
             
             save_yaml(filepath, data)
             assert filepath.exists()
+
+
+# =============================================================================
+# Query Engine Tests
+# =============================================================================
+
+class TestQueryEngine:
+    @pytest.fixture
+    def sample_index(self):
+        """Create a sample index with various file types for testing queries."""
+        now = datetime.now(timezone.utc)
+
+        files = [
+            FileEntry(
+                path="src/api.py",
+                intent="API client for external services",
+                tags=["api", "core"],
+                status="active",
+                needs_review=False,
+                last_verified=now,
+                relationships=[
+                    Relationship(type="imports", target="src/utils.py")
+                ]
+            ),
+            FileEntry(
+                path="tests/test_api.py",
+                intent="Test suite for API client",
+                tags=["test"],
+                status="active",
+                needs_review=False,
+                last_verified=now,
+                relationships=[
+                    Relationship(type="tests", target="src/api.py"),
+                    Relationship(type="imports", target="src/api.py")
+                ]
+            ),
+            FileEntry(
+                path="config.yaml",
+                intent="Configuration file with settings",
+                tags=["config"],
+                status="active",
+                needs_review=True,
+                last_verified=now - timedelta(days=1),
+                relationships=[]
+            ),
+            FileEntry(
+                path="src/parser.py",
+                intent="Parses JSON responses from API",
+                tags=["parsing", "core"],
+                status="active",
+                needs_review=False,
+                last_verified=now - timedelta(days=10),
+                relationships=[]
+            ),
+            FileEntry(
+                path="README.md",
+                intent="Project documentation",
+                tags=["doc"],
+                status="active",
+                needs_review=False,
+                last_verified=now,
+                relationships=[
+                    Relationship(type="documents", target="src/api.py")
+                ]
+            ),
+        ]
+
+        concepts = [
+            Concept(
+                name="api-client",
+                description="External API integration",
+                files=["src/api.py", "tests/test_api.py"],
+                entry_point="src/api.py"
+            )
+        ]
+
+        return MeaningIndex(
+            version="0.1",
+            generated_at=now,
+            last_updated=now,
+            concepts=concepts,
+            files=files
+        )
+
+    @pytest.fixture
+    def sample_schema(self):
+        """Create a sample schema for testing tag-based queries."""
+        return MeaningSchema(
+            relationship_types=["tests", "documents", "imports"],
+            tag_vocabulary={
+                "file_type": ["api", "test", "doc", "config"],
+                "feature": ["core", "parsing"]
+            }
+        )
+
+    def test_status_query_needs_review(self, sample_index, sample_schema):
+        result = query_index(sample_index, sample_schema, "what needs review?")
+        assert result.query_type == "status"
+        assert len(result.files) == 1
+        assert result.files[0].path == "config.yaml"
+
+    def test_status_query_stale(self, sample_index, sample_schema):
+        result = query_index(sample_index, sample_schema, "what is stale?")
+        assert result.query_type == "status"
+        assert len(result.files) == 1
+        assert result.files[0].path == "src/parser.py"
+
+    def test_tag_query(self, sample_index, sample_schema):
+        result = query_index(sample_index, sample_schema, "find config files")
+        # Should match tag query for 'config'
+        assert result.query_type == "tag"
+        assert len(result.files) == 1
+        assert result.files[0].path == "config.yaml"
+
+    def test_relationship_query_tests(self, sample_index, sample_schema):
+        # Query for files with 'tests' relationship type
+        result = query_index(sample_index, sample_schema, "what imports utils?")
+        assert result.query_type == "relationship"
+        assert len(result.files) >= 1
+        # Should find src/api.py which imports src/utils.py
+        assert any(f.path == "src/api.py" for f in result.files)
+
+    def test_relationship_query_all(self, sample_index, sample_schema):
+        result = query_index(sample_index, sample_schema, "what documents files?")
+        assert result.query_type == "relationship"
+        assert len(result.files) >= 1
+        assert any(f.path == "README.md" for f in result.files)
+
+    def test_concept_query(self, sample_index, sample_schema):
+        result = query_index(sample_index, sample_schema, "show me the api client")
+        assert result.query_type == "concept"
+        assert len(result.files) == 2
+        paths = {f.path for f in result.files}
+        assert "src/api.py" in paths
+        assert "tests/test_api.py" in paths
+
+    def test_temporal_query(self, sample_index, sample_schema):
+        result = query_index(sample_index, sample_schema, "what changed recently?")
+        assert result.query_type == "temporal"
+        assert len(result.files) <= 10
+        # Most recent should be first
+        assert result.files[0].path != "src/parser.py"  # This is the oldest
+
+    def test_intent_query(self, sample_index, sample_schema):
+        result = query_index(sample_index, sample_schema, "files about client services")
+        # Should match intent keyword 'client' or 'services'
+        assert result.query_type in ["intent", "tag"]  # Could match either way
+        assert len(result.files) >= 1
+        # Should find src/api.py with "API client for external services"
+        paths = [f.path for f in result.files]
+        assert "src/api.py" in paths
+
+    def test_no_match_query(self, sample_index, sample_schema):
+        result = query_index(sample_index, sample_schema, "nonexistent thing")
+        assert result.query_type == "no_match"
+        assert len(result.files) == 0
 
 
 if __name__ == "__main__":

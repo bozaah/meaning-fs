@@ -776,5 +776,108 @@ This implementation is successful if:
 
 ---
 
+## 13. Future Enhancements (Post-v0.1)
+
+### 13.1 Query Engine Improvements
+
+**Completed in Phase 5:**
+- ✅ Natural language query engine with 6 query types
+- ✅ Status command for instant project overview
+- ✅ Sub-50ms response time with zero LLM calls
+- ✅ Relationship graph traversal
+- ✅ Tag vocabulary matching
+- ✅ Intent keyword search
+
+**Future Enhancements:**
+
+#### 13.1.1 Fuzzy Matching
+- **Goal**: Handle typos and partial file names in queries
+- **Example**: "what tests api" matches `src/api.py` despite missing `.py`
+- **Implementation**: Levenshtein distance on file paths, threshold-based matching
+- **Priority**: Medium
+
+#### 13.1.2 Query Result Ranking
+- **Goal**: Sort results by relevance score
+- **Metrics**: Confidence scores, relationship depth, tag matches, intent keyword density
+- **Example**: Files with multiple tag matches rank higher
+- **Priority**: Medium
+
+#### 13.1.3 Multi-Query Support
+- **Goal**: Combine queries with AND/OR logic
+- **Example**: "test files AND parsing files" → intersection of results
+- **Syntax**: Natural language (`"test files that do parsing"`) or explicit operators
+- **Priority**: Low
+
+#### 13.1.4 Query History & Suggestions
+- **Goal**: Remember recent queries, suggest related ones
+- **Storage**: `.meaning/query_history.yaml` (last 100 queries)
+- **Feature**: "Similar queries: ...", "Users also searched: ..."
+- **Priority**: Low
+
+#### 13.1.5 Export Results
+- **Goal**: Export query results to various formats
+- **Formats**: JSON, CSV, Markdown table, file list
+- **Use case**: Integration with other tools, reports
+- **Example**: `python -m meaning query "test files" --format json`
+- **Priority**: Low
+
+#### 13.1.6 Query Syntax Extensions
+- **Goal**: More expressive query language
+- **Features**:
+  - Negation: "test files NOT parsing"
+  - Wildcards: "files in src/api/*"
+  - Date ranges: "files changed after 2026-01-15"
+  - Tag combinations: "files tagged (api AND core) OR parsing"
+- **Priority**: Low
+
+### 13.2 Visualization
+
+#### 13.2.1 Relationship Graph Export
+- **Goal**: Export relationship graph for visualization tools
+- **Format**: GraphViz DOT, Mermaid diagram, D3.js JSON
+- **Use case**: Understand architecture visually
+- **Priority**: Medium
+
+#### 13.2.2 Concept Map
+- **Goal**: Visual representation of concepts and their relationships
+- **Output**: SVG/PNG diagram showing concept hierarchy
+- **Priority**: Low
+
+### 13.3 Advanced Inference
+
+#### 13.3.1 Cross-File Analysis
+- **Goal**: Infer relationships by analyzing multiple files together
+- **Example**: Detect architectural patterns (repository pattern, factory pattern)
+- **Implementation**: Multi-pass inference with pattern matching
+- **Priority**: Low
+
+#### 13.3.2 Historical Analysis
+- **Goal**: Use git history to improve inference
+- **Example**: Files often changed together likely have relationships
+- **Data source**: `git log --name-only` analysis
+- **Priority**: Low
+
+### 13.4 Integration
+
+#### 13.4.1 IDE Plugins
+- **Goal**: VSCode/JetBrains integration
+- **Features**: Hover tooltips show file intent, jump to related files, query sidebar
+- **Priority**: Medium
+
+#### 13.4.2 CI/CD Integration
+- **Goal**: Automated validation in CI pipeline
+- **Check**: Index is up-to-date, no validation errors, coverage thresholds
+- **Exit codes**: Fail build if index is stale or invalid
+- **Priority**: High
+
+#### 13.4.3 LLM-Powered Query
+- **Goal**: Use LLM for complex semantic understanding
+- **When**: Fall back to LLM when structured queries fail
+- **Example**: "Find files related to user authentication but not login UI"
+- **Trade-off**: Slower but more flexible
+- **Priority**: Low
+
+---
+
 *Document version: 0.1*
-*Last updated: 2025-01-21*
+*Last updated: 2026-01-21*

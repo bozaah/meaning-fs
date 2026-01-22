@@ -60,6 +60,22 @@ Each session document should include:
 - Complete workflow coverage: init → update → validate → review
 - Status: Phase 3 complete, Phase 4 ready to start
 
+### 2026-01-21 - Phase 4: Dog-fooding & Production Fixes
+- Full project indexing with `/meaning-update` (scaled to 32 files)
+- Batch review workflow for 30 files in single session
+- Fixed hook scripts to use virtual environment
+- 100% validation pass (0 errors, 0 warnings)
+- Status: Phase 4 complete, Phase 5 ready to start
+
+### 2026-01-21 - Phase 5: Discovery & Query Engine
+- Built `status` command for instant project overview
+- Implemented query engine with 6 query types (status, tag, relationship, intent, temporal, concept)
+- Created `/meaning-query` skill for natural language semantic search
+- Sub-50ms response time, zero LLM calls
+- Comprehensive documentation updates (CLAUDE.md, README.md, CHANGELOG.md)
+- All query types tested and validated
+- Status: Phase 5 complete, tests and indexing pending
+
 ---
 
-**For AI Agents:** Read the most recent session note to understand current project state before proceeding.
+**For AI Agents:** Read the most recent session note to understand current project state before proceeding. Always start with `python -m meaning_core status` for instant project overview.

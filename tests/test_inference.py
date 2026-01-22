@@ -10,7 +10,7 @@ from unittest.mock import Mock, patch
 
 import pytest
 
-from meaning_core import (
+from meaning.meaning_core import (
     Concept,
     FileEntry,
     MeaningIndex,
@@ -18,7 +18,7 @@ from meaning_core import (
     Relationship,
     RelationshipType,
 )
-from meaning_inference import (
+from meaning.meaning_inference import (
     CONFIDENCE_HIGH,
     CONFIDENCE_LOW,
     CONFIDENCE_MEDIUM,
@@ -486,7 +486,7 @@ def test_infer_file_metadata_python_file(index, schema, tmp_path):
         '''"""Parser module for API responses."""
 
 import json
-from meaning_core import FileEntry
+from meaning.meaning_core import FileEntry
 
 def parse():
     pass

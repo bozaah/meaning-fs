@@ -13,7 +13,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
-from meaning_core import (
+from meaning.meaning_core import (
     FileEntry,
     MeaningIndex,
     MeaningSchema,

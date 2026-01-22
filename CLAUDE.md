@@ -43,7 +43,11 @@ meaning/
 ├── CLAUDE.md                   # You are here
 ├── IMPLEMENTATION-PLAN.md      # Detailed spec and design decisions
 ├── src/
-│   └── meaning_core.py         # Core Python library
+│   └── meaning/                # Core Python package
+│       ├── __init__.py         # Public API exports
+│       ├── __main__.py         # CLI entry point
+│       ├── meaning_core.py     # Core library
+│       └── meaning_inference.py # Inference engine
 ├── templates/                  # Templates for target projects
 │   ├── schema/                 # Project-type specific schemas
 │   │   ├── python.yaml
@@ -67,7 +71,9 @@ meaning/
 | File | Purpose |
 |------|---------|
 | `IMPLEMENTATION-PLAN.md` | Full specification—read this first for any design questions |
-| `src/meaning_core.py` | All YAML parsing, validation, inference logic |
+| `src/meaning/meaning_core.py` | Core library: YAML parsing, validation, query engine |
+| `src/meaning/meaning_inference.py` | Inference engine: auto-generate metadata with confidence scoring |
+| `src/meaning/__init__.py` | Package API exports (use `from meaning import ...`) |
 | `scripts/*.sh` | Deterministic hook scripts called by Claude Code |
 | `templates/schema/*.yaml` | Project-type specific relationship types and tag vocabularies |
 | `.claude/skills/*/SKILL.md` | Claude skill definitions for initialization, update, validation |
@@ -80,12 +86,14 @@ meaning/
 
 **For AI agents working across sessions:**
 
-1. **Check `.agent-sessions/`** - Read the most recent session note to understand current state
-2. **Review `.meaning/index.yaml`** - See which files are already documented
-3. **Run validation** - `./scripts/validate-meaning.sh` to check index health
+1. **Get instant overview** - `python -m meaning status` for project snapshot
+2. **Check `.agent-sessions/`** - Read the most recent session note to understand current state
+3. **Query semantically** - `python -m meaning query "<question>"` or `/meaning-query` to find relevant files
 4. **Document your session** - Create a new session note following the format in `.agent-sessions/README.md`
 
 This ensures continuity and prevents repeated discovery of the same issues.
+
+**Pro tip:** Start every session with `python -m meaning status` to see concepts, health, and recent activity instantly.
 
 ## Development Commands
 
@@ -99,14 +107,19 @@ uv pip install -e ".[dev]"
 # Run tests
 python -m pytest tests/ -v
 
+# Get project overview (start here!)
+python -m meaning status
+
+# Query the semantic index
+python -m meaning query "what tests the core?"
+python -m meaning query "show me all config files"
+python -m meaning query "what needs review?"
+
 # Validate this project's .meaning/ index
 ./scripts/validate-meaning.sh
 
-# Validate a meaning index (once implemented)
-python -m meaning validate /path/to/project
-
-# Initialize meaning for a project (once implemented)
-python -m meaning init /path/to/project --type python
+# Or use the skill (when in Claude Code)
+/meaning-query what tests the inference engine?
 ```
 
 ## Architecture Decisions
