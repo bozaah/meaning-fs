@@ -923,6 +923,15 @@ def _review_snapshot(entry: FileEntry) -> tuple[
     )
 
 
+def _intent_has_markdown(intent: str) -> bool:
+    stripped = intent.lstrip()
+    return (
+        "`" in intent
+        or "**" in intent
+        or stripped.startswith(("- ", "* ", "> "))
+    )
+
+
 def apply_inference_to_entry(
     entry: FileEntry,
     result: Any,
@@ -933,7 +942,11 @@ def apply_inference_to_entry(
     """Apply high-confidence inference results to an existing entry."""
     before = _review_snapshot(entry)
     if result.intent and result.intent.confidence >= threshold:
-        if not entry.intent or entry.intent.startswith("[NEEDS REVIEW]"):
+        if (
+            not entry.intent
+            or entry.intent.startswith("[NEEDS REVIEW]")
+            or _intent_has_markdown(entry.intent)
+        ):
             entry.intent = result.intent.intent
 
     for tag in (t.tag for t in result.tags if t.confidence >= threshold):

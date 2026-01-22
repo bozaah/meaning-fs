@@ -749,6 +749,22 @@ class TestInferenceApplication:
         assert changed is True
         assert entry.intent.startswith("[NEEDS REVIEW]")
 
+    def test_apply_inference_replaces_markdown_intent(self):
+        entry = FileEntry(
+            path="README.md",
+            intent="- **Purpose:** Learn the `.meaning/` index.",
+            needs_review=True,
+        )
+        result = FileInferenceResult(path="README.md")
+        result.set_intent("Project overview and quick start guide.", 0.9, "path")
+
+        config = MeaningConfig(require_intent=True, require_tags=False)
+        now = datetime.now(timezone.utc)
+        changed = apply_inference_to_entry(entry, result, 0.8, config, now)
+
+        assert changed is True
+        assert entry.intent == "Project overview and quick start guide."
+
 
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])

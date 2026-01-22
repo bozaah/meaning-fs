@@ -482,7 +482,7 @@ def infer_intent_from_docstring(
             docstring = ast.get_docstring(tree)
             if docstring:
                 # Extract first meaningful line/sentence
-                intent = _extract_summary(docstring, max_length)
+                intent = _extract_summary(_sanitize_inline_markdown(docstring), max_length)
                 if intent:
                     return InferredIntent(
                         intent=intent,
@@ -509,7 +509,9 @@ def infer_intent_from_docstring(
                     started = True
                     continue
                 if started and stripped and not stripped.startswith("#"):
-                    summary_lines.append(stripped)
+                    if stripped.startswith("```"):
+                        continue
+                    summary_lines.append(_strip_markdown_leading(stripped))
                     # Stop at first paragraph
                     if len(" ".join(summary_lines)) > max_length:
                         break
@@ -517,7 +519,9 @@ def infer_intent_from_docstring(
                     break  # End of first paragraph
 
             if summary_lines:
-                intent = _extract_summary(" ".join(summary_lines), max_length)
+                intent = _extract_summary(
+                    _sanitize_inline_markdown(" ".join(summary_lines)), max_length
+                )
                 if intent:
                     return InferredIntent(
                         intent=intent,
@@ -528,6 +532,23 @@ def infer_intent_from_docstring(
             pass
 
     return None
+
+
+def _strip_markdown_leading(text: str) -> str:
+    text = re.sub(r"^>\s*", "", text)
+    text = re.sub(r"^[-*+]\s+", "", text)
+    text = re.sub(r"^\d+\.\s+", "", text)
+    return text.strip()
+
+
+def _sanitize_inline_markdown(text: str) -> str:
+    text = re.sub(r"`([^`]+)`", r"\1", text)
+    text = re.sub(r"\*\*(.*?)\*\*", r"\1", text)
+    text = re.sub(r"__(.*?)__", r"\1", text)
+    text = re.sub(r"\*(.*?)\*", r"\1", text)
+    text = re.sub(r"_(.*?)_", r"\1", text)
+    text = re.sub(r"\[([^\]]+)\]\([^)]+\)", r"\1", text)
+    return text
 
 
 def infer_intent_from_path(file_path: str) -> InferredIntent | None:
@@ -638,7 +659,7 @@ def _extract_summary(text: str, max_length: int) -> str | None:
     if len(text) > max_length:
         # Try to get first sentence within max_length
         truncated = text[:max_length]
-        match = re.match(r"^([^.!?]+[.!?])", truncated)
+        match = re.match(r"^(.+?[.!?])(?:\s|$)", truncated)
         if match:
             summary = match.group(1).strip()
         else:
@@ -646,7 +667,7 @@ def _extract_summary(text: str, max_length: int) -> str | None:
             summary = text[: max_length - 3].rsplit(" ", 1)[0] + "..."
     else:
         # Try to get first sentence
-        match = re.match(r"^([^.!?]+[.!?])", text)
+        match = re.match(r"^(.+?[.!?])(?:\s|$)", text)
         if match:
             summary = match.group(1).strip()
         else:
@@ -712,7 +733,12 @@ def infer_file_metadata(
 
     # Infer intent
     try:
-        intent = infer_intent_from_docstring(file_path, project_dir)
+        intent = None
+        parts = Path(file_path).parts
+        if parts and parts[0] in {".agent-sessions", "audits"}:
+            intent = infer_intent_from_path(file_path)
+        if not intent:
+            intent = infer_intent_from_docstring(file_path, project_dir)
         if not intent:
             intent = infer_intent_from_path(file_path)
         if intent:

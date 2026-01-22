@@ -16,6 +16,7 @@ All notable changes to the Meaning project will be documented in this file.
 
 #### Changed
 - **Markdown intent confidence** — First-paragraph intent inference now scores high-confidence for auto-accept
+- **Markdown sanitization** — Intent inference strips common markdown markers and link syntax
 - **Interactive review display** — Shows diff-style intent/tags/relationships preview
 
 #### Docs

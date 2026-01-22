@@ -445,6 +445,24 @@ This guide explains how to use the API client. It covers authentication and requ
     assert intent.confidence >= 0.8
 
 
+def test_infer_intent_sanitizes_markdown(tmp_path):
+    md_file = tmp_path / "notes.md"
+    md_file.write_text(
+        """# Notes
+
+- **Purpose:** Learn the `.meaning/` index format.
+"""
+    )
+
+    intent = infer_intent_from_docstring("notes.md", tmp_path)
+
+    assert intent is not None
+    assert "Purpose:" in intent.intent
+    assert "`" not in intent.intent
+    assert "**" not in intent.intent
+    assert "index format" in intent.intent
+
+
 def test_infer_intent_from_path_known_docs():
     intent = infer_intent_from_path("README.md")
 
