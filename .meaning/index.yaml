@@ -1,6 +1,6 @@
 version: '0.1'
 generated_at: '2026-01-21T04:11:00+00:00'
-last_updated: '2026-01-22T03:40:34.380724+00:00'
+last_updated: '2026-01-22T03:53:58.380617+00:00'
 concepts:
 - name: project-documentation
   description: Project-level documentation for human and AI understanding
@@ -39,7 +39,7 @@ files:
   intent: Project overview and quick start guide for users
   status: active
   needs_review: false
-  last_verified: '2026-01-22T03:39:11.222840+00:00'
+  last_verified: '2026-01-22T03:53:58.358066+00:00'
   tags:
   - doc
   - core
@@ -102,7 +102,7 @@ files:
   intent: Chronological record of project changes, decisions, and milestones
   status: active
   needs_review: false
-  last_verified: '2026-01-22T03:39:11.222840+00:00'
+  last_verified: '2026-01-22T03:53:58.358066+00:00'
   tags:
   - doc
   - core
@@ -115,7 +115,7 @@ files:
     and index operations
   status: active
   needs_review: false
-  last_verified: '2026-01-22T03:39:11.222840+00:00'
+  last_verified: '2026-01-22T03:53:58.358066+00:00'
   tags:
   - core
   - module
@@ -132,7 +132,7 @@ files:
     scoring
   status: active
   needs_review: false
-  last_verified: '2026-01-22T01:17:53.043428+00:00'
+  last_verified: '2026-01-22T03:53:58.358066+00:00'
   tags:
   - core
   - module
@@ -225,7 +225,7 @@ files:
   intent: Tests for meaning_inference.
   status: active
   needs_review: false
-  last_verified: '2026-01-22T03:10:51.582255+00:00'
+  last_verified: '2026-01-22T03:53:58.358066+00:00'
   tags:
   - test
   - module
@@ -446,10 +446,10 @@ files:
   - type: documents
     target: src/meaning/meaning_inference.py
 - path: QUICKSTART.md
-  intent: '[NEEDS REVIEW] Created/modified by agent'
+  intent: '> Get up and running with Meaning in 5 minutes'
   status: active
-  needs_review: true
-  last_verified: '2026-01-22T03:40:34.379670+00:00'
+  needs_review: false
+  last_verified: '2026-01-22T03:53:58.358066+00:00'
   tags:
   - doc
   relationships:
@@ -487,91 +487,102 @@ files:
   needs_review: false
   last_verified: '2026-01-22T01:26:28.355747+00:00'
 - path: audits/audit-report-2026-01-22.md
-  intent: '[NEEDS REVIEW] audits/audit-report-2026-01-22.md'
+  intent: '- Audited the current working tree as-is; did not attempt a clean checkout
+    or installation in a fresh environment.'
   status: active
-  needs_review: true
-  last_verified: '2026-01-22T03:40:34.379670+00:00'
+  needs_review: false
+  last_verified: '2026-01-22T03:53:58.358066+00:00'
   tags:
   - doc
   - repository
 - path: src/meaning/templates/config.yaml
-  intent: '[NEEDS REVIEW] src/meaning/templates/config.yaml'
+  intent: Default configuration template for Meaning projects.
   status: active
-  needs_review: true
-  last_verified: '2026-01-22T03:40:34.379670+00:00'
+  needs_review: false
+  last_verified: '2026-01-22T03:53:58.358066+00:00'
   tags:
   - config
 - path: src/meaning/templates/hooks.json
-  intent: '[NEEDS REVIEW] src/meaning/templates/hooks.json'
+  intent: Default Claude Code hooks template for Meaning projects.
   status: active
-  needs_review: true
-  last_verified: '2026-01-22T03:40:34.379670+00:00'
+  needs_review: false
+  last_verified: '2026-01-22T03:53:58.358066+00:00'
   tags:
   - config
 - path: src/meaning/templates/schema/docs.yaml
-  intent: '[NEEDS REVIEW] src/meaning/templates/schema/docs.yaml'
+  intent: Schema template for docs projects.
   status: active
-  needs_review: true
-  last_verified: '2026-01-22T03:40:34.379670+00:00'
+  needs_review: false
+  last_verified: '2026-01-22T03:53:58.358066+00:00'
   tags:
   - config
 - path: src/meaning/templates/schema/node.yaml
-  intent: '[NEEDS REVIEW] src/meaning/templates/schema/node.yaml'
+  intent: Schema template for node projects.
   status: active
-  needs_review: true
-  last_verified: '2026-01-22T03:40:34.379670+00:00'
+  needs_review: false
+  last_verified: '2026-01-22T03:53:58.358066+00:00'
   tags:
   - config
 - path: src/meaning/templates/schema/python.yaml
-  intent: '[NEEDS REVIEW] src/meaning/templates/schema/python.yaml'
+  intent: Schema template for python projects.
   status: active
-  needs_review: true
-  last_verified: '2026-01-22T03:40:34.379670+00:00'
+  needs_review: false
+  last_verified: '2026-01-22T03:53:58.358066+00:00'
   tags:
   - config
 - path: src/meaning/templates/schema/rust.yaml
-  intent: '[NEEDS REVIEW] src/meaning/templates/schema/rust.yaml'
+  intent: Schema template for rust projects.
   status: active
-  needs_review: true
-  last_verified: '2026-01-22T03:40:34.379670+00:00'
+  needs_review: false
+  last_verified: '2026-01-22T03:53:58.358066+00:00'
   tags:
   - config
 - path: src/meaning/templates/scripts/meaning-post-write.sh
-  intent: '[NEEDS REVIEW] src/meaning/templates/scripts/meaning-post-write.sh'
+  intent: 'Hook script template for Meaning: meaning-post-write.'
   status: active
-  needs_review: true
-  last_verified: '2026-01-22T03:40:34.379670+00:00'
+  needs_review: false
+  last_verified: '2026-01-22T03:53:58.358066+00:00'
   tags:
   - x-needs-tags
 - path: src/meaning/templates/scripts/meaning-validate.sh
-  intent: '[NEEDS REVIEW] src/meaning/templates/scripts/meaning-validate.sh'
+  intent: 'Hook script template for Meaning: meaning-validate.'
   status: active
-  needs_review: true
-  last_verified: '2026-01-22T03:40:34.379670+00:00'
+  needs_review: false
+  last_verified: '2026-01-22T03:53:58.358066+00:00'
   tags:
   - validation
 - path: .agent-sessions/2026-01-22-cli-templates-cli-fixes.md
-  intent: '[NEEDS REVIEW] .agent-sessions/2026-01-22-cli-templates-cli-fixes.md'
+  intent: '**Date:** 2026-01-22 **Agent:** Codex (GPT-5) **Session Type:** Bug fix
+    & CLI/packaging alignment **Duration:** ~60 minutes'
   status: active
-  needs_review: true
-  last_verified: '2026-01-22T03:40:34.379670+00:00'
+  needs_review: false
+  last_verified: '2026-01-22T03:53:58.358066+00:00'
   tags:
   - doc
   - cli
 - path: .agent-sessions/2026-01-22-review-reporting-fixture-smoke.md
-  intent: '[NEEDS REVIEW] .agent-sessions/2026-01-22-review-reporting-fixture-smoke.md'
+  intent: '- It''s acceptable to keep a persistent CLI fixture at `/tmp/meaning-test-I7e97f`.'
   status: active
-  needs_review: true
-  last_verified: '2026-01-22T03:40:34.379670+00:00'
+  needs_review: false
+  last_verified: '2026-01-22T03:53:58.358066+00:00'
   tags:
   - doc
   - fixture
   - repository
 - path: .agent-sessions/2026-01-22-temp-dir-cli-smoke-test.md
-  intent: '[NEEDS REVIEW] .agent-sessions/2026-01-22-temp-dir-cli-smoke-test.md'
+  intent: '- Using a temporary directory under `/tmp` is acceptable for a quick CLI
+    smoke test.'
   status: active
-  needs_review: true
-  last_verified: '2026-01-22T03:40:34.379670+00:00'
+  needs_review: false
+  last_verified: '2026-01-22T03:53:58.358066+00:00'
   tags:
   - doc
   - cli
+- path: .agent-sessions/2026-01-22-intent-inference-interactive-diff.md
+  intent: '- Heavier automation should prioritize deterministic heuristics over probabilistic
+    guesses.'
+  status: active
+  needs_review: false
+  last_verified: '2026-01-22T03:53:50.473636+00:00'
+  tags:
+  - doc

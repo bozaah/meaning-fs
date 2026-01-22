@@ -12,6 +12,11 @@ All notable changes to the Meaning project will be documented in this file.
 #### Added
 - **Inference change preview** — Internal preview path used for dry-run review reporting
 - **Core tests** — Added coverage for inference application and preview behavior
+- **Path-based intents** — High-confidence intents for known docs, templates, and session notes
+
+#### Changed
+- **Markdown intent confidence** — First-paragraph intent inference now scores high-confidence for auto-accept
+- **Interactive review display** — Shows diff-style intent/tags/relationships preview
 
 #### Docs
 - Clarified review behavior and intent inference sources in `README.md` and `QUICKSTART.md`

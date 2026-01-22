@@ -972,6 +972,43 @@ def preview_inference_changes(
     return apply_inference_to_entry(entry_copy, result, threshold, config, now)
 
 
+def preview_inference_diff(
+    entry: FileEntry,
+    result: Any,
+    threshold: float,
+    config: MeaningConfig,
+    now: datetime,
+) -> dict[str, Any]:
+    """Preview inference changes without mutating the entry."""
+    entry_copy = copy.deepcopy(entry)
+    apply_inference_to_entry(entry_copy, result, threshold, config, now)
+
+    intent_change = None
+    if entry.intent != entry_copy.intent:
+        intent_change = (entry.intent, entry_copy.intent)
+
+    tags_added = [t for t in entry_copy.tags if t not in entry.tags]
+    tags_removed = [t for t in entry.tags if t not in entry_copy.tags]
+
+    existing_rels = {_relationship_key(r) for r in entry.relationships}
+    new_rels = {_relationship_key(r) for r in entry_copy.relationships}
+    rels_added = [r for r in entry_copy.relationships if _relationship_key(r) not in existing_rels]
+    rels_removed = [r for r in entry.relationships if _relationship_key(r) not in new_rels]
+
+    needs_review_change = None
+    if entry.needs_review != entry_copy.needs_review:
+        needs_review_change = (entry.needs_review, entry_copy.needs_review)
+
+    return {
+        "intent": intent_change,
+        "tags_added": tags_added,
+        "tags_removed": tags_removed,
+        "rels_added": rels_added,
+        "rels_removed": rels_removed,
+        "needs_review": needs_review_change,
+    }
+
+
 # =============================================================================
 # Query Engine
 # =============================================================================
@@ -1559,26 +1596,39 @@ def main() -> None:
         for entry in entries:
             result = infer_file_metadata(entry.path, project_root, index, schema)
             if args.interactive:
-                high_tags = [t.tag for t in result.tags if t.confidence >= args.threshold]
-                high_rels = [
-                    r.relationship for r in result.relationships if r.confidence >= args.threshold
-                ]
-                high_intent = (
-                    result.intent.intent
-                    if result.intent and result.intent.confidence >= args.threshold
-                    else None
-                )
-
+                diff = preview_inference_diff(entry, result, args.threshold, config, now)
                 print(f"\nFile: {entry.path}")
-                if high_intent:
-                    print(f"  Intent: {high_intent}")
-                if high_tags:
-                    print(f"  Tags: {', '.join(high_tags)}")
-                if high_rels:
-                    rels = ", ".join(
-                        f"{r.type}:{r.target or r.source}" for r in high_rels
-                    )
-                    print(f"  Relationships: {rels}")
+                if diff["intent"]:
+                    print("  Intent:")
+                    print(f"    - {diff['intent'][0]}")
+                    print(f"    + {diff['intent'][1]}")
+                if diff["tags_added"] or diff["tags_removed"]:
+                    print("  Tags:")
+                    for tag in diff["tags_added"]:
+                        print(f"    + {tag}")
+                    for tag in diff["tags_removed"]:
+                        print(f"    - {tag}")
+                if diff["rels_added"] or diff["rels_removed"]:
+                    print("  Relationships:")
+                    for rel in diff["rels_added"]:
+                        print(f"    + {rel.type}:{rel.target or rel.source}")
+                    for rel in diff["rels_removed"]:
+                        print(f"    - {rel.type}:{rel.target or rel.source}")
+                if diff["needs_review"]:
+                    print("  Needs review:")
+                    print(f"    - {diff['needs_review'][0]}")
+                    print(f"    + {diff['needs_review'][1]}")
+                if not any(
+                    [
+                        diff["intent"],
+                        diff["tags_added"],
+                        diff["tags_removed"],
+                        diff["rels_added"],
+                        diff["rels_removed"],
+                        diff["needs_review"],
+                    ]
+                ):
+                    print("  (no high-confidence changes)")
 
                 choice = input("Apply changes? [y/N]: ").strip().lower()
                 if choice != "y":

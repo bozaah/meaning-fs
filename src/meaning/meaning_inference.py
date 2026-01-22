@@ -521,11 +521,101 @@ def infer_intent_from_docstring(
                 if intent:
                     return InferredIntent(
                         intent=intent,
-                        confidence=0.7,
+                        confidence=0.8,
                         reason="Extracted from markdown first paragraph",
                     )
         except Exception:
             pass
+
+    return None
+
+
+def infer_intent_from_path(file_path: str) -> InferredIntent | None:
+    """
+    Infer intent from well-known filenames and project-specific paths.
+
+    This is deterministic and intended for common documentation and template paths.
+    """
+    path = Path(file_path)
+    name = path.name
+    lower_name = name.lower()
+    parts = path.parts
+
+    known_files = {
+        "readme.md": "Project overview and quick start guide.",
+        "changelog.md": "Project change history and release notes.",
+        "quickstart.md": "Quick start guide for getting started.",
+        "license": "Project license text.",
+    }
+
+    if lower_name in known_files:
+        return InferredIntent(
+            intent=known_files[lower_name],
+            confidence=0.85,
+            reason="Known documentation filename",
+        )
+
+    if parts and parts[0] == ".agent-sessions":
+        if lower_name == "readme.md":
+            return InferredIntent(
+                intent="Guide to agent session notes and continuity.",
+                confidence=0.85,
+                reason="Agent sessions documentation",
+            )
+        stem = path.stem
+        match = re.match(r"\\d{4}-\\d{2}-\\d{2}-(.+)", stem)
+        slug = match.group(1) if match else stem
+        title = slug.replace("-", " ").strip()
+        return InferredIntent(
+            intent=f"Agent session note: {title}.",
+            confidence=0.85,
+            reason="Agent session note filename",
+        )
+
+    if parts and parts[0] == "audits":
+        stem = path.stem
+        match = re.match(r"audit-report-(\\d{4}-\\d{2}-\\d{2})", stem)
+        if match:
+            date = match.group(1)
+            return InferredIntent(
+                intent=f"Audit report for {date}.",
+                confidence=0.85,
+                reason="Audit report filename",
+            )
+
+    if parts[:3] == ("src", "meaning", "templates"):
+        if len(parts) >= 4 and parts[3] == "schema" and path.suffix in {".yaml", ".yml"}:
+            project_type = path.stem
+            return InferredIntent(
+                intent=f"Schema template for {project_type} projects.",
+                confidence=0.85,
+                reason="Template schema path",
+            )
+        if name == "config.yaml":
+            return InferredIntent(
+                intent="Default configuration template for Meaning projects.",
+                confidence=0.85,
+                reason="Template config path",
+            )
+        if name == "hooks.json":
+            return InferredIntent(
+                intent="Default Claude Code hooks template for Meaning projects.",
+                confidence=0.85,
+                reason="Template hooks path",
+            )
+        if len(parts) >= 4 and parts[3] == "scripts" and path.suffix == ".sh":
+            return InferredIntent(
+                intent=f"Hook script template for Meaning: {path.stem}.",
+                confidence=0.85,
+                reason="Template scripts path",
+            )
+
+    if parts and parts[0] == "scripts" and path.suffix == ".sh":
+        return InferredIntent(
+            intent=f"Meaning hook script: {path.stem}.",
+            confidence=0.85,
+            reason="Project scripts path",
+        )
 
     return None
 
@@ -623,6 +713,8 @@ def infer_file_metadata(
     # Infer intent
     try:
         intent = infer_intent_from_docstring(file_path, project_dir)
+        if not intent:
+            intent = infer_intent_from_path(file_path)
         if intent:
             result.set_intent(intent.intent, intent.confidence, intent.reason)
     except Exception as e:

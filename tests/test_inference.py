@@ -31,6 +31,7 @@ from meaning.meaning_inference import (
     infer_file_metadata,
     infer_import_relationships,
     infer_intent_from_docstring,
+    infer_intent_from_path,
     infer_tags_from_path,
     infer_test_relationships,
     infer_timestamps,
@@ -441,7 +442,24 @@ This guide explains how to use the API client. It covers authentication and requ
 
     assert intent is not None
     assert "API client" in intent.intent or "API" in intent.intent
-    assert intent.confidence >= 0.6
+    assert intent.confidence >= 0.8
+
+
+def test_infer_intent_from_path_known_docs():
+    intent = infer_intent_from_path("README.md")
+
+    assert intent is not None
+    assert "overview" in intent.intent.lower()
+    assert intent.confidence >= 0.8
+
+
+def test_infer_intent_from_path_template_schema():
+    intent = infer_intent_from_path("src/meaning/templates/schema/python.yaml")
+
+    assert intent is not None
+    assert "schema template" in intent.intent.lower()
+    assert "python" in intent.intent.lower()
+    assert intent.confidence >= 0.8
 
 
 def test_infer_intent_no_docstring(tmp_path):
