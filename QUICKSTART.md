@@ -91,6 +91,7 @@ python -m meaning review
 ```
 
 This will **automatically accept** high-confidence suggestions (≥0.8) and only prompt for low-confidence files.
+If a file has no docstring/markdown summary, intent inference may be skipped and the file can remain `needs_review`.
 
 **Output:**
 ```

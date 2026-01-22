@@ -6,6 +6,7 @@ Core library for parsing, validating, and manipulating .meaning/ indexes.
 
 from __future__ import annotations
 
+import copy
 import fnmatch
 import os
 import re
@@ -911,14 +912,26 @@ def _relationship_key(rel: Relationship) -> tuple[str, str | None, str | None]:
     return (rel.type, rel.target, rel.source)
 
 
+def _review_snapshot(entry: FileEntry) -> tuple[
+    str, tuple[str, ...], tuple[tuple[str, str | None, str | None], ...], bool
+]:
+    return (
+        entry.intent,
+        tuple(entry.tags),
+        tuple(_relationship_key(r) for r in entry.relationships),
+        entry.needs_review,
+    )
+
+
 def apply_inference_to_entry(
     entry: FileEntry,
     result: Any,
     threshold: float,
     config: MeaningConfig,
     now: datetime,
-) -> None:
+) -> bool:
     """Apply high-confidence inference results to an existing entry."""
+    before = _review_snapshot(entry)
     if result.intent and result.intent.confidence >= threshold:
         if not entry.intent or entry.intent.startswith("[NEEDS REVIEW]"):
             entry.intent = result.intent.intent
@@ -944,6 +957,19 @@ def apply_inference_to_entry(
         needs_review = True
 
     entry.needs_review = needs_review
+    return before != _review_snapshot(entry)
+
+
+def preview_inference_changes(
+    entry: FileEntry,
+    result: Any,
+    threshold: float,
+    config: MeaningConfig,
+    now: datetime,
+) -> bool:
+    """Preview whether inference would change an entry without mutating it."""
+    entry_copy = copy.deepcopy(entry)
+    return apply_inference_to_entry(entry_copy, result, threshold, config, now)
 
 
 # =============================================================================
@@ -1559,18 +1585,35 @@ def main() -> None:
                     skipped += 1
                     continue
 
-            if not args.dry_run:
-                apply_inference_to_entry(entry, result, args.threshold, config, now)
-            updated += 1
+            if args.dry_run:
+                changed = preview_inference_changes(
+                    entry, result, args.threshold, config, now
+                )
+            else:
+                changed = apply_inference_to_entry(
+                    entry, result, args.threshold, config, now
+                )
+
+            if changed:
+                updated += 1
+            else:
+                skipped += 1
 
         if args.dry_run:
             print("\n⚠️  Dry run: no changes written")
+            print(f"✓ Would update {updated} file(s)")
+            if skipped:
+                print(f"⚠️  {skipped} file(s) have no high-confidence changes")
             return
 
         save_index(project_root, index)
         print(f"✓ Reviewed {updated} file(s)")
         if skipped:
-            print(f"⚠️  Skipped {skipped} file(s)")
+            print(f"⚠️  {skipped} file(s) still need review")
+            print("   Add docstrings/markdown summaries or use --interactive")
+        remaining = len(index.files_needing_review())
+        if remaining:
+            print(f"⚠️  Files still needing review: {remaining}")
         return
 
 

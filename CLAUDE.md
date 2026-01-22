@@ -125,6 +125,11 @@ python -m meaning query "what needs review?"
 /meaning-query what tests the inference engine?
 ```
 
+## CLI Smoke-Test Fixture
+
+- Keep `/tmp/meaning-test-I7e97f` around as a minimal CLI fixture (README + `src/app.py`).
+- `meaning review` only auto-applies high-confidence inference (docstrings / markdown paragraphs); files without those stay `needs_review`. Use `--interactive` or update the index manually when testing review behavior.
+
 ## Architecture Decisions
 
 ### Why YAML?

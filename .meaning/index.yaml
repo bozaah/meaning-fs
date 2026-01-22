@@ -1,6 +1,6 @@
 version: '0.1'
 generated_at: '2026-01-21T04:11:00+00:00'
-last_updated: '2026-01-22T03:11:31.737405+00:00'
+last_updated: '2026-01-22T03:40:34.380724+00:00'
 concepts:
 - name: project-documentation
   description: Project-level documentation for human and AI understanding
@@ -39,7 +39,7 @@ files:
   intent: Project overview and quick start guide for users
   status: active
   needs_review: false
-  last_verified: '2026-01-22T03:09:11.846747+00:00'
+  last_verified: '2026-01-22T03:39:11.222840+00:00'
   tags:
   - doc
   - core
@@ -61,7 +61,7 @@ files:
   intent: Symlink to CLAUDE.md providing development guide for all AI agents
   status: active
   needs_review: false
-  last_verified: '2026-01-22T03:09:11.846747+00:00'
+  last_verified: '2026-01-22T03:39:11.222840+00:00'
   tags:
   - doc
   - core
@@ -74,7 +74,7 @@ files:
   intent: Development guide and architectural reference for AI agents working on Meaning
   status: active
   needs_review: false
-  last_verified: '2026-01-22T03:09:11.846747+00:00'
+  last_verified: '2026-01-22T03:39:11.222840+00:00'
   tags:
   - doc
   - core
@@ -102,7 +102,7 @@ files:
   intent: Chronological record of project changes, decisions, and milestones
   status: active
   needs_review: false
-  last_verified: '2026-01-22T03:11:31.736536+00:00'
+  last_verified: '2026-01-22T03:39:11.222840+00:00'
   tags:
   - doc
   - core
@@ -115,7 +115,7 @@ files:
     and index operations
   status: active
   needs_review: false
-  last_verified: '2026-01-22T03:09:11.846747+00:00'
+  last_verified: '2026-01-22T03:39:11.222840+00:00'
   tags:
   - core
   - module
@@ -210,7 +210,7 @@ files:
   intent: Tests for meaning_core module.
   status: active
   needs_review: false
-  last_verified: '2026-01-22T01:17:53.043415+00:00'
+  last_verified: '2026-01-22T03:39:11.222840+00:00'
   tags:
   - test
   - module
@@ -219,6 +219,8 @@ files:
     target: src/meaning/meaning_core.py
   - type: imports
     target: src/meaning/meaning_core.py
+  - type: imports
+    target: src/meaning/meaning_inference.py
 - path: tests/test_inference.py
   intent: Tests for meaning_inference.
   status: active
@@ -447,7 +449,7 @@ files:
   intent: '[NEEDS REVIEW] Created/modified by agent'
   status: active
   needs_review: true
-  last_verified: '2026-01-22T03:11:31.736536+00:00'
+  last_verified: '2026-01-22T03:40:34.379670+00:00'
   tags:
   - doc
   relationships:
@@ -488,7 +490,7 @@ files:
   intent: '[NEEDS REVIEW] audits/audit-report-2026-01-22.md'
   status: active
   needs_review: true
-  last_verified: '2026-01-22T03:11:31.736536+00:00'
+  last_verified: '2026-01-22T03:40:34.379670+00:00'
   tags:
   - doc
   - repository
@@ -496,63 +498,80 @@ files:
   intent: '[NEEDS REVIEW] src/meaning/templates/config.yaml'
   status: active
   needs_review: true
-  last_verified: '2026-01-22T03:11:31.736536+00:00'
+  last_verified: '2026-01-22T03:40:34.379670+00:00'
   tags:
   - config
 - path: src/meaning/templates/hooks.json
   intent: '[NEEDS REVIEW] src/meaning/templates/hooks.json'
   status: active
   needs_review: true
-  last_verified: '2026-01-22T03:11:31.736536+00:00'
+  last_verified: '2026-01-22T03:40:34.379670+00:00'
   tags:
   - config
 - path: src/meaning/templates/schema/docs.yaml
   intent: '[NEEDS REVIEW] src/meaning/templates/schema/docs.yaml'
   status: active
   needs_review: true
-  last_verified: '2026-01-22T03:11:31.736536+00:00'
+  last_verified: '2026-01-22T03:40:34.379670+00:00'
   tags:
   - config
 - path: src/meaning/templates/schema/node.yaml
   intent: '[NEEDS REVIEW] src/meaning/templates/schema/node.yaml'
   status: active
   needs_review: true
-  last_verified: '2026-01-22T03:11:31.736536+00:00'
+  last_verified: '2026-01-22T03:40:34.379670+00:00'
   tags:
   - config
 - path: src/meaning/templates/schema/python.yaml
   intent: '[NEEDS REVIEW] src/meaning/templates/schema/python.yaml'
   status: active
   needs_review: true
-  last_verified: '2026-01-22T03:11:31.736536+00:00'
+  last_verified: '2026-01-22T03:40:34.379670+00:00'
   tags:
   - config
 - path: src/meaning/templates/schema/rust.yaml
   intent: '[NEEDS REVIEW] src/meaning/templates/schema/rust.yaml'
   status: active
   needs_review: true
-  last_verified: '2026-01-22T03:11:31.736536+00:00'
+  last_verified: '2026-01-22T03:40:34.379670+00:00'
   tags:
   - config
 - path: src/meaning/templates/scripts/meaning-post-write.sh
   intent: '[NEEDS REVIEW] src/meaning/templates/scripts/meaning-post-write.sh'
   status: active
   needs_review: true
-  last_verified: '2026-01-22T03:11:31.736536+00:00'
+  last_verified: '2026-01-22T03:40:34.379670+00:00'
   tags:
   - x-needs-tags
 - path: src/meaning/templates/scripts/meaning-validate.sh
   intent: '[NEEDS REVIEW] src/meaning/templates/scripts/meaning-validate.sh'
   status: active
   needs_review: true
-  last_verified: '2026-01-22T03:11:31.736536+00:00'
+  last_verified: '2026-01-22T03:40:34.379670+00:00'
   tags:
   - validation
 - path: .agent-sessions/2026-01-22-cli-templates-cli-fixes.md
   intent: '[NEEDS REVIEW] .agent-sessions/2026-01-22-cli-templates-cli-fixes.md'
   status: active
   needs_review: true
-  last_verified: '2026-01-22T03:11:31.736536+00:00'
+  last_verified: '2026-01-22T03:40:34.379670+00:00'
+  tags:
+  - doc
+  - cli
+- path: .agent-sessions/2026-01-22-review-reporting-fixture-smoke.md
+  intent: '[NEEDS REVIEW] .agent-sessions/2026-01-22-review-reporting-fixture-smoke.md'
+  status: active
+  needs_review: true
+  last_verified: '2026-01-22T03:40:34.379670+00:00'
+  tags:
+  - doc
+  - fixture
+  - repository
+- path: .agent-sessions/2026-01-22-temp-dir-cli-smoke-test.md
+  intent: '[NEEDS REVIEW] .agent-sessions/2026-01-22-temp-dir-cli-smoke-test.md'
+  status: active
+  needs_review: true
+  last_verified: '2026-01-22T03:40:34.379670+00:00'
   tags:
   - doc
   - cli

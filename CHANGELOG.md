@@ -4,6 +4,21 @@ All notable changes to the Meaning project will be documented in this file.
 
 ## [Unreleased]
 
+### 2026-01-22 — Review Reporting and Inference Preview
+
+#### Fixed
+- **Review reporting** — `meaning review` now counts only real changes as reviewed and reports remaining `needs_review` files
+
+#### Added
+- **Inference change preview** — Internal preview path used for dry-run review reporting
+- **Core tests** — Added coverage for inference application and preview behavior
+
+#### Docs
+- Clarified review behavior and intent inference sources in `README.md` and `QUICKSTART.md`
+
+#### Tests
+- `python -m pytest tests/test_core.py -v`
+
 ### 2026-01-22 — CLI, Templates, and Hook Installation Fixes
 
 #### Fixed

@@ -31,9 +31,12 @@ from meaning.meaning_core import (
     load_yaml,
     save_yaml,
     query_index,
+    apply_inference_to_entry,
+    preview_inference_changes,
     VERSION,
     VALID_STATUSES,
 )
+from meaning.meaning_inference import FileInferenceResult
 
 
 # =============================================================================
@@ -671,6 +674,80 @@ class TestQueryEngine:
         result = query_index(sample_index, sample_schema, "nonexistent thing")
         assert result.query_type == "no_match"
         assert len(result.files) == 0
+
+
+# =============================================================================
+# Review Inference Application Tests
+# =============================================================================
+
+class TestInferenceApplication:
+    def test_apply_inference_updates_intent_and_tags(self):
+        entry = FileEntry(
+            path="src/app.py",
+            intent="[NEEDS REVIEW] src/app.py",
+            needs_review=True,
+        )
+        result = FileInferenceResult(path="src/app.py")
+        result.set_intent("App module for CLI smoke tests.", 0.9, "docstring")
+        result.add_tag("module", 0.9, "path")
+
+        config = MeaningConfig(require_intent=True, require_tags=False)
+        now = datetime.now(timezone.utc)
+        changed = apply_inference_to_entry(entry, result, 0.8, config, now)
+
+        assert changed is True
+        assert entry.intent == "App module for CLI smoke tests."
+        assert "module" in entry.tags
+        assert entry.needs_review is False
+
+    def test_apply_inference_no_high_confidence_returns_false(self):
+        entry = FileEntry(
+            path="README.md",
+            intent="[NEEDS REVIEW] README.md",
+            needs_review=True,
+        )
+        result = FileInferenceResult(path="README.md")
+        result.set_intent("Sample", 0.3, "title")
+
+        config = MeaningConfig(require_intent=True, require_tags=False)
+        now = datetime.now(timezone.utc)
+        changed = apply_inference_to_entry(entry, result, 0.8, config, now)
+
+        assert changed is False
+        assert entry.intent.startswith("[NEEDS REVIEW]")
+        assert entry.needs_review is True
+
+    def test_apply_inference_marks_review_on_error(self):
+        entry = FileEntry(
+            path="src/app.py",
+            intent="Existing intent",
+            needs_review=False,
+        )
+        result = FileInferenceResult(path="src/app.py")
+        result.add_error("Failed to infer intent")
+
+        config = MeaningConfig(require_intent=True, require_tags=False)
+        now = datetime.now(timezone.utc)
+        changed = apply_inference_to_entry(entry, result, 0.8, config, now)
+
+        assert changed is True
+        assert entry.needs_review is True
+
+    def test_preview_inference_changes_does_not_mutate(self):
+        entry = FileEntry(
+            path="src/app.py",
+            intent="[NEEDS REVIEW] src/app.py",
+            needs_review=True,
+        )
+        result = FileInferenceResult(path="src/app.py")
+        result.set_intent("App module", 0.9, "docstring")
+
+        config = MeaningConfig(require_intent=True, require_tags=False)
+        now = datetime.now(timezone.utc)
+        changed = preview_inference_changes(entry, result, 0.8, config, now)
+
+        assert changed is True
+        assert entry.intent.startswith("[NEEDS REVIEW]")
 
 
 if __name__ == "__main__":

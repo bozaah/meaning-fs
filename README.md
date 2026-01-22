@@ -117,6 +117,8 @@ Or use the skill in Claude Code:
 - **Transparent** - All suggestions show confidence levels and reasoning
 - **Non-Destructive** - Human reviews and approves all changes
 
+Note: intent auto-accept relies on Python module docstrings or markdown first paragraphs; files without those may remain `needs_review` after review.
+
 ## How It Works
 
 ### File Entries
