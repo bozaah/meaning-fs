@@ -14,8 +14,10 @@ fi
 
 # Run validation
 python -c "
-from meaning_core import load_index, load_schema, load_config, validate_index
+import sys
 from pathlib import Path
+sys.path.insert(0, str(Path('src').resolve()))
+from meaning.meaning_core import load_index, load_schema, load_config, validate_index
 
 project_dir = Path('.')
 index = load_index(project_dir)

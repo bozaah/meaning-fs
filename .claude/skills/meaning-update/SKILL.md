@@ -25,7 +25,7 @@ Keeps your semantic index in sync with the actual filesystem by:
 
 ```python
 from pathlib import Path
-from meaning_core import meaning_dir_exists, load_index, load_schema, load_config
+from meaning.meaning_core import meaning_dir_exists, load_index, load_schema, load_config
 
 project_root = Path.cwd()
 
@@ -46,7 +46,7 @@ print(f"✓ Loaded index with {len(index.files)} files")
 ### 2. Detect Changes
 
 ```python
-from meaning_core import (
+from meaning.meaning_core import (
     find_unindexed_files,
     find_modified_files,
     find_deleted_files,
@@ -81,7 +81,7 @@ if deleted_files:
 
 ```python
 from meaning_inference import infer_file_metadata, infer_timestamps
-from meaning_core import FileEntry
+from meaning.meaning_core import FileEntry
 
 if new_files:
     print(f"\n✨ Adding {len(new_files)} new files:")
@@ -147,7 +147,7 @@ if modified_files:
 ### 6. Save and Report
 
 ```python
-from meaning_core import save_index, validate_index
+from meaning.meaning_core import save_index, validate_index
 
 # Update index timestamp
 index.last_updated = infer_timestamps()

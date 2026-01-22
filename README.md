@@ -68,19 +68,19 @@ Once initialized, instantly understand your codebase with zero latency:
 
 ```bash
 # Get instant overview (concepts, health, recent activity)
-python -m meaning_core status
+python -m meaning status
 
 # Natural language semantic search
-python -m meaning_core query "what tests the core?"
-python -m meaning_core query "show me all config files"
-python -m meaning_core query "files that do parsing"
-python -m meaning_core query "what needs review?"
-python -m meaning_core query "what changed recently?"
+python -m meaning query "what tests the core?"
+python -m meaning query "show me all config files"
+python -m meaning query "files that do parsing"
+python -m meaning query "what needs review?"
+python -m meaning query "what changed recently?"
 ```
 
 **Example output:**
 ```
-🔍 Query Results: Files that tests src/meaning_core.py
+🔍 Query Results: Files that tests src/meaning/meaning_core.py
    Type: relationship
 
   Found 1 file (showing 1):
@@ -164,6 +164,12 @@ Meaning includes hooks for Claude Code that automatically track file changes:
 }
 ```
 
+Install hooks with:
+
+```bash
+python -m meaning init --install-hooks
+```
+
 ## Philosophy
 
 ```
@@ -180,10 +186,13 @@ meaning/
 ├── .agent-sessions/        # AI agent session notes
 ├── .meaning/               # Dog-fooding: our own semantic index
 ├── src/
-│   └── meaning_core.py     # Core library
-├── templates/
-│   ├── schema/             # Project-type schemas
-│   └── config.yaml         # Default config
+│   └── meaning/
+│       ├── meaning_core.py     # Core library
+│       └── templates/          # Project templates
+│           ├── schema/         # Project-type schemas
+│           ├── config.yaml     # Default config
+│           ├── hooks.json      # Claude hooks template
+│           └── scripts/        # Hook scripts for target projects
 ├── scripts/
 │   ├── meaning-post-write.sh
 │   ├── meaning-validate.sh

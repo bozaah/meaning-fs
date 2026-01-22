@@ -51,7 +51,7 @@ This will:
 🤖 Auto-accepting 9 files...
    ✓ README.md (updated intent, added 2 relationships)
    ✓ CLAUDE.md (updated intent)
-   ✓ src/meaning_core.py (added 3 relationships)
+   ✓ src/meaning/meaning_core.py (added 3 relationships)
    ✓ tests/test_core.py (added 1 relationship)
    ✓ .claude/skills/meaning-query/SKILL.md (updated intent, added 2 rels)
    ... 4 more files
@@ -80,7 +80,7 @@ from datetime import datetime, timedelta, timezone
 import sys
 sys.path.insert(0, 'src')
 
-from meaning_core import (
+from meaning.meaning_core import (
     load_index, load_schema, load_config,
     save_yaml, validate_index,
     MEANING_DIR, INDEX_FILENAME, Relationship

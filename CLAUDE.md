@@ -47,15 +47,18 @@ meaning/
 │       ├── __init__.py         # Public API exports
 │       ├── __main__.py         # CLI entry point
 │       ├── meaning_core.py     # Core library
-│       └── meaning_inference.py # Inference engine
-├── templates/                  # Templates for target projects
-│   ├── schema/                 # Project-type specific schemas
-│   │   ├── python.yaml
-│   │   ├── node.yaml
-│   │   ├── rust.yaml
-│   │   └── docs.yaml
-│   ├── config.yaml             # Default config template
-│   └── hooks.json              # Claude hooks for target projects
+│       ├── meaning_inference.py # Inference engine
+│       └── templates/          # Templates for target projects
+│           ├── schema/         # Project-type specific schemas
+│           │   ├── python.yaml
+│           │   ├── node.yaml
+│           │   ├── rust.yaml
+│           │   └── docs.yaml
+│           ├── config.yaml     # Default config template
+│           ├── hooks.json      # Claude hooks for target projects
+│           └── scripts/        # Hook scripts for target projects
+│               ├── meaning-post-write.sh
+│               └── meaning-validate.sh
 ├── scripts/
 │   ├── meaning-post-write.sh   # Post-mutation hook
 │   ├── meaning-validate.sh     # Session-end hook
@@ -75,7 +78,7 @@ meaning/
 | `src/meaning/meaning_inference.py` | Inference engine: auto-generate metadata with confidence scoring |
 | `src/meaning/__init__.py` | Package API exports (use `from meaning import ...`) |
 | `scripts/*.sh` | Deterministic hook scripts called by Claude Code |
-| `templates/schema/*.yaml` | Project-type specific relationship types and tag vocabularies |
+| `src/meaning/templates/schema/*.yaml` | Project-type specific relationship types and tag vocabularies |
 | `.claude/skills/*/SKILL.md` | Claude skill definitions for initialization, update, validation |
 | `.claude/settings.json` | Claude Code hooks and permissions for this project |
 | `.agent-sessions/*.md` | Session notes documenting project evolution and decisions |

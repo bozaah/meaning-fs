@@ -4,6 +4,24 @@ All notable changes to the Meaning project will be documented in this file.
 
 ## [Unreleased]
 
+### 2026-01-22 — CLI, Templates, and Hook Installation Fixes
+
+#### Fixed
+- **CLI entry point** — `meaning` console script now targets `meaning.meaning_core:main`
+- **Script imports** — Updated helper scripts to import from `meaning` package
+
+#### Added
+- **CLI subcommands** — Implemented `init`, `update`, and `review`
+- **Hook installer** — `meaning init --install-hooks` writes `.claude/settings.json`
+- **Template scripts** — Hook scripts now packaged under `src/meaning/templates/scripts/`
+
+#### Changed
+- **Template packaging** — Moved templates into `src/meaning/templates/` and bundled as package data
+- **Docs & skills** — Standardized on `python -m meaning` and updated hook setup guidance
+
+#### Tests
+- `python -m pytest tests/ -v`
+
 ### 2026-01-22 — Package Structure & Installation Fix
 
 #### Fixed
@@ -239,7 +257,7 @@ All notable changes to the Meaning project will be documented in this file.
   
 - **Schema evolution** — Added `doc_type` vocabulary category
   - Tags: `overview`, `spec`, `dev-guide`, `history`, `ai`
-  - Added to both `.meaning/schema.yaml` and `templates/schema/python.yaml`
+  - Added to both `.meaning/schema.yaml` and `src/meaning/templates/schema/python.yaml`
   - Discovered organically through dog-fooding validation
 
 - **Agent session infrastructure** — `.agent-sessions/` directory
@@ -287,7 +305,7 @@ All notable changes to the Meaning project will be documented in this file.
 - **Repository structure** organized per CLAUDE.md specification
   - `src/` — Core Python library (`meaning_core.py`)
   - `scripts/` — Hook scripts (`meaning-post-write.sh`, `meaning-validate.sh`)
-  - `templates/` — Templates for target projects using Meaning
+  - `src/meaning/templates/` — Templates for target projects using Meaning
   - `tests/` — Test suite with fixtures directory
 
 - **Claude Code integration** (`.claude/` directory)
@@ -298,7 +316,7 @@ All notable changes to the Meaning project will be documented in this file.
     - `/meaning-validate` — Health check for semantic index
     - `/meaning-review` — Interactive review of flagged entries
 
-- **Schema templates** (`templates/schema/`)
+- **Schema templates** (`src/meaning/templates/schema/`)
   - `python.yaml` — Python project relationships and tag vocabulary
   - `node.yaml` — Node.js project relationships and tag vocabulary
   - `rust.yaml` — Rust project relationships and tag vocabulary
@@ -315,9 +333,9 @@ All notable changes to the Meaning project will be documented in this file.
 
 #### Changed
 - Updated `CLAUDE.md` to reflect new `.claude/` structure
-- Updated `templates/hooks.json` to use new Claude Code hook format (event-based with matchers)
+- Updated `src/meaning/templates/hooks.json` to use new Claude Code hook format (event-based with matchers)
 
 #### Technical Notes
 - Skills use YAML frontmatter with `allowed-tools` restrictions
 - Hooks use `$CLAUDE_PROJECT_DIR` environment variable for portability
-- Templates in `templates/` are for target projects; `.claude/` is for developing Meaning itself
+- Templates in `src/meaning/templates/` are for target projects; `.claude/` is for developing Meaning itself

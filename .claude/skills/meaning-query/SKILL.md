@@ -30,7 +30,7 @@ This skill provides **instant semantic search** without needing to grep, read fi
 # User asks Claude: "Where is parsing done?"
 
 # Claude runs:
-python -m meaning_core query "where is parsing done?"
+python -m meaning query "where is parsing done?"
 ```
 
 The query engine automatically:
@@ -71,7 +71,7 @@ Traverse the semantic graph.
 **Examples:**
 - "what tests the core module?"
 - "what documents the API?"
-- "what imports meaning_core?"
+- "what imports src/meaning/meaning_core.py?"
 - "show me files that implement the spec"
 
 **Returns:** Files connected via typed relationships (tests, documents, imports, implements, configures, calls).
@@ -130,25 +130,25 @@ User: Where is parsing implemented?
 
 Claude: Let me search the semantic index for parsing-related files.
 
-[Runs: python -m meaning_core query "files that do parsing"]
+[Runs: python -m meaning query "files that do parsing"]
 
 🔍 Query Results: Files tagged with: parsing
    Type: tag
 
   Found 2 files (showing 2):
 
-  1. src/meaning_core.py
+  1. src/meaning/meaning_core.py
       "Core Python library implementing YAML parsing, validation..."
       Tags: core, module, api, parsing, validation
       Relationships: implements(1)
 
-  2. src/meaning_inference.py
+  2. src/meaning/meaning_inference.py
       "Inference engine that automatically generates semantic metadata..."
       Tags: core, module, api, parsing
       Relationships: imports(1), implements(1)
 
-Parsing is primarily implemented in `src/meaning_core.py`, with additional
-parsing logic in `src/meaning_inference.py`. Both files are part of the
+Parsing is primarily implemented in `src/meaning/meaning_core.py`, with additional
+parsing logic in `src/meaning/meaning_inference.py`. Both files are part of the
 core library concept.
 ```
 
@@ -162,7 +162,7 @@ from pathlib import Path
 def run_query(query: str) -> dict:
     """Run a semantic query and parse results."""
     result = subprocess.run(
-        ["python", "-m", "meaning_core", "query", query],
+        ["python", "-m", "meaning", "query", query],
         capture_output=True,
         text=True,
         cwd=Path.cwd()
@@ -193,7 +193,7 @@ print(result["output"])
 ## Tips for Claude
 
 1. **Always use exact file paths in relationship queries**
-   - Good: "what tests src/meaning_core.py"
+   - Good: "what tests src/meaning/meaning_core.py"
    - Bad: "what tests the core" (works but less precise)
 
 2. **Use natural language—don't over-think it**

@@ -29,7 +29,7 @@ uv pip install -e ".[dev]"
 
 # Verify installation
 python -m pytest tests/ -v  # All tests should pass
-python -m meaning_core status  # Should show project status
+python -m meaning status  # Should show project status
 ```
 
 ### Option 2: pip install (When Published)
@@ -112,7 +112,7 @@ Now you can query your project semantically:
 
 ```bash
 # Get instant overview
-python -m meaning_core status
+python -m meaning status
 
 # Or with Claude Code
 /meaning-query what tests the API?
@@ -126,7 +126,7 @@ python -m meaning_core status
 
 ```bash
 # Get project overview
-python -m meaning_core status
+python -m meaning status
 
 # Output:
 📊 Meaning Index Status
@@ -146,11 +146,11 @@ HEALTH
 
 ```bash
 # Natural language queries
-python -m meaning_core query "what tests the API?"
-python -m meaning_core query "show me all config files"
-python -m meaning_core query "files that do parsing"
-python -m meaning_core query "what needs review?"
-python -m meaning_core query "what changed recently?"
+python -m meaning query "what tests the API?"
+python -m meaning query "show me all config files"
+python -m meaning query "files that do parsing"
+python -m meaning query "what needs review?"
+python -m meaning query "what changed recently?"
 
 # Or with Claude Code
 /meaning-query what tests the authentication?
@@ -201,7 +201,7 @@ Meaning automatically suggests:
 
 ```bash
 # 1. Start your session
-python -m meaning_core status          # See project state
+python -m meaning status          # See project state
 
 # 2. Find files you need
 /meaning-query "what handles user auth?"
@@ -257,9 +257,9 @@ git commit -m "Sync meaning index"
 
 | Command | Purpose |
 |---------|---------|
-| `python -m meaning_core status` | Project overview |
-| `python -m meaning_core query "<question>"` | Semantic search |
-| `python -m meaning_core validate` | Health check |
+| `python -m meaning status` | Project overview |
+| `python -m meaning query "<question>"` | Semantic search |
+| `python -m meaning validate` | Health check |
 | `python -m meaning init` | Initialize project |
 | `python -m meaning update` | Sync changes |
 | `python -m meaning review` | Review suggestions |
@@ -326,7 +326,7 @@ Meaning integrates with Claude Code via hooks in `.claude/settings.json`:
         "matcher": "Write|Edit",
         "hooks": [{
           "type": "command",
-          "command": "scripts/meaning-post-write.sh"
+            "command": ".meaning/scripts/meaning-post-write.sh"
         }]
       }
     ],
@@ -334,7 +334,7 @@ Meaning integrates with Claude Code via hooks in `.claude/settings.json`:
       {
         "hooks": [{
           "type": "command",
-          "command": "scripts/meaning-validate.sh"
+            "command": ".meaning/scripts/meaning-validate.sh"
         }]
       }
     ]
@@ -348,14 +348,16 @@ Meaning integrates with Claude Code via hooks in `.claude/settings.json`:
 
 ### Setup
 
-Copy hooks to your project:
+Install hooks into your project:
 
 ```bash
-cp templates/hooks.json .claude/settings.json
+python -m meaning init --install-hooks
+```
 
-# Update paths in hooks
-# Change: "$CLAUDE_PROJECT_DIR/scripts/..."
-# To your project paths
+Or copy the generated hooks template:
+
+```bash
+cp .meaning/hooks.json .claude/settings.json
 ```
 
 ---
@@ -366,7 +368,7 @@ cp templates/hooks.json .claude/settings.json
 
 Always begin with:
 ```bash
-python -m meaning_core status
+python -m meaning status
 ```
 
 This shows you:
@@ -433,7 +435,7 @@ uv pip install pyyaml
 
 Run validation to see specific issues:
 ```bash
-python -m meaning_core validate
+python -m meaning validate
 ```
 
 Common issues:

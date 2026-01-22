@@ -26,7 +26,7 @@ Creates a complete semantic index for a project by:
 
 ```python
 from pathlib import Path
-from meaning_core import meaning_dir_exists, detect_project_type, is_git_repo
+from meaning.meaning_core import meaning_dir_exists, detect_project_type, is_git_repo
 
 project_root = Path.cwd()
 
@@ -47,7 +47,7 @@ print(f"✓ Git repository: {is_git}")
 ### 2. Initialize Structure
 
 ```python
-from meaning_core import initialize_meaning, save_index
+from meaning.meaning_core import initialize_meaning, save_index
 
 # Create .meaning/ with templates
 index, schema, config = initialize_meaning(project_root, project_type=project_type)
@@ -60,7 +60,7 @@ print(f"✓ Installed default config")
 ### 3. Scan and Infer
 
 ```python
-from meaning_core import scan_project_files
+from meaning.meaning_core import scan_project_files
 from meaning_inference import infer_file_metadata, infer_timestamps
 
 # Scan project files
@@ -83,7 +83,7 @@ if len(all_files) > limit:
 ### 4. Build Index with Suggestions
 
 ```python
-from meaning_core import FileEntry
+from meaning.meaning_core import FileEntry
 
 now = infer_timestamps()
 
@@ -121,7 +121,7 @@ print(f"✓ Created {len(index.files)} file entries")
 ### 5. Save and Report
 
 ```python
-from meaning_core import save_index, validate_index
+from meaning.meaning_core import save_index, validate_index
 
 # Update timestamps
 index.last_updated = now

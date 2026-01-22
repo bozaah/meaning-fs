@@ -323,7 +323,7 @@ def test_infer_import_relationships_direct_import(index, tmp_path):
     py_file.parent.mkdir(parents=True, exist_ok=True)
     py_file.write_text(
         """
-import meaning_core
+import meaning.meaning_core
 from pathlib import Path
 
 def main():
@@ -331,10 +331,10 @@ def main():
 """
     )
 
-    # Add meaning_core to index
+    # Add meaning.meaning_core to index
     index.add_file(
         FileEntry(
-            path="src/meaning_core.py",
+            path="src/meaning/meaning_core.py",
             intent="Core module",
             tags=["module"],
             status="active",
@@ -343,9 +343,9 @@ def main():
 
     rels = infer_import_relationships("src/test.py", tmp_path, index)
 
-    # Should find meaning_core (Path is stdlib, won't be in index)
+    # Should find meaning.meaning_core (Path is stdlib, won't be in index)
     assert len(rels) >= 1
-    assert any(r.relationship.target == "src/meaning_core.py" for r in rels)
+    assert any(r.relationship.target == "src/meaning/meaning_core.py" for r in rels)
     assert all(r.confidence >= 0.9 for r in rels)
 
 
@@ -493,10 +493,10 @@ def parse():
 '''
     )
 
-    # Add meaning_core to index
+    # Add meaning.meaning_core to index
     index.add_file(
         FileEntry(
-            path="src/meaning_core.py",
+            path="src/meaning/meaning_core.py",
             intent="Core",
             tags=["module"],
             status="active",

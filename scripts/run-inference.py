@@ -13,8 +13,8 @@ from pathlib import Path
 # Add src to path
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
-from meaning_core import load_config, load_index, load_schema
-from meaning_inference import infer_file_metadata
+from meaning.meaning_core import load_config, load_index, load_schema
+from meaning.meaning_inference import infer_file_metadata
 
 
 def display_inference_result(result):

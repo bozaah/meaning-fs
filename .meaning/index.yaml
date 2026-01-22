@@ -1,6 +1,6 @@
 version: '0.1'
 generated_at: '2026-01-21T04:11:00+00:00'
-last_updated: '2026-01-22T01:26:28.355747+00:00'
+last_updated: '2026-01-22T03:11:31.737405+00:00'
 concepts:
 - name: project-documentation
   description: Project-level documentation for human and AI understanding
@@ -39,7 +39,7 @@ files:
   intent: Project overview and quick start guide for users
   status: active
   needs_review: false
-  last_verified: '2026-01-22T01:09:43.808532+00:00'
+  last_verified: '2026-01-22T03:09:11.846747+00:00'
   tags:
   - doc
   - core
@@ -53,11 +53,15 @@ files:
     target: IMPLEMENTATION-PLAN.md
   - type: documents
     target: AGENTS.md
+  - type: documents
+    target: QUICKSTART.md
+  - type: documents
+    target: CLAUDE.md
 - path: AGENTS.md
   intent: Symlink to CLAUDE.md providing development guide for all AI agents
   status: active
   needs_review: false
-  last_verified: '2026-01-21T09:23:35.799168+00:00'
+  last_verified: '2026-01-22T03:09:11.846747+00:00'
   tags:
   - doc
   - core
@@ -70,7 +74,7 @@ files:
   intent: Development guide and architectural reference for AI agents working on Meaning
   status: active
   needs_review: false
-  last_verified: '2026-01-22T01:26:28.355747+00:00'
+  last_verified: '2026-01-22T03:09:11.846747+00:00'
   tags:
   - doc
   - core
@@ -98,7 +102,7 @@ files:
   intent: Chronological record of project changes, decisions, and milestones
   status: active
   needs_review: false
-  last_verified: '2026-01-22T01:26:28.355747+00:00'
+  last_verified: '2026-01-22T03:11:31.736536+00:00'
   tags:
   - doc
   - core
@@ -111,7 +115,7 @@ files:
     and index operations
   status: active
   needs_review: false
-  last_verified: '2026-01-22T01:17:53.043428+00:00'
+  last_verified: '2026-01-22T03:09:11.846747+00:00'
   tags:
   - core
   - module
@@ -121,6 +125,8 @@ files:
   relationships:
   - type: implements
     target: IMPLEMENTATION-PLAN.md
+  - type: imports
+    target: src/meaning/meaning_inference.py
 - path: src/meaning/meaning_inference.py
   intent: Inference engine that automatically generates semantic metadata with confidence
     scoring
@@ -174,7 +180,7 @@ files:
   intent: Validation script to check .meaning/ index health with formatted output
   status: active
   needs_review: false
-  last_verified: '2026-01-21T08:28:47.306382+00:00'
+  last_verified: '2026-01-22T03:09:11.846747+00:00'
   tags:
   - script
   - validation
@@ -186,14 +192,19 @@ files:
   intent: CLI tool to run inference on files and display results with confidence visualization
   status: active
   needs_review: false
-  last_verified: '2026-01-21T08:28:47.306382+00:00'
+  last_verified: '2026-01-22T03:09:11.846747+00:00'
   tags:
   - script
   - util
+  - module
   relationships:
   - type: calls
     target: src/meaning/meaning_core.py
   - type: calls
+    target: src/meaning/meaning_inference.py
+  - type: imports
+    target: src/meaning/meaning_core.py
+  - type: imports
     target: src/meaning/meaning_inference.py
 - path: tests/test_core.py
   intent: Tests for meaning_core module.
@@ -212,7 +223,7 @@ files:
   intent: Tests for meaning_inference.
   status: active
   needs_review: false
-  last_verified: '2026-01-22T01:17:53.043423+00:00'
+  last_verified: '2026-01-22T03:10:51.582255+00:00'
   tags:
   - test
   - module
@@ -289,7 +300,7 @@ files:
     inference
   status: active
   needs_review: false
-  last_verified: '2026-01-21T08:28:47.306382+00:00'
+  last_verified: '2026-01-22T03:09:11.846747+00:00'
   tags:
   - doc
   - ai
@@ -303,7 +314,7 @@ files:
   intent: Skill definition for interactive review workflow to refine inference suggestions
   status: active
   needs_review: false
-  last_verified: '2026-01-22T01:09:43.808532+00:00'
+  last_verified: '2026-01-22T03:09:11.846747+00:00'
   tags:
   - doc
   - ai
@@ -317,7 +328,7 @@ files:
   intent: Skill definition for syncing .meaning/index.yaml with filesystem changes
   status: active
   needs_review: false
-  last_verified: '2026-01-21T08:28:47.306382+00:00'
+  last_verified: '2026-01-22T03:09:11.846747+00:00'
   tags:
   - doc
   - ai
@@ -331,7 +342,7 @@ files:
   intent: Skill definition for running health checks on .meaning/ semantic index
   status: active
   needs_review: false
-  last_verified: '2026-01-21T08:28:47.306382+00:00'
+  last_verified: '2026-01-22T03:09:11.846747+00:00'
   tags:
   - doc
   - ai
@@ -353,7 +364,7 @@ files:
     build settings
   status: active
   needs_review: false
-  last_verified: '2026-01-21T08:28:47.306382+00:00'
+  last_verified: '2026-01-22T03:09:11.846747+00:00'
   tags:
   - config
   - package
@@ -385,53 +396,6 @@ files:
   relationships:
   - type: calls
     target: src/meaning/meaning_core.py
-- path: templates/config.yaml
-  intent: Default configuration template with standard exclusion patterns for target
-    projects
-  status: active
-  needs_review: false
-  last_verified: '2026-01-21T08:28:47.306382+00:00'
-  tags:
-  - config
-- path: templates/hooks.json
-  intent: Claude Code hooks template for target projects to install meaning automation
-  status: active
-  needs_review: false
-  last_verified: '2026-01-21T08:28:47.306382+00:00'
-  tags:
-  - config
-- path: templates/schema/docs.yaml
-  intent: Documentation project schema defining relationship types and tag vocabulary
-  status: active
-  needs_review: false
-  last_verified: '2026-01-21T08:28:47.306382+00:00'
-  tags:
-  - config
-  - schema
-- path: templates/schema/node.yaml
-  intent: Node.js project schema defining relationship types and tag vocabulary
-  status: active
-  needs_review: false
-  last_verified: '2026-01-21T08:28:47.306382+00:00'
-  tags:
-  - config
-  - schema
-- path: templates/schema/python.yaml
-  intent: Python project schema defining relationship types and tag vocabulary
-  status: active
-  needs_review: false
-  last_verified: '2026-01-21T08:28:47.306382+00:00'
-  tags:
-  - config
-  - schema
-- path: templates/schema/rust.yaml
-  intent: Rust project schema defining relationship types and tag vocabulary
-  status: active
-  needs_review: false
-  last_verified: '2026-01-21T08:28:47.306382+00:00'
-  tags:
-  - config
-  - schema
 - path: tests/fixtures/.gitkeep
   intent: Placeholder to preserve empty fixtures directory in git
   status: active
@@ -471,7 +435,7 @@ files:
   intent: Natural language search through the `.
   status: active
   needs_review: false
-  last_verified: '2026-01-21T09:22:08.961511+00:00'
+  last_verified: '2026-01-22T03:09:11.846747+00:00'
   tags:
   - doc
   relationships:
@@ -482,8 +446,15 @@ files:
 - path: QUICKSTART.md
   intent: '[NEEDS REVIEW] Created/modified by agent'
   status: active
-  needs_review: false
-  last_verified: '2026-01-22T01:09:43.808532+00:00'
+  needs_review: true
+  last_verified: '2026-01-22T03:11:31.736536+00:00'
+  tags:
+  - doc
+  relationships:
+  - type: documents
+    target: IMPLEMENTATION-PLAN.md
+  - type: documents
+    target: CLAUDE.md
 - path: src/meaning/__init__.py
   intent: 'Meaning: Semantic File Index for AI Agents A lean, text-based semantic
     layer for codebases.'
@@ -513,3 +484,75 @@ files:
   status: active
   needs_review: false
   last_verified: '2026-01-22T01:26:28.355747+00:00'
+- path: audits/audit-report-2026-01-22.md
+  intent: '[NEEDS REVIEW] audits/audit-report-2026-01-22.md'
+  status: active
+  needs_review: true
+  last_verified: '2026-01-22T03:11:31.736536+00:00'
+  tags:
+  - doc
+  - repository
+- path: src/meaning/templates/config.yaml
+  intent: '[NEEDS REVIEW] src/meaning/templates/config.yaml'
+  status: active
+  needs_review: true
+  last_verified: '2026-01-22T03:11:31.736536+00:00'
+  tags:
+  - config
+- path: src/meaning/templates/hooks.json
+  intent: '[NEEDS REVIEW] src/meaning/templates/hooks.json'
+  status: active
+  needs_review: true
+  last_verified: '2026-01-22T03:11:31.736536+00:00'
+  tags:
+  - config
+- path: src/meaning/templates/schema/docs.yaml
+  intent: '[NEEDS REVIEW] src/meaning/templates/schema/docs.yaml'
+  status: active
+  needs_review: true
+  last_verified: '2026-01-22T03:11:31.736536+00:00'
+  tags:
+  - config
+- path: src/meaning/templates/schema/node.yaml
+  intent: '[NEEDS REVIEW] src/meaning/templates/schema/node.yaml'
+  status: active
+  needs_review: true
+  last_verified: '2026-01-22T03:11:31.736536+00:00'
+  tags:
+  - config
+- path: src/meaning/templates/schema/python.yaml
+  intent: '[NEEDS REVIEW] src/meaning/templates/schema/python.yaml'
+  status: active
+  needs_review: true
+  last_verified: '2026-01-22T03:11:31.736536+00:00'
+  tags:
+  - config
+- path: src/meaning/templates/schema/rust.yaml
+  intent: '[NEEDS REVIEW] src/meaning/templates/schema/rust.yaml'
+  status: active
+  needs_review: true
+  last_verified: '2026-01-22T03:11:31.736536+00:00'
+  tags:
+  - config
+- path: src/meaning/templates/scripts/meaning-post-write.sh
+  intent: '[NEEDS REVIEW] src/meaning/templates/scripts/meaning-post-write.sh'
+  status: active
+  needs_review: true
+  last_verified: '2026-01-22T03:11:31.736536+00:00'
+  tags:
+  - x-needs-tags
+- path: src/meaning/templates/scripts/meaning-validate.sh
+  intent: '[NEEDS REVIEW] src/meaning/templates/scripts/meaning-validate.sh'
+  status: active
+  needs_review: true
+  last_verified: '2026-01-22T03:11:31.736536+00:00'
+  tags:
+  - validation
+- path: .agent-sessions/2026-01-22-cli-templates-cli-fixes.md
+  intent: '[NEEDS REVIEW] .agent-sessions/2026-01-22-cli-templates-cli-fixes.md'
+  status: active
+  needs_review: true
+  last_verified: '2026-01-22T03:11:31.736536+00:00'
+  tags:
+  - doc
+  - cli

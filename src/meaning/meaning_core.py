@@ -9,6 +9,7 @@ from __future__ import annotations
 import fnmatch
 import os
 import re
+import shutil
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
@@ -28,6 +29,7 @@ MEANING_DIR = ".meaning"
 
 DEFAULT_STALE_THRESHOLD_DAYS = 7
 DEFAULT_MAX_INTENT_LENGTH = 280
+DEFAULT_REVIEW_THRESHOLD = 0.8
 
 VALID_STATUSES = {"active", "draft", "deprecated", "generated"}
 
@@ -670,6 +672,31 @@ def create_meaning_dir(project_root: Path) -> Path:
     return meaning_path
 
 
+def resolve_template_dir(template_dir: Path | None) -> Path:
+    """Resolve the template directory for schema/config/hooks."""
+    if template_dir is not None:
+        return template_dir
+
+    package_templates = Path(__file__).parent / "templates"
+    if package_templates.exists():
+        return package_templates
+
+    repo_templates = Path(__file__).parent.parent.parent / "templates"
+    if repo_templates.exists():
+        return repo_templates
+
+    raise FileNotFoundError("Template directory not found")
+
+
+def copy_template_file(src: Path, dest: Path) -> bool:
+    """Copy a template file if it exists. Returns True on success."""
+    if not src.exists():
+        return False
+    dest.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copy2(src, dest)
+    return True
+
+
 def scan_project_files(project_root: Path, config: MeaningConfig) -> list[str]:
     """
     Scan project directory for all non-excluded files.
@@ -778,9 +805,8 @@ def initialize_meaning(
     if project_type is None:
         project_type = detect_project_type(project_root)
 
-    # Default to package templates
-    if template_dir is None:
-        template_dir = Path(__file__).parent.parent / "templates"
+    # Resolve template directory
+    template_dir = resolve_template_dir(template_dir)
 
     # Validate project type
     schema_file = template_dir / "schema" / f"{project_type}.yaml"
@@ -799,6 +825,17 @@ def initialize_meaning(
     config_content = config_template.read_text()
     (meaning_path / CONFIG_FILENAME).write_text(config_content)
 
+    # Copy hooks and hook scripts (optional)
+    copy_template_file(template_dir / "hooks.json", meaning_path / "hooks.json")
+    copy_template_file(
+        template_dir / "scripts" / "meaning-post-write.sh",
+        meaning_path / "scripts" / "meaning-post-write.sh",
+    )
+    copy_template_file(
+        template_dir / "scripts" / "meaning-validate.sh",
+        meaning_path / "scripts" / "meaning-validate.sh",
+    )
+
     # Create empty index
     now = datetime.now(timezone.utc)
     index = MeaningIndex(
@@ -814,6 +851,99 @@ def initialize_meaning(
     config = load_config(project_root)
 
     return index, schema, config
+
+
+def install_claude_hooks(
+    project_root: Path, template_dir: Path | None = None, force: bool = False
+) -> tuple[bool, str]:
+    """Install Claude Code hooks into .claude/settings.json."""
+    try:
+        template_dir = resolve_template_dir(template_dir)
+    except FileNotFoundError as e:
+        return False, str(e)
+    hooks_template = template_dir / "hooks.json"
+    if not hooks_template.exists():
+        return False, "Hooks template not found"
+
+    claude_dir = project_root / ".claude"
+    settings_path = claude_dir / "settings.json"
+
+    if settings_path.exists() and not force:
+        return False, f"{settings_path} already exists (use --force to overwrite)"
+
+    claude_dir.mkdir(parents=True, exist_ok=True)
+    shutil.copy2(hooks_template, settings_path)
+    return True, f"Installed hooks to {settings_path}"
+
+
+def entry_from_inference(
+    file_path: str,
+    result: Any,
+    threshold: float,
+    now: datetime,
+) -> FileEntry:
+    """Create a new FileEntry from inference results."""
+    high_conf_tags = [t.tag for t in result.tags if t.confidence >= threshold]
+    high_conf_rels = [r.relationship for r in result.relationships if r.confidence >= threshold]
+
+    if result.intent and result.intent.confidence >= threshold:
+        intent = result.intent.intent
+        intent_confident = True
+    else:
+        intent = f"[NEEDS REVIEW] {file_path}"
+        intent_confident = False
+
+    needs_review = bool(result.errors) or not intent_confident or not high_conf_tags
+    tags = high_conf_tags if high_conf_tags else ["x-needs-tags"]
+
+    return FileEntry(
+        path=file_path,
+        intent=intent,
+        status="active",
+        needs_review=needs_review,
+        last_verified=now,
+        tags=tags,
+        relationships=high_conf_rels,
+    )
+
+
+def _relationship_key(rel: Relationship) -> tuple[str, str | None, str | None]:
+    return (rel.type, rel.target, rel.source)
+
+
+def apply_inference_to_entry(
+    entry: FileEntry,
+    result: Any,
+    threshold: float,
+    config: MeaningConfig,
+    now: datetime,
+) -> None:
+    """Apply high-confidence inference results to an existing entry."""
+    if result.intent and result.intent.confidence >= threshold:
+        if not entry.intent or entry.intent.startswith("[NEEDS REVIEW]"):
+            entry.intent = result.intent.intent
+
+    for tag in (t.tag for t in result.tags if t.confidence >= threshold):
+        if tag not in entry.tags:
+            entry.tags.append(tag)
+
+    existing_rels = {_relationship_key(r) for r in entry.relationships}
+    for rel in (r.relationship for r in result.relationships if r.confidence >= threshold):
+        if _relationship_key(rel) not in existing_rels:
+            entry.relationships.append(rel)
+            existing_rels.add(_relationship_key(rel))
+
+    entry.last_verified = now
+
+    needs_review = bool(result.errors)
+    if config.require_intent and (
+        not entry.intent or entry.intent.startswith("[NEEDS REVIEW]")
+    ):
+        needs_review = True
+    if config.require_tags and not entry.tags:
+        needs_review = True
+
+    entry.needs_review = needs_review
 
 
 # =============================================================================
@@ -1145,34 +1275,60 @@ def display_status(project_root: Path) -> None:
 
 
 def main() -> None:
-    """Simple CLI for testing."""
+    """Command-line interface for Meaning."""
+    import argparse
     import sys
 
-    if len(sys.argv) < 2:
-        print("Usage: python -m meaning_core <command> [args]")
-        print("Commands: status, query, validate, detect")
-        sys.exit(1)
+    parser = argparse.ArgumentParser(description="Meaning: Semantic File Index for AI Agents")
+    subparsers = parser.add_subparsers(dest="command", required=True)
 
-    command = sys.argv[1]
+    status_parser = subparsers.add_parser("status", help="Show project status overview")
+    status_parser.add_argument("project_root", nargs="?", default=".")
 
-    if command == "status":
-        project_root = Path(sys.argv[2]) if len(sys.argv) > 2 else Path.cwd()
-        display_status(project_root)
+    query_parser = subparsers.add_parser("query", help="Run a semantic query")
+    query_parser.add_argument("query", nargs="+")
+    query_parser.add_argument("--project-root", default=".")
 
-    elif command == "query":
-        if len(sys.argv) < 3:
-            print("Usage: python -m meaning_core query \"<question>\"")
-            print("\nExample queries:")
-            print("  \"what tests the core?\"")
-            print("  \"show me all test files\"")
-            print("  \"what needs review?\"")
-            print("  \"files that do parsing\"")
-            print("  \"what changed recently?\"")
-            sys.exit(1)
+    validate_parser = subparsers.add_parser("validate", help="Validate the meaning index")
+    validate_parser.add_argument("project_root", nargs="?", default=".")
 
-        project_root = Path.cwd()
-        query_str = sys.argv[2]
+    detect_parser = subparsers.add_parser("detect", help="Detect project type and git status")
+    detect_parser.add_argument("project_root", nargs="?", default=".")
 
+    init_parser = subparsers.add_parser("init", help="Initialize .meaning/ in a project")
+    init_parser.add_argument("project_root", nargs="?", default=".")
+    init_parser.add_argument("--type", dest="project_type", default=None)
+    init_parser.add_argument("--limit", type=int, default=50)
+    init_parser.add_argument("--install-hooks", action="store_true")
+    init_parser.add_argument("--force-hooks", action="store_true")
+
+    update_parser = subparsers.add_parser("update", help="Sync index with filesystem changes")
+    update_parser.add_argument("project_root", nargs="?", default=".")
+    update_mode = update_parser.add_mutually_exclusive_group()
+    update_mode.add_argument("--new", action="store_true")
+    update_mode.add_argument("--modified", action="store_true")
+    update_mode.add_argument("--deleted", action="store_true")
+    update_mode.add_argument("--all", action="store_true")
+    update_parser.add_argument("--re-infer", action="store_true")
+    update_parser.add_argument("--dry-run", action="store_true")
+    update_parser.add_argument("--threshold", type=float, default=DEFAULT_REVIEW_THRESHOLD)
+
+    review_parser = subparsers.add_parser("review", help="Review and accept inferred metadata")
+    review_parser.add_argument("project_root", nargs="?", default=".")
+    review_parser.add_argument("--interactive", action="store_true")
+    review_parser.add_argument("--file", dest="file_path", default=None)
+    review_parser.add_argument("--dry-run", action="store_true")
+    review_parser.add_argument("--threshold", type=float, default=DEFAULT_REVIEW_THRESHOLD)
+
+    args = parser.parse_args()
+
+    if args.command == "status":
+        display_status(Path(args.project_root).resolve())
+        return
+
+    if args.command == "query":
+        project_root = Path(args.project_root).resolve()
+        query_str = " ".join(args.query)
         try:
             index = load_index(project_root)
             schema = load_schema(project_root)
@@ -1180,11 +1336,12 @@ def main() -> None:
             display_query_results(result)
         except FileNotFoundError:
             print(f"❌ No .meaning/ directory found in {project_root}")
-            print(f"\n💡 Initialize with: python -m meaning init")
+            print("\n💡 Initialize with: python -m meaning init")
             sys.exit(1)
+        return
 
-    elif command == "validate":
-        project_root = Path(sys.argv[2]) if len(sys.argv) > 2 else Path.cwd()
+    if args.command == "validate":
+        project_root = Path(args.project_root).resolve()
         try:
             index = load_index(project_root)
             schema = load_schema(project_root)
@@ -1203,17 +1360,218 @@ def main() -> None:
         except FileNotFoundError as e:
             print(f"Error: {e}")
             sys.exit(1)
+        return
 
-    elif command == "detect":
-        project_root = Path(sys.argv[2]) if len(sys.argv) > 2 else Path.cwd()
+    if args.command == "detect":
+        project_root = Path(args.project_root).resolve()
         project_type = detect_project_type(project_root)
         is_git = is_git_repo(project_root)
         print(f"Project type: {project_type}")
         print(f"Git repo: {is_git}")
+        return
 
-    else:
-        print(f"Unknown command: {command}")
-        sys.exit(1)
+    if args.command == "init":
+        from meaning.meaning_inference import infer_file_metadata, infer_timestamps
+
+        project_root = Path(args.project_root).resolve()
+        try:
+            index, schema, config = initialize_meaning(
+                project_root, project_type=args.project_type
+            )
+        except FileExistsError as e:
+            print(f"❌ {e}")
+            print("Use 'meaning update' to sync with filesystem changes")
+            sys.exit(1)
+        except ValueError as e:
+            print(f"❌ {e}")
+            sys.exit(1)
+
+        all_files = scan_project_files(project_root, config)
+        limit = args.limit
+        if limit is not None and limit > 0:
+            files_to_process = all_files[:limit]
+        else:
+            files_to_process = all_files
+
+        now = infer_timestamps()
+        for file_path in files_to_process:
+            result = infer_file_metadata(file_path, project_root, index, schema)
+            entry = entry_from_inference(file_path, result, DEFAULT_REVIEW_THRESHOLD, now)
+            index.add_file(entry)
+
+        save_index(project_root, index)
+
+        if args.install_hooks:
+            ok, message = install_claude_hooks(
+                project_root, force=args.force_hooks
+            )
+            if ok:
+                print(f"✓ {message}")
+            else:
+                print(f"⚠️  {message}")
+
+        validation = validate_index(index, schema, config, project_root)
+        print(f"✓ Initialized .meaning/ with {len(index.files)} files")
+        if limit is not None and limit > 0 and len(all_files) > limit:
+            print(
+                f"⚠️  Limited to first {limit} files. Run 'meaning update' to index remaining {len(all_files) - limit} files."
+            )
+        print(f"⚠️  Files needing review: {len(index.files_needing_review())}")
+        print(f"✓ Validation: {validation.is_valid}")
+        return
+
+    if args.command == "update":
+        from meaning.meaning_inference import infer_file_metadata, infer_timestamps
+
+        project_root = Path(args.project_root).resolve()
+        if not meaning_dir_exists(project_root):
+            print(f"❌ No .meaning/ directory found in {project_root}")
+            print("Run 'meaning init' to create semantic index first")
+            sys.exit(1)
+
+        index = load_index(project_root)
+        schema = load_schema(project_root)
+        config = load_config(project_root)
+
+        new_files = find_unindexed_files(project_root, index, config)
+        modified_files = find_modified_files(project_root, index)
+        deleted_files = find_deleted_files(project_root, index)
+
+        if args.new:
+            modified_files = []
+            deleted_files = []
+        elif args.modified:
+            new_files = []
+            deleted_files = []
+        elif args.deleted:
+            new_files = []
+            modified_files = []
+
+        if not new_files and not modified_files and not deleted_files:
+            print("✓ Index is up to date")
+            return
+
+        print("📊 Changes detected:")
+        print(f"   • New files: {len(new_files)}")
+        print(f"   • Modified files: {len(modified_files)}")
+        print(f"   • Deleted files: {len(deleted_files)}")
+
+        if deleted_files:
+            print(f"\n🗑️  Removing {len(deleted_files)} deleted files:")
+            for path in deleted_files:
+                print(f"   • {path}")
+                if not args.dry_run:
+                    index.remove_file(path)
+
+        if new_files:
+            print(f"\n✨ Adding {len(new_files)} new files:")
+            now = infer_timestamps()
+            for file_path in new_files:
+                print(f"   • {file_path}")
+                result = infer_file_metadata(file_path, project_root, index, schema)
+                entry = entry_from_inference(file_path, result, args.threshold, now)
+                if not args.dry_run:
+                    index.add_file(entry)
+
+        if modified_files:
+            print(f"\n🔄 Processing {len(modified_files)} modified files:")
+            now = infer_timestamps()
+            for file_path in modified_files:
+                print(f"   • {file_path}")
+                entry = index.get_file(file_path)
+                if entry is None:
+                    continue
+                if args.re_infer:
+                    result = infer_file_metadata(file_path, project_root, index, schema)
+                    if not args.dry_run:
+                        apply_inference_to_entry(entry, result, args.threshold, config, now)
+                else:
+                    if not args.dry_run:
+                        entry.needs_review = True
+                        entry.last_verified = now
+
+        if args.dry_run:
+            print("\n⚠️  Dry run: no changes written")
+            return
+
+        save_index(project_root, index)
+        validation = validate_index(index, schema, config, project_root)
+
+        print("\n📋 Update complete")
+        print(f"✓ Files in index: {len(index.files)}")
+        print(f"⚠️  Files needing review: {len(index.files_needing_review())}")
+        print(f"✓ Validation: {validation.is_valid}")
+        return
+
+    if args.command == "review":
+        from meaning.meaning_inference import infer_file_metadata, infer_timestamps
+
+        project_root = Path(args.project_root).resolve()
+        if not meaning_dir_exists(project_root):
+            print(f"❌ No .meaning/ directory found in {project_root}")
+            print("Run 'meaning init' to create semantic index first")
+            sys.exit(1)
+
+        index = load_index(project_root)
+        schema = load_schema(project_root)
+        config = load_config(project_root)
+
+        if args.file_path:
+            entries = [index.get_file(args.file_path)]
+            entries = [e for e in entries if e is not None]
+        else:
+            entries = index.files_needing_review()
+
+        if not entries:
+            print("✓ No files need review")
+            return
+
+        now = infer_timestamps()
+        updated = 0
+        skipped = 0
+
+        for entry in entries:
+            result = infer_file_metadata(entry.path, project_root, index, schema)
+            if args.interactive:
+                high_tags = [t.tag for t in result.tags if t.confidence >= args.threshold]
+                high_rels = [
+                    r.relationship for r in result.relationships if r.confidence >= args.threshold
+                ]
+                high_intent = (
+                    result.intent.intent
+                    if result.intent and result.intent.confidence >= args.threshold
+                    else None
+                )
+
+                print(f"\nFile: {entry.path}")
+                if high_intent:
+                    print(f"  Intent: {high_intent}")
+                if high_tags:
+                    print(f"  Tags: {', '.join(high_tags)}")
+                if high_rels:
+                    rels = ", ".join(
+                        f"{r.type}:{r.target or r.source}" for r in high_rels
+                    )
+                    print(f"  Relationships: {rels}")
+
+                choice = input("Apply changes? [y/N]: ").strip().lower()
+                if choice != "y":
+                    skipped += 1
+                    continue
+
+            if not args.dry_run:
+                apply_inference_to_entry(entry, result, args.threshold, config, now)
+            updated += 1
+
+        if args.dry_run:
+            print("\n⚠️  Dry run: no changes written")
+            return
+
+        save_index(project_root, index)
+        print(f"✓ Reviewed {updated} file(s)")
+        if skipped:
+            print(f"⚠️  Skipped {skipped} file(s)")
+        return
 
 
 if __name__ == "__main__":

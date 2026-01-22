@@ -28,7 +28,7 @@ Validates the semantic index by checking:
 
 ```python
 from pathlib import Path
-from meaning_core import meaning_dir_exists, load_index, load_schema, load_config
+from meaning.meaning_core import meaning_dir_exists, load_index, load_schema, load_config
 
 project_root = Path.cwd()
 
@@ -60,7 +60,7 @@ except Exception as e:
 ### 3. Run Validation
 
 ```python
-from meaning_core import validate_index
+from meaning.meaning_core import validate_index
 
 validation = validate_index(index, schema, config, project_root)
 
@@ -257,7 +257,7 @@ Add to your CI pipeline:
 - name: Validate Meaning Index
   run: |
     python -c "
-    from meaning_core import load_index, load_schema, load_config, validate_index
+    from meaning.meaning_core import load_index, load_schema, load_config, validate_index
     from pathlib import Path
     
     index = load_index(Path('.'))

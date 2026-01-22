@@ -37,10 +37,13 @@ dev = [
 ]
 
 [project.scripts]
-meaning = "meaning_core:main"
+meaning = "meaning.meaning_core:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
+
+[tool.setuptools.package-data]
+meaning = ["templates/**/*.yaml", "templates/**/*.json", "templates/**/*.sh"]
 
 [tool.black]
 line-length = 100
