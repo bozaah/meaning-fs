@@ -453,7 +453,7 @@ class MeaningConfig:
 
 def load_yaml(filepath: Path) -> dict[str, Any]:
     """Load and parse a YAML file."""
-    with open(filepath, "r", encoding="utf-8") as f:
+    with open(filepath, encoding="utf-8") as f:
         data = yaml.safe_load(f)
     return data or {}
 
@@ -1112,7 +1112,7 @@ def query_index(index: MeaningIndex, schema: MeaningSchema, query: str) -> Query
         tag_keywords = []
 
         # Check against schema vocabulary
-        for category, tags in schema.tag_vocabulary.items():
+        for _category, tags in schema.tag_vocabulary.items():
             for tag in tags:
                 if tag in q or tag.replace("-", " ") in q:
                     tag_keywords.append(tag)
@@ -1238,9 +1238,9 @@ def display_status(project_root: Path) -> None:
         index = load_index(project_root)
         schema = load_schema(project_root)
         config = load_config(project_root)
-    except FileNotFoundError as e:
+    except FileNotFoundError:
         print(f"❌ No .meaning/ directory found in {project_root}")
-        print(f"\n💡 Initialize with: python -m meaning init")
+        print("\n💡 Initialize with: python -m meaning init")
         return
 
     # Validate to get health metrics
@@ -1313,25 +1313,25 @@ def display_status(project_root: Path) -> None:
     if needs_review > 0:
         print(f"  ⚠️  {needs_review} need review")
     else:
-        print(f"  ✅ 0 need review")
+        print("  ✅ 0 need review")
 
     # Stale
     if stale > 0:
         print(f"  ⚠️  {stale} stale entries")
     else:
-        print(f"  ✅ 0 stale entries")
+        print("  ✅ 0 stale entries")
 
     # Unindexed
     if unindexed:
         print(f"  ⚠️  {len(unindexed)} unindexed files")
     else:
-        print(f"  ✅ 0 unindexed files")
+        print("  ✅ 0 unindexed files")
 
     # Validation errors
     if result.errors:
         print(f"  ❌ {len(result.errors)} validation errors")
     else:
-        print(f"  ✅ 0 validation errors")
+        print("  ✅ 0 validation errors")
 
     print()
 
@@ -1466,9 +1466,7 @@ def main() -> None:
     if args.command == "init":
         from meaning.installer import (
             InstallOptions,
-            get_package_template_dir,
             install_meaning,
-            install_skills,
         )
         from meaning.meaning_inference import infer_file_metadata, infer_timestamps
 

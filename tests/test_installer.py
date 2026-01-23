@@ -3,8 +3,6 @@ Tests for the meaning installer module.
 """
 
 import json
-import shutil
-from pathlib import Path
 
 import pytest
 

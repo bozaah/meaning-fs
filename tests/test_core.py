@@ -4,44 +4,42 @@ Tests for meaning_core module.
 Run with: python -m pytest tests/ -v
 """
 
-import pytest
-from datetime import datetime, timezone, timedelta
-from pathlib import Path
-import tempfile
-import os
-
 # Add src to path for imports
 import sys
+import tempfile
+from datetime import datetime, timedelta, timezone
+from pathlib import Path
+
+import pytest
+
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
 from meaning.meaning_core import (
-    Relationship,
-    FileEntry,
+    VALID_STATUSES,
+    VERSION,
     Concept,
-    MeaningIndex,
-    RelationshipType,
-    MeaningSchema,
+    FileEntry,
     MeaningConfig,
-    ValidationResult,
-    QueryResult,
-    validate_index,
+    MeaningIndex,
+    MeaningSchema,
+    Relationship,
+    RelationshipType,
+    apply_inference_to_entry,
+    create_skeleton_entry,
     detect_project_type,
     is_git_repo,
-    create_skeleton_entry,
     load_yaml,
-    save_yaml,
-    query_index,
-    apply_inference_to_entry,
     preview_inference_changes,
-    VERSION,
-    VALID_STATUSES,
+    query_index,
+    save_yaml,
+    validate_index,
 )
 from meaning.meaning_inference import FileInferenceResult
-
 
 # =============================================================================
 # Relationship Tests
 # =============================================================================
+
 
 class TestRelationship:
     def test_create_with_target(self):
@@ -85,6 +83,7 @@ class TestRelationship:
 # =============================================================================
 # FileEntry Tests
 # =============================================================================
+
 
 class TestFileEntry:
     def test_create_minimal(self):
@@ -164,6 +163,7 @@ class TestFileEntry:
 # Concept Tests
 # =============================================================================
 
+
 class TestConcept:
     def test_create(self):
         concept = Concept(
@@ -198,6 +198,7 @@ class TestConcept:
 # MeaningIndex Tests
 # =============================================================================
 
+
 class TestMeaningIndex:
     def test_create_empty(self):
         index = MeaningIndex()
@@ -206,10 +207,12 @@ class TestMeaningIndex:
         assert index.concepts == []
 
     def test_get_file_found(self):
-        index = MeaningIndex(files=[
-            FileEntry(path="a.py", intent="A"),
-            FileEntry(path="b.py", intent="B"),
-        ])
+        index = MeaningIndex(
+            files=[
+                FileEntry(path="a.py", intent="A"),
+                FileEntry(path="b.py", intent="B"),
+            ]
+        )
         entry = index.get_file("b.py")
         assert entry is not None
         assert entry.intent == "B"
@@ -226,19 +229,19 @@ class TestMeaningIndex:
         assert index.get_file("new.py") is not None
 
     def test_add_file_update(self):
-        index = MeaningIndex(files=[
-            FileEntry(path="a.py", intent="Old intent")
-        ])
+        index = MeaningIndex(files=[FileEntry(path="a.py", intent="Old intent")])
         updated = FileEntry(path="a.py", intent="New intent")
         index.add_file(updated)
         assert len(index.files) == 1
         assert index.get_file("a.py").intent == "New intent"
 
     def test_remove_file(self):
-        index = MeaningIndex(files=[
-            FileEntry(path="a.py", intent="A"),
-            FileEntry(path="b.py", intent="B"),
-        ])
+        index = MeaningIndex(
+            files=[
+                FileEntry(path="a.py", intent="A"),
+                FileEntry(path="b.py", intent="B"),
+            ]
+        )
         result = index.remove_file("a.py")
         assert result is True
         assert len(index.files) == 1
@@ -250,39 +253,47 @@ class TestMeaningIndex:
         assert result is False
 
     def test_files_needing_review(self):
-        index = MeaningIndex(files=[
-            FileEntry(path="a.py", intent="A", needs_review=True),
-            FileEntry(path="b.py", intent="B", needs_review=False),
-            FileEntry(path="c.py", intent="C", needs_review=True),
-        ])
+        index = MeaningIndex(
+            files=[
+                FileEntry(path="a.py", intent="A", needs_review=True),
+                FileEntry(path="b.py", intent="B", needs_review=False),
+                FileEntry(path="c.py", intent="C", needs_review=True),
+            ]
+        )
         needing = index.files_needing_review()
         assert len(needing) == 2
         assert all(f.needs_review for f in needing)
 
     def test_find_by_tags_any(self):
-        index = MeaningIndex(files=[
-            FileEntry(path="a.py", intent="A", tags=["api", "http"]),
-            FileEntry(path="b.py", intent="B", tags=["database"]),
-            FileEntry(path="c.py", intent="C", tags=["api", "auth"]),
-        ])
+        index = MeaningIndex(
+            files=[
+                FileEntry(path="a.py", intent="A", tags=["api", "http"]),
+                FileEntry(path="b.py", intent="B", tags=["database"]),
+                FileEntry(path="c.py", intent="C", tags=["api", "auth"]),
+            ]
+        )
         results = index.find_by_tags(["api"])
         assert len(results) == 2
 
     def test_find_by_tags_all(self):
-        index = MeaningIndex(files=[
-            FileEntry(path="a.py", intent="A", tags=["api", "http"]),
-            FileEntry(path="b.py", intent="B", tags=["api"]),
-        ])
+        index = MeaningIndex(
+            files=[
+                FileEntry(path="a.py", intent="A", tags=["api", "http"]),
+                FileEntry(path="b.py", intent="B", tags=["api"]),
+            ]
+        )
         results = index.find_by_tags(["api", "http"], match_all=True)
         assert len(results) == 1
         assert results[0].path == "a.py"
 
     def test_find_by_intent(self):
-        index = MeaningIndex(files=[
-            FileEntry(path="a.py", intent="HTTP client for API requests"),
-            FileEntry(path="b.py", intent="Database connection handler"),
-            FileEntry(path="c.py", intent="API response parser"),
-        ])
+        index = MeaningIndex(
+            files=[
+                FileEntry(path="a.py", intent="HTTP client for API requests"),
+                FileEntry(path="b.py", intent="Database connection handler"),
+                FileEntry(path="c.py", intent="API response parser"),
+            ]
+        )
         results = index.find_by_intent(["API"])
         assert len(results) == 2
 
@@ -302,6 +313,7 @@ class TestMeaningIndex:
 # MeaningSchema Tests
 # =============================================================================
 
+
 class TestMeaningSchema:
     def test_create_default(self):
         schema = MeaningSchema()
@@ -309,18 +321,22 @@ class TestMeaningSchema:
         assert schema.custom_prefix == "x-"
 
     def test_is_valid_relationship_type(self):
-        schema = MeaningSchema(relationship_types=[
-            RelationshipType(name="imports", description="Import dep"),
-            RelationshipType(name="tests", description="Test"),
-        ])
+        schema = MeaningSchema(
+            relationship_types=[
+                RelationshipType(name="imports", description="Import dep"),
+                RelationshipType(name="tests", description="Test"),
+            ]
+        )
         assert schema.is_valid_relationship_type("imports") is True
         assert schema.is_valid_relationship_type("unknown") is False
 
     def test_is_valid_tag_in_vocabulary(self):
-        schema = MeaningSchema(tag_vocabulary={
-            "domain": ["api", "auth"],
-            "layer": ["service", "model"],
-        })
+        schema = MeaningSchema(
+            tag_vocabulary={
+                "domain": ["api", "auth"],
+                "layer": ["service", "model"],
+            }
+        )
         assert schema.is_valid_tag("api") is True
         assert schema.is_valid_tag("service") is True
         assert schema.is_valid_tag("unknown") is False
@@ -331,10 +347,12 @@ class TestMeaningSchema:
         assert schema.is_valid_tag("custom") is False
 
     def test_all_tags(self):
-        schema = MeaningSchema(tag_vocabulary={
-            "a": ["one", "two"],
-            "b": ["three"],
-        })
+        schema = MeaningSchema(
+            tag_vocabulary={
+                "a": ["one", "two"],
+                "b": ["three"],
+            }
+        )
         tags = schema.all_tags()
         assert set(tags) == {"one", "two", "three"}
 
@@ -342,6 +360,7 @@ class TestMeaningSchema:
 # =============================================================================
 # MeaningConfig Tests
 # =============================================================================
+
 
 class TestMeaningConfig:
     def test_create_default(self):
@@ -382,6 +401,7 @@ class TestMeaningConfig:
 # Validation Tests
 # =============================================================================
 
+
 class TestValidation:
     def test_validate_empty_index(self):
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -389,19 +409,17 @@ class TestValidation:
             index = MeaningIndex()
             schema = MeaningSchema()
             config = MeaningConfig()
-            
+
             result = validate_index(index, schema, config, project_root)
             assert result.is_valid is True
 
     def test_validate_missing_file(self):
         with tempfile.TemporaryDirectory() as tmpdir:
             project_root = Path(tmpdir)
-            index = MeaningIndex(files=[
-                FileEntry(path="missing.py", intent="Does not exist")
-            ])
+            index = MeaningIndex(files=[FileEntry(path="missing.py", intent="Does not exist")])
             schema = MeaningSchema()
             config = MeaningConfig()
-            
+
             result = validate_index(index, schema, config, project_root)
             assert result.is_valid is False
             assert any("does not exist" in e for e in result.errors)
@@ -410,19 +428,21 @@ class TestValidation:
         with tempfile.TemporaryDirectory() as tmpdir:
             project_root = Path(tmpdir)
             (project_root / "a.py").touch()
-            
-            index = MeaningIndex(files=[
-                FileEntry(
-                    path="a.py", 
-                    intent="A",
-                    relationships=[Relationship(type="imports", target="missing.py")]
-                )
-            ])
-            schema = MeaningSchema(relationship_types=[
-                RelationshipType(name="imports", description="Import")
-            ])
+
+            index = MeaningIndex(
+                files=[
+                    FileEntry(
+                        path="a.py",
+                        intent="A",
+                        relationships=[Relationship(type="imports", target="missing.py")],
+                    )
+                ]
+            )
+            schema = MeaningSchema(
+                relationship_types=[RelationshipType(name="imports", description="Import")]
+            )
             config = MeaningConfig()
-            
+
             result = validate_index(index, schema, config, project_root)
             assert any("Dangling relationship" in e for e in result.errors)
 
@@ -430,13 +450,11 @@ class TestValidation:
         with tempfile.TemporaryDirectory() as tmpdir:
             project_root = Path(tmpdir)
             (project_root / "a.py").touch()
-            
-            index = MeaningIndex(files=[
-                FileEntry(path="a.py", intent="A", tags=["unknown-tag"])
-            ])
+
+            index = MeaningIndex(files=[FileEntry(path="a.py", intent="A", tags=["unknown-tag"])])
             schema = MeaningSchema(tag_vocabulary={"domain": ["api"]})
             config = MeaningConfig(warn_on_unknown_tags=True)
-            
+
             result = validate_index(index, schema, config, project_root)
             assert any("Unknown tag" in w for w in result.warnings)
 
@@ -444,14 +462,12 @@ class TestValidation:
         with tempfile.TemporaryDirectory() as tmpdir:
             project_root = Path(tmpdir)
             (project_root / "a.py").touch()
-            
+
             old_date = datetime.now(timezone.utc) - timedelta(days=10)
-            index = MeaningIndex(files=[
-                FileEntry(path="a.py", intent="A", last_verified=old_date)
-            ])
+            index = MeaningIndex(files=[FileEntry(path="a.py", intent="A", last_verified=old_date)])
             schema = MeaningSchema()
             config = MeaningConfig(stale_threshold_days=7)
-            
+
             result = validate_index(index, schema, config, project_root)
             assert any("Stale entry" in w for w in result.warnings)
 
@@ -459,6 +475,7 @@ class TestValidation:
 # =============================================================================
 # Utility Function Tests
 # =============================================================================
+
 
 class TestUtilities:
     def test_detect_project_type_python(self):
@@ -500,22 +517,23 @@ class TestUtilities:
 # YAML I/O Tests
 # =============================================================================
 
+
 class TestYamlIO:
     def test_save_and_load_yaml(self):
         with tempfile.TemporaryDirectory() as tmpdir:
             filepath = Path(tmpdir) / "test.yaml"
             data = {"key": "value", "list": [1, 2, 3]}
-            
+
             save_yaml(filepath, data)
             loaded = load_yaml(filepath)
-            
+
             assert loaded == data
 
     def test_load_yaml_creates_parent_dirs(self):
         with tempfile.TemporaryDirectory() as tmpdir:
             filepath = Path(tmpdir) / "nested" / "deep" / "test.yaml"
             data = {"test": True}
-            
+
             save_yaml(filepath, data)
             assert filepath.exists()
 
@@ -523,6 +541,7 @@ class TestYamlIO:
 # =============================================================================
 # Query Engine Tests
 # =============================================================================
+
 
 class TestQueryEngine:
     @pytest.fixture
@@ -538,9 +557,7 @@ class TestQueryEngine:
                 status="active",
                 needs_review=False,
                 last_verified=now,
-                relationships=[
-                    Relationship(type="imports", target="src/utils.py")
-                ]
+                relationships=[Relationship(type="imports", target="src/utils.py")],
             ),
             FileEntry(
                 path="tests/test_api.py",
@@ -551,8 +568,8 @@ class TestQueryEngine:
                 last_verified=now,
                 relationships=[
                     Relationship(type="tests", target="src/api.py"),
-                    Relationship(type="imports", target="src/api.py")
-                ]
+                    Relationship(type="imports", target="src/api.py"),
+                ],
             ),
             FileEntry(
                 path="config.yaml",
@@ -561,7 +578,7 @@ class TestQueryEngine:
                 status="active",
                 needs_review=True,
                 last_verified=now - timedelta(days=1),
-                relationships=[]
+                relationships=[],
             ),
             FileEntry(
                 path="src/parser.py",
@@ -570,7 +587,7 @@ class TestQueryEngine:
                 status="active",
                 needs_review=False,
                 last_verified=now - timedelta(days=10),
-                relationships=[]
+                relationships=[],
             ),
             FileEntry(
                 path="README.md",
@@ -579,9 +596,7 @@ class TestQueryEngine:
                 status="active",
                 needs_review=False,
                 last_verified=now,
-                relationships=[
-                    Relationship(type="documents", target="src/api.py")
-                ]
+                relationships=[Relationship(type="documents", target="src/api.py")],
             ),
         ]
 
@@ -590,16 +605,12 @@ class TestQueryEngine:
                 name="api-client",
                 description="External API integration",
                 files=["src/api.py", "tests/test_api.py"],
-                entry_point="src/api.py"
+                entry_point="src/api.py",
             )
         ]
 
         return MeaningIndex(
-            version="0.1",
-            generated_at=now,
-            last_updated=now,
-            concepts=concepts,
-            files=files
+            version="0.1", generated_at=now, last_updated=now, concepts=concepts, files=files
         )
 
     @pytest.fixture
@@ -609,8 +620,8 @@ class TestQueryEngine:
             relationship_types=["tests", "documents", "imports"],
             tag_vocabulary={
                 "file_type": ["api", "test", "doc", "config"],
-                "feature": ["core", "parsing"]
-            }
+                "feature": ["core", "parsing"],
+            },
         )
 
     def test_status_query_needs_review(self, sample_index, sample_schema):
@@ -679,6 +690,7 @@ class TestQueryEngine:
 # =============================================================================
 # Review Inference Application Tests
 # =============================================================================
+
 
 class TestInferenceApplication:
     def test_apply_inference_updates_intent_and_tags(self):

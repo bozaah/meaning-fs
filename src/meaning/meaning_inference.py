@@ -11,10 +11,8 @@ import re
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any
 
 from meaning.meaning_core import (
-    FileEntry,
     MeaningIndex,
     MeaningSchema,
     Relationship,

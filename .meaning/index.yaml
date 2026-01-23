@@ -1,6 +1,6 @@
 version: '0.1'
 generated_at: '2026-01-21T04:11:00+00:00'
-last_updated: '2026-01-23T06:01:55.343857+00:00'
+last_updated: '2026-01-23T06:44:39.347197+00:00'
 concepts:
 - name: project-documentation
   description: Project-level documentation for human and AI understanding
@@ -10,6 +10,7 @@ concepts:
   - CLAUDE.md
   - IMPLEMENTATION-PLAN.md
   - CHANGELOG.md
+  - LICENSE
   - .agent-sessions/README.md
   - .agent-sessions/2026-01-21-dogfooding-inference-plan.md
   - .agent-sessions/2026-01-21-phase4-dogfooding.md
@@ -98,6 +99,14 @@ files:
   relationships:
   - type: documents
     target: src/meaning/meaning_core.py
+- path: LICENSE
+  intent: MIT license granting permission to use, modify, and distribute the software
+  status: active
+  needs_review: false
+  last_verified: '2026-01-23T06:15:00+00:00'
+  tags:
+  - doc
+  - legal
 - path: CHANGELOG.md
   intent: Chronological record of project changes, decisions, and milestones
   status: active
@@ -115,7 +124,7 @@ files:
     and index operations
   status: active
   needs_review: false
-  last_verified: '2026-01-23T05:46:02.031526+00:00'
+  last_verified: '2026-01-23T06:31:26.672110+00:00'
   tags:
   - core
   - module
@@ -134,7 +143,7 @@ files:
     scoring
   status: active
   needs_review: false
-  last_verified: '2026-01-23T06:01:55.337746+00:00'
+  last_verified: '2026-01-23T06:44:39.342231+00:00'
   tags:
   - core
   - module
@@ -212,7 +221,7 @@ files:
   intent: Tests for meaning_core module.
   status: active
   needs_review: false
-  last_verified: '2026-01-22T04:18:10.750684+00:00'
+  last_verified: '2026-01-23T06:31:26.672110+00:00'
   tags:
   - test
   - module
@@ -227,7 +236,7 @@ files:
   intent: Tests for meaning_inference.
   status: active
   needs_review: false
-  last_verified: '2026-01-22T04:18:10.750684+00:00'
+  last_verified: '2026-01-23T06:31:26.672110+00:00'
   tags:
   - test
   - module
@@ -368,7 +377,7 @@ files:
     build settings
   status: active
   needs_review: false
-  last_verified: '2026-01-23T06:01:55.337746+00:00'
+  last_verified: '2026-01-23T06:31:26.672110+00:00'
   tags:
   - config
   - package
@@ -508,7 +517,7 @@ files:
   intent: Default configuration template for Meaning projects.
   status: active
   needs_review: false
-  last_verified: '2026-01-22T03:53:58.358066+00:00'
+  last_verified: '2026-01-23T06:44:39.342231+00:00'
   tags:
   - config
 - path: src/meaning/templates/hooks.json
@@ -673,7 +682,7 @@ files:
   intent: Tests for the meaning installer module.
   status: active
   needs_review: false
-  last_verified: '2026-01-23T05:45:36.896472+00:00'
+  last_verified: '2026-01-23T06:31:26.672110+00:00'
   tags:
   - module
   - test
@@ -682,3 +691,28 @@ files:
     target: src/meaning/installer.py
   - type: imports
     target: src/meaning/installer.py
+- path: .github/dependabot.yml
+  intent: Automated dependency update configuration for Python packages and GitHub
+    Actions
+  status: active
+  needs_review: false
+  last_verified: '2026-01-23T06:34:19.262633+00:00'
+  tags:
+  - config
+- path: .github/workflows/ci.yml
+  intent: CI workflow running tests, linting, type checking, and validation on PRs
+    and pushes
+  status: active
+  needs_review: false
+  last_verified: '2026-01-23T06:34:19.262633+00:00'
+  tags:
+  - config
+  - ci
+- path: .github/workflows/publish.yml
+  intent: CD workflow for publishing releases to TestPyPI and PyPI with trusted publishing
+  status: active
+  needs_review: false
+  last_verified: '2026-01-23T06:34:19.262633+00:00'
+  tags:
+  - config
+  - ci

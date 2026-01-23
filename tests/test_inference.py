@@ -6,27 +6,17 @@ Tests all inference functions with realistic examples.
 
 from datetime import datetime, timezone
 from pathlib import Path
-from unittest.mock import Mock, patch
 
 import pytest
 
 from meaning.meaning_core import (
-    Concept,
     FileEntry,
     MeaningIndex,
     MeaningSchema,
-    Relationship,
     RelationshipType,
 )
 from meaning.meaning_inference import (
-    CONFIDENCE_HIGH,
-    CONFIDENCE_LOW,
-    CONFIDENCE_MEDIUM,
-    ConceptSuggestion,
     FileInferenceResult,
-    InferredIntent,
-    InferredRelationship,
-    InferredTag,
     infer_document_relationships,
     infer_file_metadata,
     infer_import_relationships,
@@ -259,15 +249,13 @@ def test_infer_document_relationships_markdown_links(index, tmp_path):
     """Test inferring document relationships from markdown links."""
     # Create a markdown file with links
     md_file = tmp_path / "guide.md"
-    md_file.write_text(
-        """
+    md_file.write_text("""
 # Guide
 
 This guide explains [the API client](src/api/client.py) and [models](src/models/user.py).
 
 See also: https://example.com (external link)
-"""
-    )
+""")
 
     # Add the markdown file to index
     index.add_file(FileEntry(path="guide.md", intent="Guide", tags=["doc"], status="active"))
@@ -283,13 +271,11 @@ See also: https://example.com (external link)
 def test_infer_document_relationships_inline_code(index, tmp_path):
     """Test inferring document relationships from inline code references."""
     md_file = tmp_path / "docs.md"
-    md_file.write_text(
-        """
+    md_file.write_text("""
 # Documentation
 
 The main implementation is in `src/api/client.py`.
-"""
-    )
+""")
 
     index.add_file(FileEntry(path="docs.md", intent="Docs", tags=["doc"], status="active"))
 
@@ -322,15 +308,13 @@ def test_infer_import_relationships_direct_import(index, tmp_path):
     """Test inferring import relationships from direct imports."""
     py_file = tmp_path / "src" / "test.py"
     py_file.parent.mkdir(parents=True, exist_ok=True)
-    py_file.write_text(
-        """
+    py_file.write_text("""
 import meaning.meaning_core
 from pathlib import Path
 
 def main():
     pass
-"""
-    )
+""")
 
     # Add meaning.meaning_core to index
     index.add_file(
@@ -354,12 +338,10 @@ def test_infer_import_relationships_from_import(index, tmp_path):
     """Test inferring import relationships from 'from' imports."""
     py_file = tmp_path / "src" / "main.py"
     py_file.parent.mkdir(parents=True, exist_ok=True)
-    py_file.write_text(
-        """
+    py_file.write_text("""
 from api.client import APIClient
 from models.user import User
-"""
-    )
+""")
 
     # Add modules to index
     index.add_file(
@@ -376,12 +358,10 @@ def test_infer_import_relationships_syntax_error(index, tmp_path):
     """Test graceful handling of syntax errors."""
     py_file = tmp_path / "src" / "broken.py"
     py_file.parent.mkdir(parents=True, exist_ok=True)
-    py_file.write_text(
-        """
+    py_file.write_text("""
 def broken(
     # Missing closing parenthesis
-"""
-    )
+""")
 
     rels = infer_import_relationships("src/broken.py", tmp_path, index)
 
@@ -404,8 +384,7 @@ def test_infer_import_relationships_non_python(index, tmp_path):
 def test_infer_intent_from_python_docstring(tmp_path):
     """Test inferring intent from Python module docstring."""
     py_file = tmp_path / "module.py"
-    py_file.write_text(
-        '''"""
+    py_file.write_text('''"""
 This is a module for parsing API responses.
 
 It handles JSON and XML formats.
@@ -413,8 +392,7 @@ It handles JSON and XML formats.
 
 def parse():
     pass
-'''
-    )
+''')
 
     intent = infer_intent_from_docstring("module.py", tmp_path)
 
@@ -427,16 +405,14 @@ def parse():
 def test_infer_intent_from_markdown(tmp_path):
     """Test inferring intent from markdown first paragraph."""
     md_file = tmp_path / "guide.md"
-    md_file.write_text(
-        """# API Guide
+    md_file.write_text("""# API Guide
 
 This guide explains how to use the API client. It covers authentication and requests.
 
 ## Getting Started
 
 ...
-"""
-    )
+""")
 
     intent = infer_intent_from_docstring("guide.md", tmp_path)
 
@@ -447,12 +423,10 @@ This guide explains how to use the API client. It covers authentication and requ
 
 def test_infer_intent_sanitizes_markdown(tmp_path):
     md_file = tmp_path / "notes.md"
-    md_file.write_text(
-        """# Notes
+    md_file.write_text("""# Notes
 
 - **Purpose:** Learn the `.meaning/` index format.
-"""
-    )
+""")
 
     intent = infer_intent_from_docstring("notes.md", tmp_path)
 
@@ -483,12 +457,10 @@ def test_infer_intent_from_path_template_schema():
 def test_infer_intent_no_docstring(tmp_path):
     """Test that files without docstrings return None."""
     py_file = tmp_path / "nodoc.py"
-    py_file.write_text(
-        """
+    py_file.write_text("""
 def function():
     pass
-"""
-    )
+""")
 
     intent = infer_intent_from_docstring("nodoc.py", tmp_path)
 
@@ -518,16 +490,14 @@ def test_infer_file_metadata_python_file(index, schema, tmp_path):
     """Test complete inference on a Python file."""
     py_file = tmp_path / "src" / "parser.py"
     py_file.parent.mkdir(parents=True, exist_ok=True)
-    py_file.write_text(
-        '''"""Parser module for API responses."""
+    py_file.write_text('''"""Parser module for API responses."""
 
 import json
 from meaning.meaning_core import FileEntry
 
 def parse():
     pass
-'''
-    )
+''')
 
     # Add meaning.meaning_core to index
     index.add_file(
@@ -571,13 +541,11 @@ def test_infer_file_metadata_test_file(index, schema, tmp_path):
     # Create test file
     test_file = tmp_path / "tests" / "test_client.py"
     test_file.parent.mkdir(parents=True, exist_ok=True)
-    test_file.write_text(
-        '''"""Tests for API client."""
+    test_file.write_text('''"""Tests for API client."""
 
 def test_client():
     pass
-'''
-    )
+''')
 
     result = infer_file_metadata("tests/test_client.py", tmp_path, index, schema)
 
@@ -594,12 +562,10 @@ def test_client():
 def test_infer_file_metadata_markdown_file(index, schema, tmp_path):
     """Test complete inference on a markdown file."""
     md_file = tmp_path / "README.md"
-    md_file.write_text(
-        """# Project
+    md_file.write_text("""# Project
 
 This project implements an API client using `src/api/client.py`.
-"""
-    )
+""")
 
     result = infer_file_metadata("README.md", tmp_path, index, schema)
 

@@ -16,8 +16,8 @@ exclude:
     - "__pycache__/**"
     - "*.egg-info/**"
     - ".eggs/**"
-    - "target/**"          # Rust
-    - "pkg/**"             # Go vendor
+    - "target/**" # Rust
+    - "pkg/**" # Go vendor
 
     # Build outputs
     - "dist/**"
@@ -76,6 +76,10 @@ exclude:
     - ".nyc_output/**"
     - ".pytest_cache/**"
     - ".tox/**"
+
+    # Linter and type checker caches
+    - ".mypy_cache/**"
+    - ".ruff_cache/**"
 
     # Meaning directory itself
     - ".meaning/**"
