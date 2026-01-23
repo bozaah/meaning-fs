@@ -36,11 +36,36 @@ When you say "update how API responses are parsed," your AI agent can read the i
 - ✅ Hook scripts for automatic tracking
 - ✅ Dog-fooded on itself (33+ files indexed, 0 validation errors)
 
-**Next:** External project testing, query enhancements, PyPI packaging
+**Next:** PyPI packaging, external project testing
 
 ## Quick Start
 
-### With Claude Code
+### Installation
+
+```bash
+# Install from source (PyPI coming soon)
+pip install git+https://github.com/yourname/meaning.git
+
+# Or for development
+git clone https://github.com/yourname/meaning.git
+cd meaning
+uv venv && uv pip install -e ".[dev]"
+```
+
+### Initialize a Project
+
+```bash
+# Basic initialization (auto-detects project type)
+meaning init
+
+# With Claude Code integration
+meaning init --install-hooks --with-skills
+
+# Skip file scanning (just setup the structure)
+meaning init --skip-crawl
+```
+
+### With Claude Code Skills
 
 ```bash
 # In your project directory with Claude Code
@@ -50,16 +75,7 @@ When you say "update how API responses are parsed," your AI agent can read the i
 
 # During development
 /meaning-update            # Sync with filesystem changes
-```
-
-### Manual Usage
-
-```bash
-# Install dependencies
-uv venv && uv pip install -e ".[dev]"
-
-# Validate this project's index
-./scripts/validate-meaning.sh
+/meaning-query             # Semantic search
 ```
 
 ## Discovering Your Project
@@ -185,21 +201,39 @@ Under what conditions does this work?
 
 ```
 meaning/
-├── .agent-sessions/        # AI agent session notes
-├── .meaning/               # Dog-fooding: our own semantic index
+├── .agent-sessions/            # AI agent session notes
+├── .claude/                    # Claude Code configuration
+│   ├── settings.json           # Project hooks and permissions
+│   └── skills/                 # Skill definitions
+│       ├── meaning-init/
+│       ├── meaning-query/
+│       ├── meaning-review/
+│       ├── meaning-update/
+│       └── meaning-validate/
+├── .meaning/                   # Dog-fooding: our own semantic index
 ├── src/
 │   └── meaning/
+│       ├── __init__.py         # Public API exports
+│       ├── __main__.py         # CLI entry point
 │       ├── meaning_core.py     # Core library
+│       ├── meaning_inference.py # Inference engine
+│       ├── installer.py        # Installation logic
 │       └── templates/          # Project templates
-│           ├── schema/         # Project-type schemas
+│           ├── schema/         # Project-type schemas (python, node, rust, docs, mixed)
+│           ├── skills/         # Claude Code skill templates
 │           ├── config.yaml     # Default config
 │           ├── hooks.json      # Claude hooks template
 │           └── scripts/        # Hook scripts for target projects
 ├── scripts/
-│   ├── meaning-post-write.sh
-│   ├── meaning-validate.sh
-│   └── validate-meaning.sh # Validate this project's index
+│   ├── meaning-post-write.sh   # Post-mutation hook
+│   ├── meaning-validate.sh     # Session-end hook
+│   ├── run-inference.py        # Inference runner script
+│   └── validate-meaning.sh     # Validate this project's index
 └── tests/
+    ├── fixtures/               # Test fixtures
+    ├── test_core.py            # Core library tests
+    ├── test_inference.py       # Inference engine tests
+    └── test_installer.py       # Installer tests
 ```
 
 ## Documentation

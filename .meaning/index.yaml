@@ -1,6 +1,6 @@
 version: '0.1'
 generated_at: '2026-01-21T04:11:00+00:00'
-last_updated: '2026-01-22T04:19:43.121163+00:00'
+last_updated: '2026-01-23T06:01:55.343857+00:00'
 concepts:
 - name: project-documentation
   description: Project-level documentation for human and AI understanding
@@ -39,7 +39,7 @@ files:
   intent: Project overview and quick start guide for users
   status: active
   needs_review: false
-  last_verified: '2026-01-22T03:53:58.358066+00:00'
+  last_verified: '2026-01-23T05:46:02.031526+00:00'
   tags:
   - doc
   - core
@@ -61,7 +61,7 @@ files:
   intent: Symlink to CLAUDE.md providing development guide for all AI agents
   status: active
   needs_review: false
-  last_verified: '2026-01-22T03:39:11.222840+00:00'
+  last_verified: '2026-01-23T05:46:02.031526+00:00'
   tags:
   - doc
   - core
@@ -74,7 +74,7 @@ files:
   intent: Development guide and architectural reference for AI agents working on Meaning
   status: active
   needs_review: false
-  last_verified: '2026-01-22T03:39:11.222840+00:00'
+  last_verified: '2026-01-23T05:46:02.031526+00:00'
   tags:
   - doc
   - core
@@ -102,7 +102,7 @@ files:
   intent: Chronological record of project changes, decisions, and milestones
   status: active
   needs_review: false
-  last_verified: '2026-01-22T04:19:43.116551+00:00'
+  last_verified: '2026-01-23T05:46:02.031526+00:00'
   tags:
   - doc
   - core
@@ -115,7 +115,7 @@ files:
     and index operations
   status: active
   needs_review: false
-  last_verified: '2026-01-22T04:18:10.750684+00:00'
+  last_verified: '2026-01-23T05:46:02.031526+00:00'
   tags:
   - core
   - module
@@ -127,12 +127,14 @@ files:
     target: IMPLEMENTATION-PLAN.md
   - type: imports
     target: src/meaning/meaning_inference.py
+  - type: imports
+    target: src/meaning/installer.py
 - path: src/meaning/meaning_inference.py
   intent: Inference engine that automatically generates semantic metadata with confidence
     scoring
   status: active
   needs_review: false
-  last_verified: '2026-01-22T04:19:43.116551+00:00'
+  last_verified: '2026-01-23T06:01:55.337746+00:00'
   tags:
   - core
   - module
@@ -357,7 +359,7 @@ files:
     files
   status: active
   needs_review: false
-  last_verified: '2026-01-21T08:28:47.306382+00:00'
+  last_verified: '2026-01-23T06:01:55.337746+00:00'
   tags:
   - config
   - util
@@ -366,7 +368,7 @@ files:
     build settings
   status: active
   needs_review: false
-  last_verified: '2026-01-22T03:09:11.846747+00:00'
+  last_verified: '2026-01-23T06:01:55.337746+00:00'
   tags:
   - config
   - package
@@ -449,7 +451,7 @@ files:
   intent: Get up and running with Meaning in 5 minutes
   status: active
   needs_review: false
-  last_verified: '2026-01-22T04:18:10.750684+00:00'
+  last_verified: '2026-01-23T05:46:02.031526+00:00'
   tags:
   - doc
   relationships:
@@ -462,9 +464,14 @@ files:
     layer for codebases.'
   status: active
   needs_review: false
-  last_verified: '2026-01-22T01:17:53.043426+00:00'
+  last_verified: '2026-01-23T05:46:02.031526+00:00'
   tags:
   - module
+  relationships:
+  - type: imports
+    target: src/meaning/installer.py
+  - type: imports
+    target: src/meaning/meaning_core.py
 - path: src/meaning/__main__.py
   intent: Entry point for python -m meaning
   status: active
@@ -592,3 +599,86 @@ files:
   last_verified: '2026-01-22T04:19:19.446497+00:00'
   tags:
   - doc
+- path: .agent-sessions/2026-01-23-installer-distribution-prep.md
+  intent: 'Agent session note: 2026 01 23 installer distribution prep.'
+  status: active
+  needs_review: false
+  last_verified: '2026-01-23T05:45:36.896472+00:00'
+  tags:
+  - doc
+- path: DISTRIBUTION-PLAN.md
+  intent: 'Enable frictionless adoption of meaning with a single command:'
+  status: active
+  needs_review: false
+  last_verified: '2026-01-23T05:45:36.896472+00:00'
+  tags:
+  - doc
+- path: src/meaning/installer.py
+  intent: 'Meaning Installer Handles installation of meaning into target projects:
+    - Creates .meaning/ directory with templates - Installs Claude Code hooks - Optionally
+    installs skills for Claude Code users This module focuses on file copying and
+    setup logic, separate from the core...'
+  status: active
+  needs_review: false
+  last_verified: '2026-01-23T05:45:36.896472+00:00'
+  tags:
+  - module
+- path: src/meaning/templates/schema/mixed.yaml
+  intent: Schema template for mixed projects.
+  status: active
+  needs_review: false
+  last_verified: '2026-01-23T05:45:36.896472+00:00'
+  tags:
+  - config
+- path: src/meaning/templates/skills/meaning-init/SKILL.md
+  intent: Bootstrap the .meaning/ directory for a project with semantic file indexing
+    and intelligent inference.
+  status: active
+  needs_review: false
+  last_verified: '2026-01-23T05:45:36.896472+00:00'
+  tags:
+  - doc
+- path: src/meaning/templates/skills/meaning-query/SKILL.md
+  intent: Natural language search through the .meaning/ semantic index.
+  status: active
+  needs_review: false
+  last_verified: '2026-01-23T05:45:36.896472+00:00'
+  tags:
+  - doc
+- path: src/meaning/templates/skills/meaning-review/SKILL.md
+  intent: Smart batch workflow that automatically accepts high-confidence suggestions
+    and only prompts for manual review when needed.
+  status: active
+  needs_review: false
+  last_verified: '2026-01-23T05:45:36.896472+00:00'
+  tags:
+  - doc
+- path: src/meaning/templates/skills/meaning-update/SKILL.md
+  intent: Synchronize the .meaning/index.yaml with filesystem changes by detecting
+    new, modified, and deleted files.
+  status: active
+  needs_review: false
+  last_verified: '2026-01-23T05:45:36.896472+00:00'
+  tags:
+  - doc
+- path: src/meaning/templates/skills/meaning-validate/SKILL.md
+  intent: Run health checks on the .meaning/ index to detect errors, warnings, and
+    inconsistencies.
+  status: active
+  needs_review: false
+  last_verified: '2026-01-23T05:45:36.896472+00:00'
+  tags:
+  - doc
+- path: tests/test_installer.py
+  intent: Tests for the meaning installer module.
+  status: active
+  needs_review: false
+  last_verified: '2026-01-23T05:45:36.896472+00:00'
+  tags:
+  - module
+  - test
+  relationships:
+  - type: tests
+    target: src/meaning/installer.py
+  - type: imports
+    target: src/meaning/installer.py

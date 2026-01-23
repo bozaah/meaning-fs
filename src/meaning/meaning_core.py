@@ -912,9 +912,9 @@ def _relationship_key(rel: Relationship) -> tuple[str, str | None, str | None]:
     return (rel.type, rel.target, rel.source)
 
 
-def _review_snapshot(entry: FileEntry) -> tuple[
-    str, tuple[str, ...], tuple[tuple[str, str | None, str | None], ...], bool
-]:
+def _review_snapshot(
+    entry: FileEntry,
+) -> tuple[str, tuple[str, ...], tuple[tuple[str, str | None, str | None], ...], bool]:
     return (
         entry.intent,
         tuple(entry.tags),
@@ -925,11 +925,7 @@ def _review_snapshot(entry: FileEntry) -> tuple[
 
 def _intent_has_markdown(intent: str) -> bool:
     stripped = intent.lstrip()
-    return (
-        "`" in intent
-        or "**" in intent
-        or stripped.startswith(("- ", "* ", "> "))
-    )
+    return "`" in intent or "**" in intent or stripped.startswith(("- ", "* ", "> "))
 
 
 def apply_inference_to_entry(
@@ -962,9 +958,7 @@ def apply_inference_to_entry(
     entry.last_verified = now
 
     needs_review = bool(result.errors)
-    if config.require_intent and (
-        not entry.intent or entry.intent.startswith("[NEEDS REVIEW]")
-    ):
+    if config.require_intent and (not entry.intent or entry.intent.startswith("[NEEDS REVIEW]")):
         needs_review = True
     if config.require_tags and not entry.tags:
         needs_review = True
@@ -1036,9 +1030,7 @@ class QueryResult:
     query_type: str
 
 
-def query_index(
-    index: MeaningIndex, schema: MeaningSchema, query: str
-) -> QueryResult:
+def query_index(index: MeaningIndex, schema: MeaningSchema, query: str) -> QueryResult:
     """
     Natural language query against the semantic index.
 
@@ -1099,9 +1091,7 @@ def query_index(
             else:
                 # Show all files with this relationship type
                 results = [
-                    f
-                    for f in index.files
-                    if any(r.type == rel_type for r in f.relationships)
+                    f for f in index.files if any(r.type == rel_type for r in f.relationships)
                 ]
                 explanation = f"Files with '{rel_type}' relationships"
                 query_type = "relationship"
@@ -1143,8 +1133,27 @@ def query_index(
     if not results:
         # Extract meaningful keywords from query (skip common words)
         stop_words = {
-            "what", "where", "who", "when", "why", "how", "is", "are", "the", "a", "an",
-            "do", "does", "did", "file", "files", "show", "find", "list", "me", "all",
+            "what",
+            "where",
+            "who",
+            "when",
+            "why",
+            "how",
+            "is",
+            "are",
+            "the",
+            "a",
+            "an",
+            "do",
+            "does",
+            "did",
+            "file",
+            "files",
+            "show",
+            "find",
+            "list",
+            "me",
+            "all",
         }
         keywords = [word for word in q.split() if word not in stop_words and len(word) > 3]
 
@@ -1190,7 +1199,7 @@ def display_query_results(result: QueryResult, max_results: int = 20) -> None:
 
         # Intent (truncated)
         intent = file.intent[:80] + "..." if len(file.intent) > 80 else file.intent
-        print(f"      \"{intent}\"")
+        print(f'      "{intent}"')
 
         # Tags
         if file.tags:
@@ -1255,7 +1264,9 @@ def display_status(project_root: Path) -> None:
     agent_sessions = project_root / ".agent-sessions"
     latest_session = None
     if agent_sessions.exists():
-        session_files = sorted(agent_sessions.glob("*.md"), key=lambda p: p.stat().st_mtime, reverse=True)
+        session_files = sorted(
+            agent_sessions.glob("*.md"), key=lambda p: p.stat().st_mtime, reverse=True
+        )
         if session_files:
             latest_session = session_files[0].name
 
@@ -1282,7 +1293,7 @@ def display_status(project_root: Path) -> None:
             entry = index.get_file(concept.entry_point)
             if entry and entry.intent:
                 intent = entry.intent[:70] + "..." if len(entry.intent) > 70 else entry.intent
-                print(f"       \"{intent}\"")
+                print(f'       "{intent}"')
             print()
     else:
         print("⚠️  No concepts defined")
@@ -1346,7 +1357,7 @@ def display_status(project_root: Path) -> None:
     if result.errors:
         print("  python -m meaning validate  # See detailed errors")
 
-    print("  python -m meaning query \"<question>\"  # Semantic search")
+    print('  python -m meaning query "<question>"  # Semantic search')
     print()
 
 
@@ -1377,6 +1388,12 @@ def main() -> None:
     init_parser.add_argument("--limit", type=int, default=50)
     init_parser.add_argument("--install-hooks", action="store_true")
     init_parser.add_argument("--force-hooks", action="store_true")
+    init_parser.add_argument(
+        "--with-skills", action="store_true", help="Install Claude Code skills"
+    )
+    init_parser.add_argument(
+        "--skip-crawl", action="store_true", help="Skip file scanning/inference"
+    )
 
     update_parser = subparsers.add_parser("update", help="Sync index with filesystem changes")
     update_parser.add_argument("project_root", nargs="?", default=".")
@@ -1447,21 +1464,55 @@ def main() -> None:
         return
 
     if args.command == "init":
+        from meaning.installer import (
+            InstallOptions,
+            get_package_template_dir,
+            install_meaning,
+            install_skills,
+        )
         from meaning.meaning_inference import infer_file_metadata, infer_timestamps
 
         project_root = Path(args.project_root).resolve()
-        try:
-            index, schema, config = initialize_meaning(
-                project_root, project_type=args.project_type
-            )
-        except FileExistsError as e:
-            print(f"❌ {e}")
-            print("Use 'meaning update' to sync with filesystem changes")
-            sys.exit(1)
-        except ValueError as e:
-            print(f"❌ {e}")
+
+        # Use installer for setup
+        options = InstallOptions(
+            project_type=args.project_type,
+            install_hooks=args.install_hooks,
+            install_skills=args.with_skills,
+            force_hooks=args.force_hooks,
+        )
+
+        result = install_meaning(project_root, options)
+
+        if not result.success:
+            for err in result.errors:
+                print(f"❌ {err}")
             sys.exit(1)
 
+        # Report installation results
+        if result.meaning_dir_created:
+            print(f"✓ Created .meaning/ with {len(result.files_copied)} files")
+
+        if result.hooks_installed:
+            print("✓ Installed Claude Code hooks")
+
+        if result.skills_installed:
+            print(f"✓ Installed {len(result.skills_installed)} skills")
+
+        for warning in result.warnings:
+            print(f"⚠️  {warning}")
+
+        # Load the created config/schema
+        index = load_index(project_root)
+        schema = load_schema(project_root)
+        config = load_config(project_root)
+
+        # Skip crawl if requested
+        if args.skip_crawl:
+            print("✓ Skipped file scanning (use 'meaning update' to index files)")
+            return
+
+        # Scan and infer files
         all_files = scan_project_files(project_root, config)
         limit = args.limit
         if limit is not None and limit > 0:
@@ -1471,23 +1522,14 @@ def main() -> None:
 
         now = infer_timestamps()
         for file_path in files_to_process:
-            result = infer_file_metadata(file_path, project_root, index, schema)
-            entry = entry_from_inference(file_path, result, DEFAULT_REVIEW_THRESHOLD, now)
+            result_infer = infer_file_metadata(file_path, project_root, index, schema)
+            entry = entry_from_inference(file_path, result_infer, DEFAULT_REVIEW_THRESHOLD, now)
             index.add_file(entry)
 
         save_index(project_root, index)
 
-        if args.install_hooks:
-            ok, message = install_claude_hooks(
-                project_root, force=args.force_hooks
-            )
-            if ok:
-                print(f"✓ {message}")
-            else:
-                print(f"⚠️  {message}")
-
         validation = validate_index(index, schema, config, project_root)
-        print(f"✓ Initialized .meaning/ with {len(index.files)} files")
+        print(f"✓ Indexed {len(index.files)} files")
         if limit is not None and limit > 0 and len(all_files) > limit:
             print(
                 f"⚠️  Limited to first {limit} files. Run 'meaning update' to index remaining {len(all_files) - limit} files."
@@ -1649,13 +1691,9 @@ def main() -> None:
                     continue
 
             if args.dry_run:
-                changed = preview_inference_changes(
-                    entry, result, args.threshold, config, now
-                )
+                changed = preview_inference_changes(entry, result, args.threshold, config, now)
             else:
-                changed = apply_inference_to_entry(
-                    entry, result, args.threshold, config, now
-                )
+                changed = apply_inference_to_entry(entry, result, args.threshold, config, now)
 
             if changed:
                 updated += 1

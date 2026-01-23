@@ -3,16 +3,16 @@ requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "meaning"
-version = "0.1.0"
+name = "meaning-fs"
+version = "0.2.0"
 description = "Semantic File Index for AI Agents"
 readme = "README.md"
 license = {text = "MIT"}
 requires-python = ">=3.10"
 authors = [
-    {name = "Your Name", email = "you@example.com"}
+    {name = "Rodrigo Pires", email = "rneto.pires@gmail.com"}
 ]
-keywords = ["ai", "semantic", "index", "agents", "llm"]
+keywords = ["ai", "context", "semantic", "index", "agents", "llm"]
 classifiers = [
     "Development Status :: 3 - Alpha",
     "Intended Audience :: Developers",
@@ -43,7 +43,7 @@ meaning = "meaning.meaning_core:main"
 where = ["src"]
 
 [tool.setuptools.package-data]
-meaning = ["templates/**/*.yaml", "templates/**/*.json", "templates/**/*.sh"]
+meaning = ["templates/**/*.yaml", "templates/**/*.json", "templates/**/*.sh", "templates/**/*.md"]
 
 [tool.black]
 line-length = 100

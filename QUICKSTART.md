@@ -16,7 +16,17 @@ Think of it as a **README for every file** that AI agents can read and maintain.
 
 ## Installation
 
-### Option 1: Clone and Install (Development)
+### Option 1: pip install (Coming Soon)
+
+```bash
+# PyPI (coming soon)
+pip install meaning-fs
+
+# Or from GitHub
+pip install git+https://github.com/your-org/meaning.git
+```
+
+### Option 2: Clone and Install (Development)
 
 ```bash
 # Clone the repository
@@ -28,15 +38,8 @@ uv venv
 uv pip install -e ".[dev]"
 
 # Verify installation
-python -m pytest tests/ -v  # All tests should pass
-python -m meaning status  # Should show project status
-```
-
-### Option 2: pip install (When Published)
-
-```bash
-pip install meaning
-meaning --version
+python -m pytest tests/ -v  # All 153 tests should pass
+python -m meaning status    # Should show project status
 ```
 
 ---
@@ -50,32 +53,46 @@ Navigate to your project directory and initialize meaning:
 ```bash
 cd /path/to/your/project
 
-# With Claude Code (recommended)
-/meaning-init
+# Basic initialization (auto-detects project type)
+meaning init
 
-# Or via CLI
-python -m meaning init
+# With Claude Code hooks (recommended)
+meaning init --install-hooks
+
+# Full setup with hooks and skills
+meaning init --install-hooks --with-skills
+
+# Just setup structure, skip file scanning
+meaning init --skip-crawl
 ```
 
+**Init Options:**
+| Flag | Purpose |
+|------|---------|
+| `--type TYPE` | Force project type (python, node, rust, docs, mixed) |
+| `--limit N` | Process first N files (default: 50) |
+| `--skip-crawl` | Don't auto-index files |
+| `--install-hooks` | Install Claude Code hooks |
+| `--force-hooks` | Overwrite existing hooks |
+| `--with-skills` | Install Claude Code skills |
+
 This will:
-- Create `.meaning/` directory
-- Detect project type (Python, Node, Rust, etc.)
-- Set up schema and config files
+- Create `.meaning/` directory with config, schema, scripts
+- Detect project type (Python, Node, Rust, docs, or mixed)
+- Optionally install Claude Code hooks (`.claude/settings.json`)
+- Optionally install Claude Code skills (`.claude/skills/`)
 - Generate initial index with inference
-- Flag all files for review
+- Flag low-confidence files for review
 
 **Output:**
 ```
-🎯 Initializing meaning for: my-project (python)
-✓ Created .meaning/schema.yaml
-✓ Created .meaning/config.yaml
-✓ Running inference on 47 files...
-✓ Created .meaning/index.yaml with 47 files
-⚠️  47 files need review
-
-Next steps:
-1. Run /meaning-review to accept/refine suggestions
-2. Commit .meaning/ to git
+✓ Created .meaning/ with 6 files
+✓ Installed Claude Code hooks
+✓ Installed 5 skills
+⚠️  Not a git repository. Consider initializing git before meaning.
+✓ Indexed 47 files
+⚠️  Files needing review: 12
+✓ Validation: True
 ```
 
 ### 2. Review Suggestions
@@ -350,17 +367,25 @@ Meaning integrates with Claude Code via hooks in `.claude/settings.json`:
 
 ### Setup
 
-Install hooks into your project:
+Install hooks and skills into your project:
 
 ```bash
-python -m meaning init --install-hooks
+# Hooks only
+meaning init --install-hooks
+
+# Hooks + skills (recommended for Claude Code users)
+meaning init --install-hooks --with-skills
+
+# Add to existing project (merge with existing settings.json)
+meaning init --install-hooks --force-hooks
 ```
 
-Or copy the generated hooks template:
-
-```bash
-cp .meaning/hooks.json .claude/settings.json
-```
+The `--with-skills` flag installs 5 Claude Code skills:
+- `/meaning-init` — Bootstrap `.meaning/` for a project
+- `/meaning-update` — Sync index with filesystem changes
+- `/meaning-validate` — Health check
+- `/meaning-query` — Semantic search
+- `/meaning-review` — Review flagged entries
 
 ---
 
@@ -497,4 +522,4 @@ Meaning is built to be:
 
 ---
 
-*Last updated: 2026-01-21*
+*Last updated: 2026-01-23*

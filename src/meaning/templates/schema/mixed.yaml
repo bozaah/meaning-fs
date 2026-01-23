@@ -1,0 +1,137 @@
+version: "0.1"
+project_type: mixed
+
+# Generic schema for projects without a clear single type
+# Includes common relationship types and tags that work across languages
+
+relationship_types:
+  # Code structure (language-agnostic)
+  - name: imports
+    description: "Source file imports/depends on target module"
+    direction: source_to_target
+
+  - name: implements
+    description: "Source implements interface/contract defined in target"
+    direction: source_to_target
+
+  - name: extends
+    description: "Source extends/inherits from target"
+    direction: source_to_target
+
+  # Data flow
+  - name: calls
+    description: "Source calls functions/methods in target"
+    direction: source_to_target
+
+  - name: transforms
+    description: "Source transforms data and passes to target"
+    direction: source_to_target
+
+  - name: validates
+    description: "Source validates data for/from target"
+    direction: bidirectional
+
+  - name: serializes
+    description: "Source serializes/deserializes data for target"
+    direction: bidirectional
+
+  # Documentation & testing
+  - name: documents
+    description: "Source documents target (README, docs, etc.)"
+    direction: source_to_target
+
+  - name: tests
+    description: "Source contains tests for target"
+    direction: source_to_target
+
+  - name: fixtures
+    description: "Source provides test fixtures for target tests"
+    direction: source_to_target
+
+  # Lifecycle
+  - name: supersedes
+    description: "Source replaces deprecated target"
+    direction: source_to_target
+
+  - name: configures
+    description: "Source provides configuration for target"
+    direction: source_to_target
+
+  # Build/deployment
+  - name: builds
+    description: "Source is a build script/config for target"
+    direction: source_to_target
+
+  - name: deploys
+    description: "Source handles deployment of target"
+    direction: source_to_target
+
+tag_vocabulary:
+  domain:
+    - api
+    - auth
+    - database
+    - ui
+    - cli
+    - config
+    - utils
+    - external
+    - core
+    - models
+    - infra
+
+  concern:
+    - parsing
+    - validation
+    - error-handling
+    - logging
+    - caching
+    - security
+    - transforms
+    - serialization
+    - async
+    - concurrency
+
+  layer:
+    - controller
+    - service
+    - repository
+    - model
+    - schema
+    - util
+    - test
+    - fixture
+    - doc
+    - config
+    - middleware
+    - script
+    - build
+
+  doc_type:
+    - overview
+    - spec
+    - dev-guide
+    - history
+    - ai
+    - readme
+    - changelog
+
+  file_type:
+    - module
+    - package
+    - script
+    - test
+    - config
+    - migration
+    - fixture
+    - data
+    - template
+
+# Allow custom tags with prefix
+custom_prefix: "x-"
+
+statuses:
+  - active
+  - draft
+  - deprecated
+  - generated

@@ -34,7 +34,8 @@ meaning/
 │       ├── meaning-init/
 │       ├── meaning-update/
 │       ├── meaning-validate/
-│       └── meaning-review/
+│       ├── meaning-review/
+│       └── meaning-query/
 ├── .meaning/                   # Dog-fooding: Meaning's own semantic index
 │   ├── index.yaml              # Semantic records for this project
 │   ├── schema.yaml             # Python project schema
@@ -48,12 +49,20 @@ meaning/
 │       ├── __main__.py         # CLI entry point
 │       ├── meaning_core.py     # Core library
 │       ├── meaning_inference.py # Inference engine
+│       ├── installer.py        # Installation logic for target projects
 │       └── templates/          # Templates for target projects
 │           ├── schema/         # Project-type specific schemas
 │           │   ├── python.yaml
 │           │   ├── node.yaml
 │           │   ├── rust.yaml
-│           │   └── docs.yaml
+│           │   ├── docs.yaml
+│           │   └── mixed.yaml  # Generic fallback
+│           ├── skills/         # Claude Code skill templates
+│           │   ├── meaning-init/
+│           │   ├── meaning-update/
+│           │   ├── meaning-validate/
+│           │   ├── meaning-query/
+│           │   └── meaning-review/
 │           ├── config.yaml     # Default config template
 │           ├── hooks.json      # Claude hooks for target projects
 │           └── scripts/        # Hook scripts for target projects
@@ -66,6 +75,7 @@ meaning/
 └── tests/
     ├── test_core.py
     ├── test_inference.py
+    ├── test_installer.py
     └── fixtures/
 ```
 
@@ -74,8 +84,10 @@ meaning/
 | File | Purpose |
 |------|---------|
 | `IMPLEMENTATION-PLAN.md` | Full specification—read this first for any design questions |
+| `DISTRIBUTION-PLAN.md` | PyPI packaging and installation strategy |
 | `src/meaning/meaning_core.py` | Core library: YAML parsing, validation, query engine |
 | `src/meaning/meaning_inference.py` | Inference engine: auto-generate metadata with confidence scoring |
+| `src/meaning/installer.py` | Installation logic: setup .meaning/, hooks, skills |
 | `src/meaning/__init__.py` | Package API exports (use `from meaning import ...`) |
 | `scripts/*.sh` | Deterministic hook scripts called by Claude Code |
 | `src/meaning/templates/schema/*.yaml` | Project-type specific relationship types and tag vocabularies |

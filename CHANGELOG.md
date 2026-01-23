@@ -4,6 +4,50 @@ All notable changes to the Meaning project will be documented in this file.
 
 ## [Unreleased]
 
+### 2026-01-23 — Installer Module and Distribution Prep
+
+#### Added
+- **Installer module** (`src/meaning/installer.py`) — 512 lines of installation logic
+  - `install_meaning()` — Main entry point for project setup
+  - `install_claude_hooks()` — Creates/merges `.claude/settings.json`
+  - `install_skills()` — Copies skill templates to target project
+  - `create_meaning_directory()` — Sets up `.meaning/` with all files
+  - `merge_hooks_config()` — Smart merging of existing Claude hooks
+  - Project type detection (python, node, rust, docs, mixed)
+  - Conflict resolution modes (abort, skip, overwrite)
+  - Dry-run support for previewing changes
+
+- **Skills templates** — Copied 5 skills to `src/meaning/templates/skills/`
+  - Skills can now be installed into target projects with `--with-skills`
+
+- **Mixed schema** (`templates/schema/mixed.yaml`) — Generic schema for projects without clear type
+
+- **Installer tests** (`tests/test_installer.py`) — 50 comprehensive tests
+
+#### Changed
+- **CLI init command** — Now uses installer module
+  - Added `--with-skills` flag to install Claude Code skills
+  - Added `--skip-crawl` flag to skip file scanning
+  - Cleaner separation between setup and inference phases
+
+- **Package data** — Added `templates/**/*.md` for skill templates
+
+#### Simplified
+- **No vendoring needed** — Hook scripts use inline Python with only stdlib + pyyaml
+  - Hooks work without meaning being pip-installed
+  - Removed complexity from distribution plan
+
+#### Documentation
+- Updated `DISTRIBUTION-PLAN.md` with simplified approach
+- Updated `README.md` with new installation options
+- Updated `QUICKSTART.md` with init flags and workflow
+- Updated `CLAUDE.md` with new file structure
+
+#### Tests
+- 153 tests passing (68 core + 35 inference + 50 installer)
+
+---
+
 ### 2026-01-22 — Review Reporting and Inference Preview
 
 #### Fixed
