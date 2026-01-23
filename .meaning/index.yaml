@@ -1,6 +1,6 @@
 version: '0.1'
 generated_at: '2026-01-21T04:11:00+00:00'
-last_updated: '2026-01-23T06:44:39.347197+00:00'
+last_updated: '2026-01-23T06:57:11.404689+00:00'
 concepts:
 - name: project-documentation
   description: Project-level documentation for human and AI understanding
@@ -40,7 +40,7 @@ files:
   intent: Project overview and quick start guide for users
   status: active
   needs_review: false
-  last_verified: '2026-01-23T05:46:02.031526+00:00'
+  last_verified: '2026-01-23T06:57:11.398965+00:00'
   tags:
   - doc
   - core
@@ -143,7 +143,7 @@ files:
     scoring
   status: active
   needs_review: false
-  last_verified: '2026-01-23T06:44:39.342231+00:00'
+  last_verified: '2026-01-23T06:57:11.398965+00:00'
   tags:
   - core
   - module
@@ -460,7 +460,7 @@ files:
   intent: Get up and running with Meaning in 5 minutes
   status: active
   needs_review: false
-  last_verified: '2026-01-23T05:46:02.031526+00:00'
+  last_verified: '2026-01-23T06:57:11.398965+00:00'
   tags:
   - doc
   relationships:
@@ -619,7 +619,7 @@ files:
   intent: 'Enable frictionless adoption of meaning with a single command:'
   status: active
   needs_review: false
-  last_verified: '2026-01-23T05:45:36.896472+00:00'
+  last_verified: '2026-01-23T06:57:11.398965+00:00'
   tags:
   - doc
 - path: src/meaning/installer.py
@@ -691,20 +691,12 @@ files:
     target: src/meaning/installer.py
   - type: imports
     target: src/meaning/installer.py
-- path: .github/dependabot.yml
-  intent: Automated dependency update configuration for Python packages and GitHub
-    Actions
-  status: active
-  needs_review: false
-  last_verified: '2026-01-23T06:34:19.262633+00:00'
-  tags:
-  - config
 - path: .github/workflows/ci.yml
   intent: CI workflow running tests, linting, type checking, and validation on PRs
     and pushes
   status: active
   needs_review: false
-  last_verified: '2026-01-23T06:34:19.262633+00:00'
+  last_verified: '2026-01-23T06:57:11.398965+00:00'
   tags:
   - config
   - ci
@@ -712,7 +704,7 @@ files:
   intent: CD workflow for publishing releases to TestPyPI and PyPI with trusted publishing
   status: active
   needs_review: false
-  last_verified: '2026-01-23T06:34:19.262633+00:00'
+  last_verified: '2026-01-23T06:57:11.398965+00:00'
   tags:
   - config
   - ci

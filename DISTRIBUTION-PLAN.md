@@ -257,9 +257,9 @@ dependencies = ["pyyaml>=6.0"]
 meaning = "meaning.meaning_core:main"
 
 [project.urls]
-Homepage = "https://github.com/yourname/meaning"
-Documentation = "https://github.com/yourname/meaning#readme"
-Repository = "https://github.com/yourname/meaning"
+Homepage = "https://github.com/bozaah/meaning-fs"
+Documentation = "https://github.com/bozaah/meaning-fs#readme"
+Repository = "https://github.com/bozaah/meaning-fs"
 
 [tool.setuptools.package-data]
 meaning = [
@@ -309,7 +309,7 @@ meaning init
 ### Direct from GitHub
 
 ```bash
-pip install git+https://github.com/yourname/meaning.git
+pip install git+https://github.com/bozaah/meaning-fs.git
 ```
 
 ---

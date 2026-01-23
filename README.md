@@ -44,11 +44,11 @@ When you say "update how API responses are parsed," your AI agent can read the i
 
 ```bash
 # Install from source (PyPI coming soon)
-pip install git+https://github.com/yourname/meaning.git
+pip install git+https://github.com/bozaah/meaning-fs.git
 
 # Or for development
-git clone https://github.com/yourname/meaning.git
-cd meaning
+git clone https://github.com/bozaah/meaning-fs.git
+cd meaning-fs
 uv venv && uv pip install -e ".[dev]"
 ```
 

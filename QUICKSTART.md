@@ -23,15 +23,15 @@ Think of it as a **README for every file** that AI agents can read and maintain.
 pip install meaning-fs
 
 # Or from GitHub
-pip install git+https://github.com/your-org/meaning.git
+pip install git+https://github.com/bozaah/meaning-fs.git
 ```
 
 ### Option 2: Clone and Install (Development)
 
 ```bash
 # Clone the repository
-git clone https://github.com/your-org/meaning.git
-cd meaning
+git clone https://github.com/bozaah/meaning-fs.git
+cd meaning-fs
 
 # Create virtual environment
 uv venv
@@ -496,7 +496,7 @@ Common issues:
 2. **Review suggestions**: `/meaning-review`
 3. **Try semantic queries**: `/meaning-query "what tests X?"`
 4. **Read full docs**: [IMPLEMENTATION-PLAN.md](IMPLEMENTATION-PLAN.md)
-5. **Join discussions**: [GitHub Discussions](https://github.com/your-org/meaning/discussions)
+5. **Join discussions**: [GitHub Discussions](https://github.com/bozaah/meaning-fs/discussions)
 
 ---
 
