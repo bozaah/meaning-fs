@@ -1,717 +1,778 @@
-version: '0.1'
-generated_at: '2026-01-21T04:11:00+00:00'
-last_updated: '2026-01-23T07:10:36.415130+00:00'
+version: "0.1"
+generated_at: "2026-01-21T04:11:00+00:00"
+last_updated: "2026-01-23T07:10:36.415130+00:00"
 concepts:
-- name: project-documentation
-  description: Project-level documentation for human and AI understanding
-  files:
-  - README.md
-  - AGENTS.md
-  - CLAUDE.md
-  - IMPLEMENTATION-PLAN.md
-  - CHANGELOG.md
-  - LICENSE
-  - .agent-sessions/README.md
-  - .agent-sessions/2026-01-21-dogfooding-inference-plan.md
-  - .agent-sessions/2026-01-21-phase4-dogfooding.md
-  entry_point: README.md
-- name: core-library
-  description: Core Python library implementing semantic index operations
-  files:
-  - src/meaning/meaning_core.py
-  - src/meaning/meaning_inference.py
-  - src/meaning/__init__.py
-  - src/meaning/__main__.py
-  entry_point: src/meaning/meaning_core.py
-- name: development-tooling
-  description: Scripts and tools for development and validation
-  files:
-  - scripts/validate-meaning.sh
-  - scripts/run-inference.py
-  entry_point: scripts/validate-meaning.sh
-- name: testing
-  description: Test suite for core functionality and inference engine
-  files:
-  - tests/test_core.py
-  - tests/test_inference.py
-  entry_point: tests/test_core.py
+  - name: project-documentation
+    description: Project-level documentation for human and AI understanding
+    files:
+      - README.md
+      - AGENTS.md
+      - CLAUDE.md
+      - IMPLEMENTATION-PLAN.md
+      - CHANGELOG.md
+      - LICENSE
+      - .agent-sessions/README.md
+      - .agent-sessions/2026-01-21-dogfooding-inference-plan.md
+      - .agent-sessions/2026-01-21-phase4-dogfooding.md
+      - .agent-sessions/2026-01-23-filename-inference-tag-vocabulary.md
+      - audits/audit-external-repo-2026-01-23.md
+      - audits/IMPLEMENTATION-PLAN-v0.2.md
+    entry_point: README.md
+  - name: core-library
+    description: Core Python library implementing semantic index operations
+    files:
+      - src/meaning/meaning_core.py
+      - src/meaning/meaning_inference.py
+      - src/meaning/__init__.py
+      - src/meaning/__main__.py
+    entry_point: src/meaning/meaning_core.py
+  - name: development-tooling
+    description: Scripts and tools for development and validation
+    files:
+      - scripts/validate-meaning.sh
+      - scripts/run-inference.py
+    entry_point: scripts/validate-meaning.sh
+  - name: testing
+    description: Test suite for core functionality and inference engine
+    files:
+      - tests/test_core.py
+      - tests/test_inference.py
+    entry_point: tests/test_core.py
 files:
-- path: README.md
-  intent: Project overview and quick start guide for users
-  status: active
-  needs_review: false
-  last_verified: '2026-01-23T06:57:11.398965+00:00'
-  tags:
-  - doc
-  - core
-  - overview
-  relationships:
-  - type: documents
-    target: src/meaning/meaning_core.py
-  - type: documents
-    target: .agent-sessions/README.md
-  - type: documents
-    target: IMPLEMENTATION-PLAN.md
-  - type: documents
-    target: AGENTS.md
-  - type: documents
-    target: QUICKSTART.md
-  - type: documents
-    target: CLAUDE.md
-- path: AGENTS.md
-  intent: Symlink to CLAUDE.md providing development guide for all AI agents
-  status: active
-  needs_review: false
-  last_verified: '2026-01-23T07:10:36.408761+00:00'
-  tags:
-  - doc
-  - core
-  - dev-guide
-  - ai
-  relationships:
-  - type: documents
-    target: CLAUDE.md
-- path: CLAUDE.md
-  intent: Development guide and architectural reference for AI agents working on Meaning
-  status: active
-  needs_review: false
-  last_verified: '2026-01-23T07:10:36.408761+00:00'
-  tags:
-  - doc
-  - core
-  - dev-guide
-  - ai
-  relationships:
-  - type: documents
-    target: IMPLEMENTATION-PLAN.md
-  - type: documents
-    target: src/meaning/meaning_core.py
-- path: IMPLEMENTATION-PLAN.md
-  intent: Complete technical specification including data structures, operations,
-    and design decisions
-  status: active
-  needs_review: false
-  last_verified: '2026-01-21T09:23:35.799168+00:00'
-  tags:
-  - doc
-  - core
-  - spec
-  relationships:
-  - type: documents
-    target: src/meaning/meaning_core.py
-- path: LICENSE
-  intent: MIT license granting permission to use, modify, and distribute the software
-  status: active
-  needs_review: false
-  last_verified: '2026-01-23T06:15:00+00:00'
-  tags:
-  - doc
-  - legal
-- path: CHANGELOG.md
-  intent: Chronological record of project changes, decisions, and milestones
-  status: active
-  needs_review: false
-  last_verified: '2026-01-23T07:10:36.408761+00:00'
-  tags:
-  - doc
-  - core
-  - history
-  relationships:
-  - type: documents
-    target: .agent-sessions/2026-01-21-dogfooding-inference-plan.md
-- path: src/meaning/meaning_core.py
-  intent: Core Python library implementing YAML parsing, validation, data structures,
-    and index operations
-  status: active
-  needs_review: false
-  last_verified: '2026-01-23T06:31:26.672110+00:00'
-  tags:
-  - core
-  - module
-  - api
-  - parsing
-  - validation
-  relationships:
-  - type: implements
-    target: IMPLEMENTATION-PLAN.md
-  - type: imports
-    target: src/meaning/meaning_inference.py
-  - type: imports
-    target: src/meaning/installer.py
-- path: src/meaning/meaning_inference.py
-  intent: Inference engine that automatically generates semantic metadata with confidence
-    scoring
-  status: active
-  needs_review: false
-  last_verified: '2026-01-23T07:10:36.408761+00:00'
-  tags:
-  - core
-  - module
-  - api
-  - parsing
-  relationships:
-  - type: imports
-    target: src/meaning/meaning_core.py
-  - type: implements
-    target: IMPLEMENTATION-PLAN.md
-- path: .agent-sessions/README.md
-  intent: Guide for AI agents on documenting sessions and maintaining project continuity
-  status: active
-  needs_review: false
-  last_verified: '2026-01-21T09:24:10.405341+00:00'
-  tags:
-  - doc
-  - dev-guide
-  - ai
-  relationships:
-  - type: documents
-    target: .agent-sessions/2026-01-21-dogfooding-inference-plan.md
-- path: .agent-sessions/2026-01-21-dogfooding-inference-plan.md
-  intent: Session summary documenting dog-fooding initialization, pain points, and
-    inference engine planning
-  status: active
-  needs_review: false
-  last_verified: '2026-01-21T08:28:47.306382+00:00'
-  tags:
-  - doc
-  - history
-  - dev-guide
-  relationships:
-  - type: documents
-    target: README.md
-  - type: documents
-    target: CLAUDE.md
-  - type: documents
-    target: IMPLEMENTATION-PLAN.md
-  - type: documents
-    target: CHANGELOG.md
-  - type: documents
-    target: src/meaning/meaning_core.py
-- path: scripts/validate-meaning.sh
-  intent: Validation script to check .meaning/ index health with formatted output
-  status: active
-  needs_review: false
-  last_verified: '2026-01-22T03:09:11.846747+00:00'
-  tags:
-  - script
-  - validation
-  - util
-  relationships:
-  - type: calls
-    target: src/meaning/meaning_core.py
-- path: scripts/run-inference.py
-  intent: CLI tool to run inference on files and display results with confidence visualization
-  status: active
-  needs_review: false
-  last_verified: '2026-01-22T03:09:11.846747+00:00'
-  tags:
-  - script
-  - util
-  - module
-  relationships:
-  - type: calls
-    target: src/meaning/meaning_core.py
-  - type: calls
-    target: src/meaning/meaning_inference.py
-  - type: imports
-    target: src/meaning/meaning_core.py
-  - type: imports
-    target: src/meaning/meaning_inference.py
-- path: tests/test_core.py
-  intent: Tests for meaning_core module.
-  status: active
-  needs_review: false
-  last_verified: '2026-01-23T06:31:26.672110+00:00'
-  tags:
-  - test
-  - module
-  relationships:
-  - type: tests
-    target: src/meaning/meaning_core.py
-  - type: imports
-    target: src/meaning/meaning_core.py
-  - type: imports
-    target: src/meaning/meaning_inference.py
-- path: tests/test_inference.py
-  intent: Tests for meaning_inference.
-  status: active
-  needs_review: false
-  last_verified: '2026-01-23T06:31:26.672110+00:00'
-  tags:
-  - test
-  - module
-  relationships:
-  - type: tests
-    target: src/meaning/meaning_inference.py
-  - type: imports
-    target: src/meaning/meaning_core.py
-  - type: imports
-    target: src/meaning/meaning_inference.py
-  - type: imports
-    target: src/meaning/meaning_inference.py
-- path: .agent-sessions/2026-01-21-phase2-inference-engine.md
-  intent: Session summary documenting Phase 2 inference engine implementation, design
-    decisions, and results
-  status: active
-  needs_review: false
-  last_verified: '2026-01-21T08:28:47.306382+00:00'
-  tags:
-  - doc
-  - history
-  - dev-guide
-  relationships:
-  - type: documents
-    target: src/meaning/meaning_inference.py
-  - type: documents
-    target: tests/test_inference.py
-  - type: documents
-    target: scripts/run-inference.py
-  - type: documents
-    target: IMPLEMENTATION-PLAN.md
-- path: .agent-sessions/2026-01-21-phase3-skills.md
-  intent: Session summary documenting Phase 3 skills implementation including Claude
-    Code integration
-  status: active
-  needs_review: false
-  last_verified: '2026-01-21T08:28:47.306382+00:00'
-  tags:
-  - doc
-  - history
-  - dev-guide
-  relationships:
-  - type: documents
-    target: .claude/skills/meaning-init/SKILL.md
-  - type: documents
-    target: .claude/skills/meaning-update/SKILL.md
-  - type: documents
-    target: .claude/skills/meaning-validate/SKILL.md
-  - type: documents
-    target: .claude/skills/meaning-review/SKILL.md
-- path: .claude/settings.json
-  intent: Claude Code project hooks configuration for post-write and session-end validation
-  status: active
-  needs_review: false
-  last_verified: '2026-01-21T08:28:47.306382+00:00'
-  tags:
-  - config
-  - ai
-  relationships:
-  - type: configures
-    target: scripts/meaning-post-write.sh
-  - type: configures
-    target: scripts/meaning-validate.sh
-- path: .claude/settings.local.json
-  intent: Local Claude Code settings overrides (user-specific, not committed)
-  status: active
-  needs_review: false
-  last_verified: '2026-01-21T09:24:10.405341+00:00'
-  tags:
-  - config
-  - ai
-- path: .claude/skills/meaning-init/SKILL.md
-  intent: Skill definition for bootstrapping .meaning/ directory with intelligent
-    inference
-  status: active
-  needs_review: false
-  last_verified: '2026-01-22T03:09:11.846747+00:00'
-  tags:
-  - doc
-  - ai
-  - dev-guide
-  relationships:
-  - type: documents
-    target: src/meaning/meaning_core.py
-  - type: documents
-    target: src/meaning/meaning_inference.py
-- path: .claude/skills/meaning-review/SKILL.md
-  intent: Skill definition for interactive review workflow to refine inference suggestions
-  status: active
-  needs_review: false
-  last_verified: '2026-01-22T03:09:11.846747+00:00'
-  tags:
-  - doc
-  - ai
-  - dev-guide
-  relationships:
-  - type: documents
-    target: src/meaning/meaning_core.py
-  - type: documents
-    target: src/meaning/meaning_inference.py
-- path: .claude/skills/meaning-update/SKILL.md
-  intent: Skill definition for syncing .meaning/index.yaml with filesystem changes
-  status: active
-  needs_review: false
-  last_verified: '2026-01-22T03:09:11.846747+00:00'
-  tags:
-  - doc
-  - ai
-  - dev-guide
-  relationships:
-  - type: documents
-    target: src/meaning/meaning_core.py
-  - type: documents
-    target: src/meaning/meaning_inference.py
-- path: .claude/skills/meaning-validate/SKILL.md
-  intent: Skill definition for running health checks on .meaning/ semantic index
-  status: active
-  needs_review: false
-  last_verified: '2026-01-22T03:09:11.846747+00:00'
-  tags:
-  - doc
-  - ai
-  - dev-guide
-  relationships:
-  - type: documents
-    target: src/meaning/meaning_core.py
-- path: .gitignore
-  intent: Git exclusion patterns for build artifacts, dependencies, and sensitive
-    files
-  status: active
-  needs_review: false
-  last_verified: '2026-01-23T06:01:55.337746+00:00'
-  tags:
-  - config
-  - util
-- path: pyproject.toml
-  intent: Python project configuration defining package metadata, dependencies, and
-    build settings
-  status: active
-  needs_review: false
-  last_verified: '2026-01-23T06:31:26.672110+00:00'
-  tags:
-  - config
-  - package
-  relationships:
-  - type: configures
-    target: src/meaning/meaning_core.py
-  - type: configures
-    target: src/meaning/meaning_inference.py
-- path: scripts/meaning-post-write.sh
-  intent: Post-write hook that flags modified files for review in .meaning/index.yaml
-  status: active
-  needs_review: false
-  last_verified: '2026-01-21T08:34:34.635323+00:00'
-  tags:
-  - script
-  - util
-  relationships:
-  - type: calls
-    target: src/meaning/meaning_core.py
-- path: scripts/meaning-validate.sh
-  intent: Session-end validation hook checking .meaning/ index health
-  status: active
-  needs_review: false
-  last_verified: '2026-01-21T08:34:34.635496+00:00'
-  tags:
-  - script
-  - validation
-  - util
-  relationships:
-  - type: calls
-    target: src/meaning/meaning_core.py
-- path: tests/fixtures/.gitkeep
-  intent: Placeholder to preserve empty fixtures directory in git
-  status: active
-  needs_review: false
-  last_verified: '2026-01-21T08:28:47.306382+00:00'
-  tags:
-  - fixture
-- path: .agent-sessions/2026-01-21-phase4-dogfooding.md
-  intent: Session summary documenting Phase 4 dog-fooding, batch review workflow,
-    and hook bug fixes
-  status: active
-  needs_review: false
-  last_verified: '2026-01-21T08:38:02.621435+00:00'
-  tags:
-  - doc
-  - history
-  - dev-guide
-  relationships:
-  - type: documents
-    target: scripts/meaning-validate.sh
-  - type: documents
-    target: scripts/meaning-post-write.sh
-- path: .agent-sessions/2026-01-21-phase5-discovery-query.md
-  intent: Session summary documenting Phase 5 discovery and query engine implementation
-    with status command and natural language search
-  status: active
-  needs_review: false
-  last_verified: '2026-01-21T09:22:59.340449+00:00'
-  tags:
-  - doc
-  - history
-  - dev-guide
-  relationships:
-  - type: documents
-    target: .claude/skills/meaning-query/SKILL.md
-- path: .claude/skills/meaning-query/SKILL.md
-  intent: Natural language search through the .meaning/ semantic index.
-  status: active
-  needs_review: false
-  last_verified: '2026-01-22T04:18:10.750684+00:00'
-  tags:
-  - doc
-  relationships:
-  - type: documents
-    target: src/meaning/meaning_core.py
-  - type: documents
-    target: src/meaning/meaning_inference.py
-- path: QUICKSTART.md
-  intent: Get up and running with Meaning in 5 minutes
-  status: active
-  needs_review: false
-  last_verified: '2026-01-23T06:57:11.398965+00:00'
-  tags:
-  - doc
-  relationships:
-  - type: documents
-    target: IMPLEMENTATION-PLAN.md
-  - type: documents
-    target: CLAUDE.md
-- path: src/meaning/__init__.py
-  intent: 'Meaning: Semantic File Index for AI Agents A lean, text-based semantic
-    layer for codebases.'
-  status: active
-  needs_review: false
-  last_verified: '2026-01-23T05:46:02.031526+00:00'
-  tags:
-  - module
-  relationships:
-  - type: imports
-    target: src/meaning/installer.py
-  - type: imports
-    target: src/meaning/meaning_core.py
-- path: src/meaning/__main__.py
-  intent: Entry point for python -m meaning
-  status: active
-  needs_review: false
-  last_verified: '2026-01-22T01:17:53.043427+00:00'
-  tags:
-  - module
-  - core
-- path: src/meaning/meaning_inference.py
-  intent: 'Meaning: Inference Engine Automatically infer semantic metadata for files
-    to reduce manual work.'
-  status: active
-  needs_review: false
-  last_verified: '2026-01-22T01:17:53.043428+00:00'
-  tags:
-  - module
-- path: .agent-sessions/2026-01-22-package-structure-fix.md
-  intent: 'Agent session note: 2026 01 22 package structure fix.'
-  status: active
-  needs_review: false
-  last_verified: '2026-01-22T04:18:10.750684+00:00'
-  tags:
-  - doc
-- path: audits/audit-report-2026-01-22.md
-  intent: Audited the current working tree as-is; did not attempt a clean checkout
-    or installation in a fresh environment.
-  status: active
-  needs_review: false
-  last_verified: '2026-01-22T04:18:10.750684+00:00'
-  tags:
-  - doc
-  - repository
-- path: src/meaning/templates/config.yaml
-  intent: Default configuration template for Meaning projects.
-  status: active
-  needs_review: false
-  last_verified: '2026-01-23T06:44:39.342231+00:00'
-  tags:
-  - config
-- path: src/meaning/templates/hooks.json
-  intent: Default Claude Code hooks template for Meaning projects.
-  status: active
-  needs_review: false
-  last_verified: '2026-01-22T03:53:58.358066+00:00'
-  tags:
-  - config
-- path: src/meaning/templates/schema/docs.yaml
-  intent: Schema template for docs projects.
-  status: active
-  needs_review: false
-  last_verified: '2026-01-22T03:53:58.358066+00:00'
-  tags:
-  - config
-- path: src/meaning/templates/schema/node.yaml
-  intent: Schema template for node projects.
-  status: active
-  needs_review: false
-  last_verified: '2026-01-22T03:53:58.358066+00:00'
-  tags:
-  - config
-- path: src/meaning/templates/schema/python.yaml
-  intent: Schema template for python projects.
-  status: active
-  needs_review: false
-  last_verified: '2026-01-22T03:53:58.358066+00:00'
-  tags:
-  - config
-- path: src/meaning/templates/schema/rust.yaml
-  intent: Schema template for rust projects.
-  status: active
-  needs_review: false
-  last_verified: '2026-01-22T03:53:58.358066+00:00'
-  tags:
-  - config
-- path: src/meaning/templates/scripts/meaning-post-write.sh
-  intent: 'Hook script template for Meaning: meaning-post-write.'
-  status: active
-  needs_review: false
-  last_verified: '2026-01-22T03:53:58.358066+00:00'
-  tags:
-  - x-needs-tags
-- path: src/meaning/templates/scripts/meaning-validate.sh
-  intent: 'Hook script template for Meaning: meaning-validate.'
-  status: active
-  needs_review: false
-  last_verified: '2026-01-22T03:53:58.358066+00:00'
-  tags:
-  - validation
-- path: .agent-sessions/2026-01-22-cli-templates-cli-fixes.md
-  intent: 'Agent session note: 2026 01 22 cli templates cli fixes.'
-  status: active
-  needs_review: false
-  last_verified: '2026-01-22T04:18:10.750684+00:00'
-  tags:
-  - doc
-  - cli
-- path: .agent-sessions/2026-01-22-review-reporting-fixture-smoke.md
-  intent: 'Agent session note: 2026 01 22 review reporting fixture smoke.'
-  status: active
-  needs_review: false
-  last_verified: '2026-01-22T04:18:10.750684+00:00'
-  tags:
-  - doc
-  - fixture
-  - repository
-- path: .agent-sessions/2026-01-22-temp-dir-cli-smoke-test.md
-  intent: 'Agent session note: 2026 01 22 temp dir cli smoke test.'
-  status: active
-  needs_review: false
-  last_verified: '2026-01-22T04:18:10.750684+00:00'
-  tags:
-  - doc
-  - cli
-- path: .agent-sessions/2026-01-22-intent-inference-interactive-diff.md
-  intent: 'Agent session note: 2026 01 22 intent inference interactive diff.'
-  status: active
-  needs_review: false
-  last_verified: '2026-01-22T04:18:10.750684+00:00'
-  tags:
-  - doc
-- path: .agent-sessions/2026-01-22-markdown-intent-sanitization.md
-  intent: 'Agent session note: 2026 01 22 markdown intent sanitization.'
-  status: active
-  needs_review: false
-  last_verified: '2026-01-22T04:19:19.446497+00:00'
-  tags:
-  - doc
-- path: .agent-sessions/2026-01-23-installer-distribution-prep.md
-  intent: 'Agent session note: 2026 01 23 installer distribution prep.'
-  status: active
-  needs_review: false
-  last_verified: '2026-01-23T05:45:36.896472+00:00'
-  tags:
-  - doc
-- path: DISTRIBUTION-PLAN.md
-  intent: 'Enable frictionless adoption of meaning with a single command:'
-  status: active
-  needs_review: false
-  last_verified: '2026-01-23T06:57:11.398965+00:00'
-  tags:
-  - doc
-- path: src/meaning/installer.py
-  intent: 'Meaning Installer Handles installation of meaning into target projects:
-    - Creates .meaning/ directory with templates - Installs Claude Code hooks - Optionally
-    installs skills for Claude Code users This module focuses on file copying and
-    setup logic, separate from the core...'
-  status: active
-  needs_review: false
-  last_verified: '2026-01-23T05:45:36.896472+00:00'
-  tags:
-  - module
-- path: src/meaning/templates/schema/mixed.yaml
-  intent: Schema template for mixed projects.
-  status: active
-  needs_review: false
-  last_verified: '2026-01-23T05:45:36.896472+00:00'
-  tags:
-  - config
-- path: src/meaning/templates/skills/meaning-init/SKILL.md
-  intent: Bootstrap the .meaning/ directory for a project with semantic file indexing
-    and intelligent inference.
-  status: active
-  needs_review: false
-  last_verified: '2026-01-23T05:45:36.896472+00:00'
-  tags:
-  - doc
-- path: src/meaning/templates/skills/meaning-query/SKILL.md
-  intent: Natural language search through the .meaning/ semantic index.
-  status: active
-  needs_review: false
-  last_verified: '2026-01-23T05:45:36.896472+00:00'
-  tags:
-  - doc
-- path: src/meaning/templates/skills/meaning-review/SKILL.md
-  intent: Smart batch workflow that automatically accepts high-confidence suggestions
-    and only prompts for manual review when needed.
-  status: active
-  needs_review: false
-  last_verified: '2026-01-23T05:45:36.896472+00:00'
-  tags:
-  - doc
-- path: src/meaning/templates/skills/meaning-update/SKILL.md
-  intent: Synchronize the .meaning/index.yaml with filesystem changes by detecting
-    new, modified, and deleted files.
-  status: active
-  needs_review: false
-  last_verified: '2026-01-23T05:45:36.896472+00:00'
-  tags:
-  - doc
-- path: src/meaning/templates/skills/meaning-validate/SKILL.md
-  intent: Run health checks on the .meaning/ index to detect errors, warnings, and
-    inconsistencies.
-  status: active
-  needs_review: false
-  last_verified: '2026-01-23T05:45:36.896472+00:00'
-  tags:
-  - doc
-- path: tests/test_installer.py
-  intent: Tests for the meaning installer module.
-  status: active
-  needs_review: false
-  last_verified: '2026-01-23T06:31:26.672110+00:00'
-  tags:
-  - module
-  - test
-  relationships:
-  - type: tests
-    target: src/meaning/installer.py
-  - type: imports
-    target: src/meaning/installer.py
-- path: .github/workflows/ci.yml
-  intent: CI workflow running tests, linting, type checking, and validation on PRs
-    and pushes
-  status: active
-  needs_review: false
-  last_verified: '2026-01-23T06:57:11.398965+00:00'
-  tags:
-  - config
-  - ci
-- path: .github/workflows/publish.yml
-  intent: CD workflow for publishing releases to TestPyPI and PyPI with trusted publishing
-  status: active
-  needs_review: false
-  last_verified: '2026-01-23T06:57:11.398965+00:00'
-  tags:
-  - config
-  - ci
-- path: .agent-sessions/2026-01-23-cicd-workflows.md
-  intent: 'Agent session note: 2026 01 23 cicd workflows.'
-  status: active
-  needs_review: false
-  last_verified: '2026-01-23T07:10:20.294092+00:00'
-  tags:
-  - doc
+  - path: README.md
+    intent: Project overview and quick start guide for users
+    status: active
+    needs_review: false
+    last_verified: "2026-01-23T06:57:11.398965+00:00"
+    tags:
+      - doc
+      - core
+      - overview
+    relationships:
+      - type: documents
+        target: src/meaning/meaning_core.py
+      - type: documents
+        target: .agent-sessions/README.md
+      - type: documents
+        target: IMPLEMENTATION-PLAN.md
+      - type: documents
+        target: AGENTS.md
+      - type: documents
+        target: QUICKSTART.md
+      - type: documents
+        target: CLAUDE.md
+  - path: AGENTS.md
+    intent: Symlink to CLAUDE.md providing development guide for all AI agents
+    status: active
+    needs_review: false
+    last_verified: "2026-01-23T07:10:36.408761+00:00"
+    tags:
+      - doc
+      - core
+      - dev-guide
+      - ai
+    relationships:
+      - type: documents
+        target: CLAUDE.md
+  - path: CLAUDE.md
+    intent: Development guide and architectural reference for AI agents working on Meaning
+    status: active
+    needs_review: false
+    last_verified: "2026-01-23T07:10:36.408761+00:00"
+    tags:
+      - doc
+      - core
+      - dev-guide
+      - ai
+    relationships:
+      - type: documents
+        target: IMPLEMENTATION-PLAN.md
+      - type: documents
+        target: src/meaning/meaning_core.py
+  - path: IMPLEMENTATION-PLAN.md
+    intent:
+      Complete technical specification including data structures, operations,
+      and design decisions
+    status: active
+    needs_review: false
+    last_verified: "2026-01-21T09:23:35.799168+00:00"
+    tags:
+      - doc
+      - core
+      - spec
+    relationships:
+      - type: documents
+        target: src/meaning/meaning_core.py
+  - path: LICENSE
+    intent: MIT license granting permission to use, modify, and distribute the software
+    status: active
+    needs_review: false
+    last_verified: "2026-01-23T06:15:00+00:00"
+    tags:
+      - doc
+      - legal
+  - path: CHANGELOG.md
+    intent: Chronological record of project changes, decisions, and milestones
+    status: active
+    needs_review: false
+    last_verified: "2026-01-23T07:10:36.408761+00:00"
+    tags:
+      - doc
+      - core
+      - history
+    relationships:
+      - type: documents
+        target: .agent-sessions/2026-01-21-dogfooding-inference-plan.md
+  - path: src/meaning/meaning_core.py
+    intent:
+      Core Python library implementing YAML parsing, validation, data structures,
+      and index operations
+    status: active
+    needs_review: false
+    last_verified: "2026-01-23T06:31:26.672110+00:00"
+    tags:
+      - core
+      - module
+      - api
+      - parsing
+      - validation
+    relationships:
+      - type: implements
+        target: IMPLEMENTATION-PLAN.md
+      - type: imports
+        target: src/meaning/meaning_inference.py
+      - type: imports
+        target: src/meaning/installer.py
+  - path: src/meaning/meaning_inference.py
+    intent:
+      Inference engine that automatically generates semantic metadata with confidence
+      scoring
+    status: active
+    needs_review: false
+    last_verified: "2026-01-23T07:10:36.408761+00:00"
+    tags:
+      - core
+      - module
+      - api
+      - parsing
+    relationships:
+      - type: imports
+        target: src/meaning/meaning_core.py
+      - type: implements
+        target: IMPLEMENTATION-PLAN.md
+  - path: .agent-sessions/README.md
+    intent: Guide for AI agents on documenting sessions and maintaining project continuity
+    status: active
+    needs_review: false
+    last_verified: "2026-01-21T09:24:10.405341+00:00"
+    tags:
+      - doc
+      - dev-guide
+      - ai
+    relationships:
+      - type: documents
+        target: .agent-sessions/2026-01-21-dogfooding-inference-plan.md
+  - path: .agent-sessions/2026-01-21-dogfooding-inference-plan.md
+    intent:
+      Session summary documenting dog-fooding initialization, pain points, and
+      inference engine planning
+    status: active
+    needs_review: false
+    last_verified: "2026-01-21T08:28:47.306382+00:00"
+    tags:
+      - doc
+      - history
+      - dev-guide
+    relationships:
+      - type: documents
+        target: README.md
+      - type: documents
+        target: CLAUDE.md
+      - type: documents
+        target: IMPLEMENTATION-PLAN.md
+      - type: documents
+        target: CHANGELOG.md
+      - type: documents
+        target: src/meaning/meaning_core.py
+  - path: scripts/validate-meaning.sh
+    intent: Validation script to check .meaning/ index health with formatted output
+    status: active
+    needs_review: false
+    last_verified: "2026-01-22T03:09:11.846747+00:00"
+    tags:
+      - script
+      - validation
+      - util
+    relationships:
+      - type: calls
+        target: src/meaning/meaning_core.py
+  - path: scripts/run-inference.py
+    intent: CLI tool to run inference on files and display results with confidence visualization
+    status: active
+    needs_review: false
+    last_verified: "2026-01-22T03:09:11.846747+00:00"
+    tags:
+      - script
+      - util
+      - module
+    relationships:
+      - type: calls
+        target: src/meaning/meaning_core.py
+      - type: calls
+        target: src/meaning/meaning_inference.py
+      - type: imports
+        target: src/meaning/meaning_core.py
+      - type: imports
+        target: src/meaning/meaning_inference.py
+  - path: tests/test_core.py
+    intent: Tests for meaning_core module.
+    status: active
+    needs_review: false
+    last_verified: "2026-01-23T06:31:26.672110+00:00"
+    tags:
+      - test
+      - module
+    relationships:
+      - type: tests
+        target: src/meaning/meaning_core.py
+      - type: imports
+        target: src/meaning/meaning_core.py
+      - type: imports
+        target: src/meaning/meaning_inference.py
+  - path: tests/test_inference.py
+    intent: Tests for meaning_inference.
+    status: active
+    needs_review: false
+    last_verified: "2026-01-23T06:31:26.672110+00:00"
+    tags:
+      - test
+      - module
+    relationships:
+      - type: tests
+        target: src/meaning/meaning_inference.py
+      - type: imports
+        target: src/meaning/meaning_core.py
+      - type: imports
+        target: src/meaning/meaning_inference.py
+      - type: imports
+        target: src/meaning/meaning_inference.py
+  - path: .agent-sessions/2026-01-21-phase2-inference-engine.md
+    intent:
+      Session summary documenting Phase 2 inference engine implementation, design
+      decisions, and results
+    status: active
+    needs_review: false
+    last_verified: "2026-01-21T08:28:47.306382+00:00"
+    tags:
+      - doc
+      - history
+      - dev-guide
+    relationships:
+      - type: documents
+        target: src/meaning/meaning_inference.py
+      - type: documents
+        target: tests/test_inference.py
+      - type: documents
+        target: scripts/run-inference.py
+      - type: documents
+        target: IMPLEMENTATION-PLAN.md
+  - path: .agent-sessions/2026-01-21-phase3-skills.md
+    intent:
+      Session summary documenting Phase 3 skills implementation including Claude
+      Code integration
+    status: active
+    needs_review: false
+    last_verified: "2026-01-21T08:28:47.306382+00:00"
+    tags:
+      - doc
+      - history
+      - dev-guide
+    relationships:
+      - type: documents
+        target: .claude/skills/meaning-init/SKILL.md
+      - type: documents
+        target: .claude/skills/meaning-update/SKILL.md
+      - type: documents
+        target: .claude/skills/meaning-validate/SKILL.md
+      - type: documents
+        target: .claude/skills/meaning-review/SKILL.md
+  - path: .claude/settings.json
+    intent: Claude Code project hooks configuration for post-write and session-end validation
+    status: active
+    needs_review: false
+    last_verified: "2026-01-21T08:28:47.306382+00:00"
+    tags:
+      - config
+      - ai
+    relationships:
+      - type: configures
+        target: scripts/meaning-post-write.sh
+      - type: configures
+        target: scripts/meaning-validate.sh
+  - path: .claude/settings.local.json
+    intent: Local Claude Code settings overrides (user-specific, not committed)
+    status: active
+    needs_review: false
+    last_verified: "2026-01-21T09:24:10.405341+00:00"
+    tags:
+      - config
+      - ai
+  - path: .claude/skills/meaning-init/SKILL.md
+    intent:
+      Skill definition for bootstrapping .meaning/ directory with intelligent
+      inference
+    status: active
+    needs_review: false
+    last_verified: "2026-01-22T03:09:11.846747+00:00"
+    tags:
+      - doc
+      - ai
+      - dev-guide
+    relationships:
+      - type: documents
+        target: src/meaning/meaning_core.py
+      - type: documents
+        target: src/meaning/meaning_inference.py
+  - path: .claude/skills/meaning-review/SKILL.md
+    intent: Skill definition for interactive review workflow to refine inference suggestions
+    status: active
+    needs_review: false
+    last_verified: "2026-01-22T03:09:11.846747+00:00"
+    tags:
+      - doc
+      - ai
+      - dev-guide
+    relationships:
+      - type: documents
+        target: src/meaning/meaning_core.py
+      - type: documents
+        target: src/meaning/meaning_inference.py
+  - path: .claude/skills/meaning-update/SKILL.md
+    intent: Skill definition for syncing .meaning/index.yaml with filesystem changes
+    status: active
+    needs_review: false
+    last_verified: "2026-01-22T03:09:11.846747+00:00"
+    tags:
+      - doc
+      - ai
+      - dev-guide
+    relationships:
+      - type: documents
+        target: src/meaning/meaning_core.py
+      - type: documents
+        target: src/meaning/meaning_inference.py
+  - path: .claude/skills/meaning-validate/SKILL.md
+    intent: Skill definition for running health checks on .meaning/ semantic index
+    status: active
+    needs_review: false
+    last_verified: "2026-01-22T03:09:11.846747+00:00"
+    tags:
+      - doc
+      - ai
+      - dev-guide
+    relationships:
+      - type: documents
+        target: src/meaning/meaning_core.py
+  - path: .gitignore
+    intent:
+      Git exclusion patterns for build artifacts, dependencies, and sensitive
+      files
+    status: active
+    needs_review: false
+    last_verified: "2026-01-23T06:01:55.337746+00:00"
+    tags:
+      - config
+      - util
+  - path: pyproject.toml
+    intent:
+      Python project configuration defining package metadata, dependencies, and
+      build settings
+    status: active
+    needs_review: false
+    last_verified: "2026-01-23T06:31:26.672110+00:00"
+    tags:
+      - config
+      - package
+    relationships:
+      - type: configures
+        target: src/meaning/meaning_core.py
+      - type: configures
+        target: src/meaning/meaning_inference.py
+  - path: scripts/meaning-post-write.sh
+    intent: Post-write hook that flags modified files for review in .meaning/index.yaml
+    status: active
+    needs_review: false
+    last_verified: "2026-01-21T08:34:34.635323+00:00"
+    tags:
+      - script
+      - util
+    relationships:
+      - type: calls
+        target: src/meaning/meaning_core.py
+  - path: scripts/meaning-validate.sh
+    intent: Session-end validation hook checking .meaning/ index health
+    status: active
+    needs_review: false
+    last_verified: "2026-01-21T08:34:34.635496+00:00"
+    tags:
+      - script
+      - validation
+      - util
+    relationships:
+      - type: calls
+        target: src/meaning/meaning_core.py
+  - path: tests/fixtures/.gitkeep
+    intent: Placeholder to preserve empty fixtures directory in git
+    status: active
+    needs_review: false
+    last_verified: "2026-01-21T08:28:47.306382+00:00"
+    tags:
+      - fixture
+  - path: .agent-sessions/2026-01-21-phase4-dogfooding.md
+    intent:
+      Session summary documenting Phase 4 dog-fooding, batch review workflow,
+      and hook bug fixes
+    status: active
+    needs_review: false
+    last_verified: "2026-01-21T08:38:02.621435+00:00"
+    tags:
+      - doc
+      - history
+      - dev-guide
+    relationships:
+      - type: documents
+        target: scripts/meaning-validate.sh
+      - type: documents
+        target: scripts/meaning-post-write.sh
+  - path: .agent-sessions/2026-01-21-phase5-discovery-query.md
+    intent:
+      Session summary documenting Phase 5 discovery and query engine implementation
+      with status command and natural language search
+    status: active
+    needs_review: false
+    last_verified: "2026-01-21T09:22:59.340449+00:00"
+    tags:
+      - doc
+      - history
+      - dev-guide
+    relationships:
+      - type: documents
+        target: .claude/skills/meaning-query/SKILL.md
+  - path: .claude/skills/meaning-query/SKILL.md
+    intent: Natural language search through the .meaning/ semantic index.
+    status: active
+    needs_review: false
+    last_verified: "2026-01-22T04:18:10.750684+00:00"
+    tags:
+      - doc
+    relationships:
+      - type: documents
+        target: src/meaning/meaning_core.py
+      - type: documents
+        target: src/meaning/meaning_inference.py
+  - path: QUICKSTART.md
+    intent: Get up and running with Meaning in 5 minutes
+    status: active
+    needs_review: false
+    last_verified: "2026-01-23T06:57:11.398965+00:00"
+    tags:
+      - doc
+    relationships:
+      - type: documents
+        target: IMPLEMENTATION-PLAN.md
+      - type: documents
+        target: CLAUDE.md
+  - path: src/meaning/__init__.py
+    intent:
+      "Meaning: Semantic File Index for AI Agents A lean, text-based semantic
+      layer for codebases."
+    status: active
+    needs_review: false
+    last_verified: "2026-01-23T05:46:02.031526+00:00"
+    tags:
+      - module
+    relationships:
+      - type: imports
+        target: src/meaning/installer.py
+      - type: imports
+        target: src/meaning/meaning_core.py
+  - path: src/meaning/__main__.py
+    intent: Entry point for python -m meaning
+    status: active
+    needs_review: false
+    last_verified: "2026-01-22T01:17:53.043427+00:00"
+    tags:
+      - module
+      - core
+  - path: src/meaning/meaning_inference.py
+    intent:
+      "Meaning: Inference Engine Automatically infer semantic metadata for files
+      to reduce manual work."
+    status: active
+    needs_review: false
+    last_verified: "2026-01-22T01:17:53.043428+00:00"
+    tags:
+      - module
+  - path: .agent-sessions/2026-01-22-package-structure-fix.md
+    intent: "Agent session note: 2026 01 22 package structure fix."
+    status: active
+    needs_review: false
+    last_verified: "2026-01-22T04:18:10.750684+00:00"
+    tags:
+      - doc
+  - path: audits/audit-report-2026-01-22.md
+    intent:
+      Audited the current working tree as-is; did not attempt a clean checkout
+      or installation in a fresh environment.
+    status: active
+    needs_review: false
+    last_verified: "2026-01-22T04:18:10.750684+00:00"
+    tags:
+      - doc
+      - repository
+  - path: src/meaning/templates/config.yaml
+    intent: Default configuration template for Meaning projects.
+    status: active
+    needs_review: false
+    last_verified: "2026-01-23T06:44:39.342231+00:00"
+    tags:
+      - config
+  - path: src/meaning/templates/hooks.json
+    intent: Default Claude Code hooks template for Meaning projects.
+    status: active
+    needs_review: false
+    last_verified: "2026-01-22T03:53:58.358066+00:00"
+    tags:
+      - config
+  - path: src/meaning/templates/schema/docs.yaml
+    intent: Schema template for docs projects.
+    status: active
+    needs_review: false
+    last_verified: "2026-01-22T03:53:58.358066+00:00"
+    tags:
+      - config
+  - path: src/meaning/templates/schema/node.yaml
+    intent: Schema template for node projects.
+    status: active
+    needs_review: false
+    last_verified: "2026-01-22T03:53:58.358066+00:00"
+    tags:
+      - config
+  - path: src/meaning/templates/schema/python.yaml
+    intent: Schema template for python projects.
+    status: active
+    needs_review: false
+    last_verified: "2026-01-22T03:53:58.358066+00:00"
+    tags:
+      - config
+  - path: src/meaning/templates/schema/rust.yaml
+    intent: Schema template for rust projects.
+    status: active
+    needs_review: false
+    last_verified: "2026-01-22T03:53:58.358066+00:00"
+    tags:
+      - config
+  - path: src/meaning/templates/scripts/meaning-post-write.sh
+    intent: "Hook script template for Meaning: meaning-post-write."
+    status: active
+    needs_review: false
+    last_verified: "2026-01-22T03:53:58.358066+00:00"
+    tags:
+      - x-needs-tags
+  - path: src/meaning/templates/scripts/meaning-validate.sh
+    intent: "Hook script template for Meaning: meaning-validate."
+    status: active
+    needs_review: false
+    last_verified: "2026-01-22T03:53:58.358066+00:00"
+    tags:
+      - validation
+  - path: .agent-sessions/2026-01-22-cli-templates-cli-fixes.md
+    intent: "Agent session note: 2026 01 22 cli templates cli fixes."
+    status: active
+    needs_review: false
+    last_verified: "2026-01-22T04:18:10.750684+00:00"
+    tags:
+      - doc
+      - cli
+  - path: .agent-sessions/2026-01-22-review-reporting-fixture-smoke.md
+    intent: "Agent session note: 2026 01 22 review reporting fixture smoke."
+    status: active
+    needs_review: false
+    last_verified: "2026-01-22T04:18:10.750684+00:00"
+    tags:
+      - doc
+      - fixture
+      - repository
+  - path: .agent-sessions/2026-01-22-temp-dir-cli-smoke-test.md
+    intent: "Agent session note: 2026 01 22 temp dir cli smoke test."
+    status: active
+    needs_review: false
+    last_verified: "2026-01-22T04:18:10.750684+00:00"
+    tags:
+      - doc
+      - cli
+  - path: .agent-sessions/2026-01-22-intent-inference-interactive-diff.md
+    intent: "Agent session note: 2026 01 22 intent inference interactive diff."
+    status: active
+    needs_review: false
+    last_verified: "2026-01-22T04:18:10.750684+00:00"
+    tags:
+      - doc
+  - path: .agent-sessions/2026-01-22-markdown-intent-sanitization.md
+    intent: "Agent session note: 2026 01 22 markdown intent sanitization."
+    status: active
+    needs_review: false
+    last_verified: "2026-01-22T04:19:19.446497+00:00"
+    tags:
+      - doc
+  - path: .agent-sessions/2026-01-23-installer-distribution-prep.md
+    intent: "Agent session note: 2026 01 23 installer distribution prep."
+    status: active
+    needs_review: false
+    last_verified: "2026-01-23T05:45:36.896472+00:00"
+    tags:
+      - doc
+  - path: DISTRIBUTION-PLAN.md
+    intent: "Enable frictionless adoption of meaning with a single command:"
+    status: active
+    needs_review: false
+    last_verified: "2026-01-23T06:57:11.398965+00:00"
+    tags:
+      - doc
+  - path: src/meaning/installer.py
+    intent:
+      "Meaning Installer Handles installation of meaning into target projects:
+      - Creates .meaning/ directory with templates - Installs Claude Code hooks - Optionally
+      installs skills for Claude Code users This module focuses on file copying and
+      setup logic, separate from the core..."
+    status: active
+    needs_review: false
+    last_verified: "2026-01-23T05:45:36.896472+00:00"
+    tags:
+      - module
+  - path: src/meaning/templates/schema/mixed.yaml
+    intent: Schema template for mixed projects.
+    status: active
+    needs_review: false
+    last_verified: "2026-01-23T05:45:36.896472+00:00"
+    tags:
+      - config
+  - path: src/meaning/templates/skills/meaning-init/SKILL.md
+    intent:
+      Bootstrap the .meaning/ directory for a project with semantic file indexing
+      and intelligent inference.
+    status: active
+    needs_review: false
+    last_verified: "2026-01-23T05:45:36.896472+00:00"
+    tags:
+      - doc
+  - path: src/meaning/templates/skills/meaning-query/SKILL.md
+    intent: Natural language search through the .meaning/ semantic index.
+    status: active
+    needs_review: false
+    last_verified: "2026-01-23T05:45:36.896472+00:00"
+    tags:
+      - doc
+  - path: src/meaning/templates/skills/meaning-review/SKILL.md
+    intent:
+      Smart batch workflow that automatically accepts high-confidence suggestions
+      and only prompts for manual review when needed.
+    status: active
+    needs_review: false
+    last_verified: "2026-01-23T05:45:36.896472+00:00"
+    tags:
+      - doc
+  - path: src/meaning/templates/skills/meaning-update/SKILL.md
+    intent:
+      Synchronize the .meaning/index.yaml with filesystem changes by detecting
+      new, modified, and deleted files.
+    status: active
+    needs_review: false
+    last_verified: "2026-01-23T05:45:36.896472+00:00"
+    tags:
+      - doc
+  - path: src/meaning/templates/skills/meaning-validate/SKILL.md
+    intent:
+      Run health checks on the .meaning/ index to detect errors, warnings, and
+      inconsistencies.
+    status: active
+    needs_review: false
+    last_verified: "2026-01-23T05:45:36.896472+00:00"
+    tags:
+      - doc
+  - path: tests/test_installer.py
+    intent: Tests for the meaning installer module.
+    status: active
+    needs_review: false
+    last_verified: "2026-01-23T06:31:26.672110+00:00"
+    tags:
+      - module
+      - test
+    relationships:
+      - type: tests
+        target: src/meaning/installer.py
+      - type: imports
+        target: src/meaning/installer.py
+  - path: .github/workflows/ci.yml
+    intent:
+      CI workflow running tests, linting, type checking, and validation on PRs
+      and pushes
+    status: active
+    needs_review: false
+    last_verified: "2026-01-23T06:57:11.398965+00:00"
+    tags:
+      - config
+      - ci
+  - path: .github/workflows/publish.yml
+    intent: CD workflow for publishing releases to TestPyPI and PyPI with trusted publishing
+    status: active
+    needs_review: false
+    last_verified: "2026-01-23T06:57:11.398965+00:00"
+    tags:
+      - config
+      - ci
+  - path: .agent-sessions/2026-01-23-cicd-workflows.md
+    intent: "Agent session note: 2026 01 23 cicd workflows."
+    status: active
+    needs_review: false
+    last_verified: "2026-01-23T07:10:20.294092+00:00"
+    tags:
+      - doc
+  - path: .agent-sessions/2026-01-23-filename-inference-tag-vocabulary.md
+    intent: Session documenting rule-based inference implementation and tag vocabulary enhancement
+    status: active
+    needs_review: false
+    last_verified: "2026-01-23T08:12:00.000000+00:00"
+    tags:
+      - doc
+      - history
+      - dev-guide
+    relationships:
+      - type: documents
+        target: src/meaning/meaning_inference.py
+      - type: documents
+        target: audits/IMPLEMENTATION-PLAN-v0.2.md
+  - path: audits/audit-external-repo-2026-01-23.md
+    intent: Real-world testing feedback documenting filename inference and tag vocabulary gaps
+    status: active
+    needs_review: false
+    last_verified: "2026-01-23T08:30:00.000000+00:00"
+    tags:
+      - doc
+      - spec
+    relationships:
+      - type: documents
+        target: src/meaning/meaning_inference.py
+  - path: audits/IMPLEMENTATION-PLAN-v0.2.md
+    intent: Implementation plan for filename-based inference and enhanced tag vocabulary (v0.2)
+    status: active
+    needs_review: false
+    last_verified: "2026-01-23T08:30:00.000000+00:00"
+    tags:
+      - doc
+      - spec
+    relationships:
+      - type: documents
+        target: src/meaning/meaning_inference.py
+      - type: documents
+        target: audits/audit-external-repo-2026-01-23.md

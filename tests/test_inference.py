@@ -16,9 +16,15 @@ from meaning.meaning_core import (
     RelationshipType,
 )
 from meaning.meaning_inference import (
+    ExtensionRule,
     FileInferenceResult,
+    FilenameRule,
+    InferenceRules,
+    PathPatternRule,
+    get_default_rules,
     infer_document_relationships,
     infer_file_metadata,
+    infer_from_rules,
     infer_import_relationships,
     infer_intent_from_docstring,
     infer_intent_from_path,
@@ -94,7 +100,347 @@ def index():
 
 
 # =============================================================================
-# Test Timestamp Inference
+# Rule-Based Inference Tests
+# =============================================================================
+
+
+class TestInferenceRuleDataStructures:
+    """Test inference rule data structures."""
+
+    def test_filename_rule_creation(self):
+        """Test FilenameRule dataclass."""
+        rule = FilenameRule(
+            filename=".gitignore",
+            intent="Git ignore patterns",
+            tags=["config", "vcs"],
+            confidence=1.0,
+        )
+        assert rule.filename == ".gitignore"
+        assert rule.intent == "Git ignore patterns"
+        assert rule.tags == ["config", "vcs"]
+        assert rule.confidence == 1.0
+
+    def test_path_pattern_rule_creation(self):
+        """Test PathPatternRule dataclass."""
+        rule = PathPatternRule(
+            pattern="**/test_*.py",
+            intent="Python test module",
+            tags=["test"],
+            confidence=0.90,
+            fallback_to_content=True,
+        )
+        assert rule.pattern == "**/test_*.py"
+        assert rule.fallback_to_content is True
+
+    def test_extension_rule_creation(self):
+        """Test ExtensionRule dataclass."""
+        rule = ExtensionRule(
+            extension=".slurm",
+            intent="SLURM batch script",
+            tags=["script", "hpc"],
+            confidence=0.95,
+            fallback_to_content=False,
+        )
+        assert rule.extension == ".slurm"
+        assert rule.fallback_to_content is False
+
+    def test_inference_rules_collection(self):
+        """Test InferenceRules collection."""
+        rules = InferenceRules(
+            exact_filenames=[FilenameRule(".gitignore", "Git ignore", ["config"], 1.0)],
+            path_patterns=[PathPatternRule("**/test_*.py", "Test", ["test"], 0.9)],
+            extension_rules=[ExtensionRule(".md", "Markdown", ["doc"], 0.6, True)],
+        )
+        assert len(rules.exact_filenames) == 1
+        assert len(rules.path_patterns) == 1
+        assert len(rules.extension_rules) == 1
+
+
+class TestGetDefaultRules:
+    """Test get_default_rules function."""
+
+    def test_returns_inference_rules(self):
+        """Test that get_default_rules returns an InferenceRules instance."""
+        rules = get_default_rules()
+        assert isinstance(rules, InferenceRules)
+
+    def test_has_filename_rules(self):
+        """Test that default rules include common filenames."""
+        rules = get_default_rules()
+        filenames = {r.filename for r in rules.exact_filenames}
+        assert ".gitignore" in filenames
+        assert "requirements.txt" in filenames
+        assert "CLAUDE.md" in filenames
+        assert "README.md" in filenames
+        assert "pyproject.toml" in filenames
+
+    def test_has_path_patterns(self):
+        """Test that default rules include path patterns."""
+        rules = get_default_rules()
+        patterns = {r.pattern for r in rules.path_patterns}
+        assert ".github/workflows/*.yml" in patterns
+        assert "**/test_*.py" in patterns
+
+    def test_has_extension_rules(self):
+        """Test that default rules include extension rules."""
+        rules = get_default_rules()
+        extensions = {r.extension for r in rules.extension_rules}
+        assert ".slurm" in extensions
+        assert ".md" in extensions
+        assert ".sh" in extensions
+
+    def test_returns_copies(self):
+        """Test that get_default_rules returns copies, not originals."""
+        rules1 = get_default_rules()
+        rules2 = get_default_rules()
+        # Modifying one shouldn't affect the other
+        rules1.exact_filenames.append(FilenameRule("test.txt", "Test", ["test"], 1.0))
+        assert len(rules1.exact_filenames) != len(rules2.exact_filenames)
+
+
+class TestInferFromRulesFilename:
+    """Test infer_from_rules with filename matching."""
+
+    def test_gitignore_exact_match(self):
+        """Test exact filename match for .gitignore."""
+        intent, tags, fallback = infer_from_rules(".gitignore")
+        assert intent is not None
+        assert intent.intent == "Git version control ignore patterns"
+        assert intent.confidence == 1.0
+        assert "Exact filename match" in intent.reason
+        tag_names = [t.tag for t in tags]
+        assert "config" in tag_names
+        assert "vcs" in tag_names
+        assert "ignore" in tag_names
+        assert fallback is False  # No fallback for exact matches
+
+    def test_requirements_txt(self):
+        """Test exact filename match for requirements.txt."""
+        intent, tags, fallback = infer_from_rules("requirements.txt")
+        assert intent is not None
+        assert "Python package dependencies" in intent.intent
+        tag_names = [t.tag for t in tags]
+        assert "config" in tag_names
+        assert "dependencies" in tag_names
+
+    def test_claude_md(self):
+        """Test AI agent context file detection."""
+        intent, tags, fallback = infer_from_rules("CLAUDE.md")
+        assert intent is not None
+        assert "Claude AI agent" in intent.intent
+        tag_names = [t.tag for t in tags]
+        assert "doc" in tag_names
+        assert "ai" in tag_names
+        assert "agent-context" in tag_names
+
+    def test_gemini_md(self):
+        """Test Gemini agent context file detection."""
+        intent, tags, fallback = infer_from_rules("GEMINI.md")
+        assert intent is not None
+        assert "Gemini" in intent.intent
+        tag_names = [t.tag for t in tags]
+        assert "agent-context" in tag_names
+
+    def test_readme_md(self):
+        """Test README.md detection."""
+        intent, tags, fallback = infer_from_rules("README.md")
+        assert intent is not None
+        assert "overview" in intent.intent.lower() or "documentation" in intent.intent.lower()
+        tag_names = [t.tag for t in tags]
+        assert "doc" in tag_names
+        assert "overview" in tag_names
+
+    def test_pyproject_toml(self):
+        """Test pyproject.toml detection."""
+        intent, tags, fallback = infer_from_rules("pyproject.toml")
+        assert intent is not None
+        assert "Python project" in intent.intent
+        tag_names = [t.tag for t in tags]
+        assert "config" in tag_names
+        assert "packaging" in tag_names
+
+    def test_dockerfile(self):
+        """Test Dockerfile detection."""
+        intent, tags, fallback = infer_from_rules("Dockerfile")
+        assert intent is not None
+        assert "Docker" in intent.intent
+        tag_names = [t.tag for t in tags]
+        assert "container" in tag_names
+
+    def test_nested_path_filename(self):
+        """Test that filename rules match regardless of directory."""
+        intent, tags, fallback = infer_from_rules("src/myproject/.gitignore")
+        assert intent is not None
+        assert "Git" in intent.intent
+
+    def test_case_sensitive_filename(self):
+        """Test that filename matching is case-sensitive."""
+        # README.md should match
+        intent, _, _ = infer_from_rules("README.md")
+        assert intent is not None
+        # readme.md should NOT match the exact rule
+        intent2, _, fallback = infer_from_rules("readme.md")
+        # Should fall through to extension rule
+        assert fallback is True
+
+
+class TestInferFromRulesPathPattern:
+    """Test infer_from_rules with path pattern matching."""
+
+    def test_github_workflow(self):
+        """Test GitHub Actions workflow pattern."""
+        intent, tags, fallback = infer_from_rules(".github/workflows/ci.yml")
+        assert intent is not None
+        assert "GitHub Actions" in intent.intent
+        tag_names = [t.tag for t in tags]
+        assert "ci-cd" in tag_names
+
+    def test_test_file_pattern(self):
+        """Test test file pattern matching."""
+        intent, tags, fallback = infer_from_rules("tests/test_core.py")
+        assert intent is not None
+        assert "test" in intent.intent.lower()
+        tag_names = [t.tag for t in tags]
+        assert "test" in tag_names
+
+    def test_upload_script_pattern(self):
+        """Test upload script pattern."""
+        intent, tags, fallback = infer_from_rules("scripts/upload_data.sh")
+        assert intent is not None
+        assert "upload" in intent.intent.lower()
+        tag_names = [t.tag for t in tags]
+        assert "upload" in tag_names
+
+    def test_compute_module_pattern(self):
+        """Test computational module pattern."""
+        intent, tags, fallback = infer_from_rules("src/compute_metrics.py")
+        assert intent is not None
+        assert "Computational" in intent.intent or "processing" in intent.intent.lower()
+        tag_names = [t.tag for t in tags]
+        assert "data-processing" in tag_names
+        assert fallback is True  # Should fallback for content
+
+    def test_prompts_directory(self):
+        """Test LLM prompts directory pattern."""
+        intent, tags, fallback = infer_from_rules("prompts/system/assistant.md")
+        assert intent is not None
+        assert "prompt" in intent.intent.lower()
+        tag_names = [t.tag for t in tags]
+        assert "llm-prompt" in tag_names
+
+
+class TestInferFromRulesExtension:
+    """Test infer_from_rules with extension matching."""
+
+    def test_slurm_extension(self):
+        """Test SLURM batch script extension."""
+        intent, tags, fallback = infer_from_rules("jobs/run_analysis.slurm")
+        assert intent is not None
+        assert "SLURM" in intent.intent
+        tag_names = [t.tag for t in tags]
+        assert "hpc" in tag_names
+        assert "slurm" in tag_names
+        assert "batch" in tag_names
+
+    def test_pbs_extension(self):
+        """Test PBS batch script extension."""
+        intent, tags, fallback = infer_from_rules("jobs/process.pbs")
+        assert intent is not None
+        assert "PBS" in intent.intent
+        tag_names = [t.tag for t in tags]
+        assert "hpc" in tag_names
+        assert "pbs" in tag_names
+
+    def test_shell_script_extension(self):
+        """Test shell script extension with fallback."""
+        intent, tags, fallback = infer_from_rules("scripts/setup.sh")
+        assert intent is not None
+        assert "Shell script" in intent.intent
+        tag_names = [t.tag for t in tags]
+        assert "script" in tag_names
+        assert fallback is True  # Shell scripts should fallback
+
+    def test_markdown_extension(self):
+        """Test markdown extension with fallback."""
+        intent, tags, fallback = infer_from_rules("docs/guide.md")
+        assert intent is not None
+        tag_names = [t.tag for t in tags]
+        assert "doc" in tag_names
+        assert fallback is True  # Markdown should fallback
+
+    def test_yaml_extension(self):
+        """Test YAML extension with low confidence."""
+        intent, tags, fallback = infer_from_rules("config/settings.yaml")
+        assert intent is not None
+        assert intent.confidence == 0.50  # Low confidence
+        assert fallback is True
+
+
+class TestInferFromRulesPriority:
+    """Test that rule priority is respected (filename > pattern > extension)."""
+
+    def test_filename_beats_extension(self):
+        """Test that exact filename match beats extension rule."""
+        # README.md matches both filename rule and .md extension
+        intent, tags, _ = infer_from_rules("README.md")
+        assert intent is not None
+        # Should use filename rule (higher confidence, specific intent)
+        assert intent.confidence == 1.0
+        assert "overview" in intent.intent.lower() or "documentation" in intent.intent.lower()
+
+    def test_pattern_beats_extension(self):
+        """Test that path pattern beats extension rule."""
+        # test_core.py matches both pattern and would match .py extension if we had one
+        intent, tags, _ = infer_from_rules("tests/test_core.py")
+        assert intent is not None
+        # Should use pattern rule
+        assert "Path pattern match" in intent.reason
+
+    def test_no_match_returns_fallback(self):
+        """Test that unmatched files return None with fallback=True."""
+        intent, tags, fallback = infer_from_rules("random_file.xyz")
+        assert intent is None
+        assert tags == []
+        assert fallback is True
+
+
+class TestInferFromRulesCustomRules:
+    """Test infer_from_rules with custom rules."""
+
+    def test_custom_filename_rule(self):
+        """Test custom filename rules override defaults."""
+        custom_rules = InferenceRules(
+            exact_filenames=[
+                FilenameRule(
+                    "CUSTOM.md",
+                    "Custom project file",
+                    ["custom", "important"],
+                    0.99,
+                )
+            ],
+            path_patterns=[],
+            extension_rules=[],
+        )
+        intent, tags, fallback = infer_from_rules("CUSTOM.md", custom_rules)
+        assert intent is not None
+        assert intent.intent == "Custom project file"
+        tag_names = [t.tag for t in tags]
+        assert "custom" in tag_names
+
+    def test_empty_rules_fallback(self):
+        """Test that empty rules result in fallback."""
+        empty_rules = InferenceRules(
+            exact_filenames=[],
+            path_patterns=[],
+            extension_rules=[],
+        )
+        intent, tags, fallback = infer_from_rules(".gitignore", empty_rules)
+        assert intent is None
+        assert fallback is True
+
+
+# =============================================================================
+# Timestamp Inference
 # =============================================================================
 
 

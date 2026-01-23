@@ -26,17 +26,19 @@ When you say "update how API responses are parsed," your AI agent can read the i
 
 ## Status
 
-**Phase 5 Complete** — Status overview and semantic query ✅
+**Phase 6 Complete** — Rule-based inference and enhanced tag vocabulary ✅
 
-- ✅ Core library (`meaning_core.py`) - 1,100+ lines, 54+ tests passing
-- ✅ Inference engine (`meaning_inference.py`) - 612 lines, 32 tests passing
+- ✅ Core library (`meaning_core.py`) - 1,100+ lines
+- ✅ Inference engine (`meaning_inference.py`) - 950+ lines with **80+ built-in rules**
+- ✅ **Rule-based inference** - Automatic metadata for common files (`.gitignore`, `CLAUDE.md`, `*.slurm`)
+- ✅ **Enhanced tag vocabulary** - 7 new categories (HPC, AI agents, scientific computing, data ops)
 - ✅ **Status command** - Instant project overview with concepts, health metrics, and recent activity
 - ✅ **Query engine** - Natural language semantic search (6 query types, <50ms response)
 - ✅ Five Claude Code skills (`/meaning-init`, `/meaning-update`, `/meaning-validate`, `/meaning-review`, `/meaning-query`)
 - ✅ Hook scripts for automatic tracking
-- ✅ Dog-fooded on itself (33+ files indexed, 0 validation errors)
+- ✅ Dog-fooded on itself (64 files indexed, 186 tests passing)
 
-**Next:** PyPI packaging, external project testing
+**Next:** PyPI release, real-world validation testing
 
 ## Quick Start
 
@@ -124,16 +126,26 @@ Or use the skill in Claude Code:
 
 - **Instant Discovery** - `status` command shows project overview in <50ms
 - **Semantic Query** - Natural language search across 6 query types (status, tag, relationship, intent, temporal, concept)
-- **Intelligent Inference** - Automatically suggests tags, intents, and relationships with confidence scores
-- **85-90% Time Savings** - Review AI suggestions instead of writing metadata from scratch
+- **Rule-Based Inference** - 80+ built-in rules for automatic metadata on common files
+  - Filename rules: `.gitignore`, `requirements.txt`, `CLAUDE.md`, `Dockerfile`, etc.
+  - Path patterns: `**/test_*.py`, `.github/workflows/*.yml`, `**/prompts/**/*.md`
+  - Extension rules: `.slurm`, `.pbs`, `.env` for domain-specific files
+- **AI Agent Context Recognition** - Automatic detection of `CLAUDE.md`, `GEMINI.md`, `WARP.md`, `.cursorrules`
+- **Enhanced Tag Vocabulary** - 7 domain-specific categories:
+  - `vcs` (git, ignore, hooks)
+  - `ai_context` (agent-context, llm-prompt)
+  - `scientific_domain` (data-processing, ml, climate, bioinformatics)
+  - `infrastructure` (hpc, cloud, container, ci-cd)
+  - `data_ops` (etl, batch, sync, upload)
+  - `compute` (slurm, pbs, spark, dask)
+  - `packaging` (dependencies, dev)
+- **60%+ Auto-Accept Rate** - Most common files get high-confidence metadata automatically
 - **Git-Friendly** - Human-readable YAML files that diff and merge cleanly
 - **Zero Dependencies** - Works offline, no external services or embeddings
 - **Batch Review** - Efficient workflows for reviewing many files at once
 - **Claude Code Integration** - Automatic tracking via hooks on file changes
 - **Transparent** - All suggestions show confidence levels and reasoning
 - **Non-Destructive** - Human reviews and approves all changes
-
-Note: intent auto-accept uses Python module docstrings, markdown first paragraphs, and known filename/path patterns (README/CHANGELOG, templates, agent session notes). Files without these signals may remain `needs_review`.
 
 ## How It Works
 
@@ -150,6 +162,27 @@ Each file gets a semantic record:
     - type: transforms
       source: src/api/client.py
       target: src/models/api_models.py
+```
+
+### Rule-Based Inference
+
+Common files are automatically recognized with high confidence:
+
+```yaml
+# .gitignore → confidence: 1.0
+- path: .gitignore
+  intent: "Git version control ignore patterns"
+  tags: [config, vcs, ignore]
+
+# CLAUDE.md → confidence: 1.0  
+- path: CLAUDE.md
+  intent: "Claude AI agent project context and directives"
+  tags: [doc, ai, agent-context]
+
+# jobs/run.slurm → confidence: 0.95
+- path: jobs/run.slurm
+  intent: "SLURM batch job submission script"
+  tags: [script, hpc, slurm, batch]
 ```
 
 ### Concepts
@@ -242,6 +275,23 @@ meaning/
 - [Implementation Plan](IMPLEMENTATION-PLAN.md) — Full specification
 - [CLAUDE.md](CLAUDE.md) / [AGENTS.md](AGENTS.md) — Guide for AI agents working on this project
 - [Agent Sessions](.agent-sessions/) — Session notes documenting project evolution
+- [Audits](audits/) — Real-world testing feedback and implementation plans
+
+## Supported File Types
+
+Meaning includes built-in recognition for:
+
+| Category | Files |
+|----------|-------|
+| **Git/VCS** | `.gitignore`, `.gitattributes`, `.gitmodules` |
+| **Python** | `requirements.txt`, `pyproject.toml`, `setup.py`, `conftest.py` |
+| **Node.js** | `package.json`, `yarn.lock`, `tsconfig.json` |
+| **Rust** | `Cargo.toml`, `Cargo.lock` |
+| **Documentation** | `README.md`, `CHANGELOG.md`, `LICENSE`, `CONTRIBUTING.md` |
+| **AI Agents** | `CLAUDE.md`, `GEMINI.md`, `WARP.md`, `AGENTS.md`, `.cursorrules` |
+| **CI/CD** | `Dockerfile`, `docker-compose.yml`, GitHub workflows |
+| **HPC/Scientific** | `.slurm`, `.pbs`, `.sge` batch scripts |
+| **Data Ops** | `upload_*.sh`, `download_*.sh`, `sync_*.sh` patterns |
 
 ## License
 

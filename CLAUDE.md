@@ -90,8 +90,9 @@ meaning/
 |------|---------|
 | `IMPLEMENTATION-PLAN.md` | Full specification—read this first for any design questions |
 | `DISTRIBUTION-PLAN.md` | PyPI packaging and installation strategy |
+| `audits/IMPLEMENTATION-PLAN-v0.2.md` | Rule-based inference implementation plan |
 | `src/meaning/meaning_core.py` | Core library: YAML parsing, validation, query engine |
-| `src/meaning/meaning_inference.py` | Inference engine: auto-generate metadata with confidence scoring |
+| `src/meaning/meaning_inference.py` | Inference engine: 80+ built-in rules, auto-generate metadata |
 | `src/meaning/installer.py` | Installation logic: setup .meaning/, hooks, skills |
 | `src/meaning/__init__.py` | Package API exports (use `from meaning import ...`) |
 | `scripts/*.sh` | Deterministic hook scripts called by Claude Code |
@@ -228,11 +229,21 @@ Completed:
 - [x] Phase 4: Hooks — Post-write and session-end validation hooks
 - [x] Phase 5: Discovery & Query — Natural language search, status command
 - [x] Phase 6: Distribution — Installer module, CI/CD workflows, PyPI publishing
+- [x] Phase 7: Rule-Based Inference — 80+ filename/pattern/extension rules, enhanced tag vocabulary
+
+Inference Engine:
+- **80+ built-in rules** for automatic metadata on common files
+- Filename rules: `.gitignore`, `requirements.txt`, `CLAUDE.md`, `Dockerfile`, etc.
+- Path patterns: `**/test_*.py`, `.github/workflows/*.yml`, `**/prompts/**/*.md`
+- Extension rules: `.slurm`, `.pbs`, `.env` for domain-specific files
+- **7 new tag categories**: vcs, ai_context, scientific_domain, infrastructure, data_ops, compute, packaging
+- AI agent context file recognition: CLAUDE.md, GEMINI.md, WARP.md, .cursorrules
+- Expected auto-accept rate: **60%+** (up from 0%)
 
 CI/CD:
 - GitHub Actions CI runs tests, linting (ruff), formatting (black), type checking (mypy)
 - Trusted publishing to PyPI on release creation
-- 153 tests passing across core, inference, and installer modules
+- 186 tests passing across core, inference, and installer modules
 
 ## Key Types
 
