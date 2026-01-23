@@ -1,6 +1,6 @@
 version: '0.1'
 generated_at: '2026-01-21T04:11:00+00:00'
-last_updated: '2026-01-23T06:57:11.404689+00:00'
+last_updated: '2026-01-23T07:10:36.415130+00:00'
 concepts:
 - name: project-documentation
   description: Project-level documentation for human and AI understanding
@@ -62,7 +62,7 @@ files:
   intent: Symlink to CLAUDE.md providing development guide for all AI agents
   status: active
   needs_review: false
-  last_verified: '2026-01-23T05:46:02.031526+00:00'
+  last_verified: '2026-01-23T07:10:36.408761+00:00'
   tags:
   - doc
   - core
@@ -75,7 +75,7 @@ files:
   intent: Development guide and architectural reference for AI agents working on Meaning
   status: active
   needs_review: false
-  last_verified: '2026-01-23T05:46:02.031526+00:00'
+  last_verified: '2026-01-23T07:10:36.408761+00:00'
   tags:
   - doc
   - core
@@ -111,7 +111,7 @@ files:
   intent: Chronological record of project changes, decisions, and milestones
   status: active
   needs_review: false
-  last_verified: '2026-01-23T05:46:02.031526+00:00'
+  last_verified: '2026-01-23T07:10:36.408761+00:00'
   tags:
   - doc
   - core
@@ -143,7 +143,7 @@ files:
     scoring
   status: active
   needs_review: false
-  last_verified: '2026-01-23T06:57:11.398965+00:00'
+  last_verified: '2026-01-23T07:10:36.408761+00:00'
   tags:
   - core
   - module
@@ -708,3 +708,10 @@ files:
   tags:
   - config
   - ci
+- path: .agent-sessions/2026-01-23-cicd-workflows.md
+  intent: 'Agent session note: 2026 01 23 cicd workflows.'
+  status: active
+  needs_review: false
+  last_verified: '2026-01-23T07:10:20.294092+00:00'
+  tags:
+  - doc

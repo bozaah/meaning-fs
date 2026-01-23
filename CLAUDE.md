@@ -36,6 +36,10 @@ meaning/
 │       ├── meaning-validate/
 │       ├── meaning-review/
 │       └── meaning-query/
+├── .github/                    # GitHub configuration
+│   └── workflows/
+│       ├── ci.yml              # CI: tests, lint, typecheck, validate
+│       └── publish.yml         # CD: publish to TestPyPI/PyPI
 ├── .meaning/                   # Dog-fooding: Meaning's own semantic index
 │   ├── index.yaml              # Semantic records for this project
 │   ├── schema.yaml             # Python project schema
@@ -43,6 +47,7 @@ meaning/
 ├── AGENTS.md -> CLAUDE.md      # Symlink for other AI agents
 ├── CLAUDE.md                   # You are here
 ├── IMPLEMENTATION-PLAN.md      # Detailed spec and design decisions
+├── LICENSE                     # MIT License
 ├── src/
 │   └── meaning/                # Core Python package
 │       ├── __init__.py         # Public API exports
@@ -93,6 +98,8 @@ meaning/
 | `src/meaning/templates/schema/*.yaml` | Project-type specific relationship types and tag vocabularies |
 | `.claude/skills/*/SKILL.md` | Claude skill definitions for initialization, update, validation |
 | `.claude/settings.json` | Claude Code hooks and permissions for this project |
+| `.github/workflows/ci.yml` | CI workflow: tests, linting, type checking on PRs/pushes |
+| `.github/workflows/publish.yml` | CD workflow: publish to PyPI on release |
 | `.agent-sessions/*.md` | Session notes documenting project evolution and decisions |
 | `.meaning/` | This project's own semantic index (dog-fooding!) |
 </text>
@@ -210,20 +217,22 @@ python -m meaning query "what needs review?"
 2. Document the edge case that was missed
 3. Consider if other similar edge cases exist
 
-## Current Phase
+## Current Status
 
-**Phase 1: Core Data Structures**
+**All Phases Complete — Ready for Distribution**
 
-Focus areas:
-- [ ] `meaning_core.py` — YAML parsing, validation
-- [ ] Schema templates for python, node, rust, docs
-- [ ] Config template with standard exclusions
-- [ ] Basic CLI for testing
+Completed:
+- [x] Phase 1: Core Data Structures — YAML parsing, validation, data models
+- [x] Phase 2: Inference Engine — Auto-generate metadata with confidence scoring
+- [x] Phase 3: Skills — Claude Code skill definitions for all operations
+- [x] Phase 4: Hooks — Post-write and session-end validation hooks
+- [x] Phase 5: Discovery & Query — Natural language search, status command
+- [x] Phase 6: Distribution — Installer module, CI/CD workflows, PyPI publishing
 
-Not yet implementing:
-- Inference engine (Phase 2)
-- Skills (Phase 3)
-- Hooks (Phase 4)
+CI/CD:
+- GitHub Actions CI runs tests, linting (ruff), formatting (black), type checking (mypy)
+- Trusted publishing to PyPI on release creation
+- 153 tests passing across core, inference, and installer modules
 
 ## Key Types
 
@@ -322,4 +331,4 @@ Check `IMPLEMENTATION-PLAN.md` for detailed specifications. If something isn't c
 
 ---
 
-*Last updated: 2026-01-21*
+*Last updated: 2026-01-23*

@@ -4,6 +4,40 @@ All notable changes to the Meaning project will be documented in this file.
 
 ## [Unreleased]
 
+### 2026-01-23 — CI/CD Workflows and Distribution Finalization
+
+#### Added
+- **CI workflow** (`.github/workflows/ci.yml`) — Automated quality checks on PRs and pushes
+  - Tests with pytest across Python 3.10, 3.11, 3.12
+  - Linting with ruff
+  - Formatting checks with black
+  - Type checking with mypy
+  - Validates project's own `.meaning/` index
+  - Builds distribution packages as artifacts
+
+- **CD workflow** (`.github/workflows/publish.yml`) — Automated PyPI publishing
+  - Trusted publishing (OIDC) — no API tokens needed
+  - Publishes to PyPI on GitHub release creation
+  - Manual trigger for TestPyPI publishing
+  - Post-publish verification step
+
+- **LICENSE** — MIT license file for PyPI compliance
+
+#### Changed
+- **Config templates** — Added `.mypy_cache/**` and `.ruff_cache/**` to default exclude patterns
+- **pyproject.toml** — Added Python 3.13 support, types-PyYAML dev dependency, updated ruff config
+- **Schema** — Added `ci` and `legal` to tag vocabulary
+
+#### Fixed
+- **GitHub URLs** — Updated all documentation to use correct `bozaah/meaning-fs` repository URL
+- **Lint issues** — Fixed all ruff and black formatting issues across codebase
+- **Type checking** — Configured mypy to pass on all modules
+
+#### Removed
+- **dependabot.yml** — Removed as overkill for current project size
+
+---
+
 ### 2026-01-23 — Installer Module and Distribution Prep
 
 #### Added
