@@ -45,6 +45,16 @@ from meaning.meaning_core import (
     # Functions
     validate_index,
 )
+from meaning.meaning_inference import (
+    # Rule data classes
+    ExtensionRule,
+    FilenameRule,
+    InferenceRules,
+    PathPatternRule,
+    # Rule functions
+    get_default_rules,
+    infer_from_rules,
+)
 
 __version__ = VERSION
 __all__ = [
@@ -85,4 +95,12 @@ __all__ = [
     "install_skills",
     "format_install_result",
     "get_package_template_dir",
+    # Inference rule data classes
+    "FilenameRule",
+    "PathPatternRule",
+    "ExtensionRule",
+    "InferenceRules",
+    # Inference rule functions
+    "get_default_rules",
+    "infer_from_rules",
 ]

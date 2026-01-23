@@ -76,6 +76,17 @@ Each session document should include:
 - All query types tested and validated
 - Status: Phase 5 complete, tests and indexing pending
 
+### 2026-01-23 - Filename-Based Inference & Tag Vocabulary Enhancement
+- Implemented rule-based inference system with 80+ built-in rules
+- Added `FilenameRule`, `PathPatternRule`, `ExtensionRule` data structures
+- Priority-based evaluation: filename > path pattern > extension
+- Added 7 new tag categories (vcs, ai_context, scientific_domain, infrastructure, data_ops, compute, packaging)
+- AI agent context file recognition (CLAUDE.md, GEMINI.md, WARP.md, .cursorrules)
+- HPC/scientific computing support (.slurm, .pbs batch scripts)
+- 31 new tests (186 total passing)
+- Expected impact: 0% → 60%+ auto-accept rate
+- Status: Phases 1, 3, 4 complete; config override support deferred
+
 ---
 
-**For AI Agents:** Read the most recent session note to understand current project state before proceeding. Always start with `python -m meaning_core status` for instant project overview.
+**For AI Agents:** Read the most recent session note to understand current project state before proceeding. Always start with `python -m meaning status` for instant project overview.

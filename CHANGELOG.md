@@ -4,6 +4,51 @@ All notable changes to the Meaning project will be documented in this file.
 
 ## [Unreleased]
 
+### 2026-01-23 — Filename-Based Inference & Tag Vocabulary Enhancement
+
+#### Added
+- **Rule-based inference system** (`meaning_inference.py`) — Priority-based file metadata inference
+  - `FilenameRule` — Exact filename matching (e.g., `.gitignore`, `CLAUDE.md`)
+  - `PathPatternRule` — Glob pattern matching (e.g., `**/test_*.py`, `.github/workflows/*.yml`)
+  - `ExtensionRule` — File extension matching (e.g., `.slurm`, `.pbs`)
+  - `InferenceRules` — Collection container for all rule types
+  - `infer_from_rules()` — Core function with priority: filename > pattern > extension
+
+- **80+ built-in inference rules**
+  - 50+ filename rules: git, python, node, rust, docs, AI agents, CI/CD, system files
+  - 15+ path pattern rules: GitHub workflows, test files, data ops, LLM prompts
+  - 15+ extension rules: HPC batch scripts (.slurm, .pbs), config files, scripts
+
+- **7 new tag categories** in all schema templates
+  - `vcs`: git, ignore, hooks
+  - `ai_context`: ai, agent-context, llm-prompt, agent-directive, context-doc
+  - `scientific_domain`: data-processing, ml, climate, geospatial, bioinformatics, visualization, statistics
+  - `infrastructure`: hpc, cloud, container, orchestration, ci-cd, deployment, build
+  - `data_ops`: etl, ingestion, aggregation, batch, sync, upload, download
+  - `compute`: slurm, pbs, spark, dask, parallel, distributed, job-array
+  - `packaging`: dependencies, packaging, dev
+
+- **AI agent context file recognition** — CLAUDE.md, GEMINI.md, WARP.md, AGENTS.md, .cursorrules
+
+- **31 new tests** for rule-based inference (186 total tests passing)
+
+#### Changed
+- **`infer_file_metadata()`** — Now applies rule-based inference first, content analysis as fallback
+- **Schema templates** — All 5 schemas updated with new tag categories (python, node, rust, docs, mixed)
+- **Uses `PurePath.match()`** — Proper support for `**` glob patterns in path rules
+
+#### Impact (Expected)
+Based on real-world testing feedback:
+- Auto-accept rate: 0% → **≥60%**
+- Manual review time: ~15 min → **~2 min**
+- `x-needs-tags` usage: 53% → **<10%**
+
+#### Documentation
+- Created `audits/IMPLEMENTATION-PLAN-v0.2.md` — Full implementation specification
+- Added `audits/audit-external-repo-2026-01-23.md` — Real-world testing feedback
+
+---
+
 ### 2026-01-23 — CI/CD Workflows and Distribution Finalization
 
 #### Added

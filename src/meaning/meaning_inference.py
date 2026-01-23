@@ -29,7 +29,53 @@ CONFIDENCE_LOW = 0.3
 
 
 # =============================================================================
-# Data Classes
+# Data Classes: Inference Rules
+# =============================================================================
+
+
+@dataclass
+class FilenameRule:
+    """Rule for exact filename matching."""
+
+    filename: str  # exact filename to match (case-sensitive)
+    intent: str
+    tags: list[str]
+    confidence: float = 0.95
+
+
+@dataclass
+class PathPatternRule:
+    """Rule for glob pattern matching on full path."""
+
+    pattern: str  # glob pattern, e.g., "**/upload_*.sh"
+    intent: str
+    tags: list[str]
+    confidence: float = 0.85
+    fallback_to_content: bool = False
+
+
+@dataclass
+class ExtensionRule:
+    """Rule for file extension matching."""
+
+    extension: str  # including dot, e.g., ".slurm"
+    intent: str
+    tags: list[str]
+    confidence: float = 0.70
+    fallback_to_content: bool = True
+
+
+@dataclass
+class InferenceRules:
+    """Collection of all inference rules."""
+
+    exact_filenames: list[FilenameRule] = field(default_factory=list)
+    path_patterns: list[PathPatternRule] = field(default_factory=list)
+    extension_rules: list[ExtensionRule] = field(default_factory=list)
+
+
+# =============================================================================
+# Data Classes: Inference Results
 # =============================================================================
 
 
@@ -104,6 +150,305 @@ class ConceptSuggestion:
     entry_point: str
     confidence: float
     reason: str
+
+
+# =============================================================================
+# Default Inference Rules (Built-in)
+# =============================================================================
+
+# These rules are applied automatically. Projects can override via config.yaml.
+
+DEFAULT_FILENAME_RULES: list[FilenameRule] = [
+    # === Git/VCS Files ===
+    FilenameRule(
+        ".gitignore", "Git version control ignore patterns", ["config", "vcs", "ignore"], 1.0
+    ),
+    FilenameRule(".gitattributes", "Git file attributes configuration", ["config", "vcs"], 1.0),
+    FilenameRule(".gitmodules", "Git submodule configuration", ["config", "vcs"], 1.0),
+    # === Python Project Files ===
+    FilenameRule(
+        "requirements.txt", "Python package dependencies (pip)", ["config", "dependencies"], 1.0
+    ),
+    FilenameRule(
+        "requirements-dev.txt",
+        "Python development dependencies",
+        ["config", "dependencies", "dev"],
+        1.0,
+    ),
+    FilenameRule("setup.py", "Python package setup script", ["config", "packaging"], 1.0),
+    FilenameRule("setup.cfg", "Python package configuration", ["config", "packaging"], 1.0),
+    FilenameRule(
+        "pyproject.toml", "Python project configuration (PEP 518)", ["config", "packaging"], 1.0
+    ),
+    FilenameRule("MANIFEST.in", "Python package manifest", ["config", "packaging"], 0.95),
+    FilenameRule("pytest.ini", "Pytest configuration", ["config", "test"], 1.0),
+    FilenameRule("conftest.py", "Pytest fixtures and configuration", ["test", "fixture"], 0.95),
+    FilenameRule(".python-version", "Python version specification", ["config"], 1.0),
+    FilenameRule("tox.ini", "Tox testing configuration", ["config", "test"], 1.0),
+    FilenameRule(".coveragerc", "Coverage.py configuration", ["config", "test"], 1.0),
+    # === Node/JavaScript Files ===
+    FilenameRule(
+        "package.json", "Node.js package manifest", ["config", "dependencies", "packaging"], 1.0
+    ),
+    FilenameRule(
+        "package-lock.json",
+        "Node.js dependency lock file",
+        ["config", "dependencies", "generated"],
+        1.0,
+    ),
+    FilenameRule(
+        "yarn.lock", "Yarn dependency lock file", ["config", "dependencies", "generated"], 1.0
+    ),
+    FilenameRule(
+        "pnpm-lock.yaml", "pnpm dependency lock file", ["config", "dependencies", "generated"], 1.0
+    ),
+    FilenameRule("tsconfig.json", "TypeScript configuration", ["config"], 1.0),
+    FilenameRule(".nvmrc", "Node version specification", ["config"], 1.0),
+    FilenameRule(".npmrc", "npm configuration", ["config"], 1.0),
+    # === Rust Files ===
+    FilenameRule(
+        "Cargo.toml", "Rust package manifest", ["config", "dependencies", "packaging"], 1.0
+    ),
+    FilenameRule(
+        "Cargo.lock", "Rust dependency lock file", ["config", "dependencies", "generated"], 1.0
+    ),
+    # === Documentation Files ===
+    FilenameRule("README.md", "Project overview and documentation", ["doc", "overview"], 1.0),
+    FilenameRule("README", "Project overview and documentation", ["doc", "overview"], 1.0),
+    FilenameRule("README.txt", "Project overview and documentation", ["doc", "overview"], 1.0),
+    FilenameRule("README.rst", "Project overview and documentation", ["doc", "overview"], 1.0),
+    FilenameRule(
+        "CHANGELOG.md", "Project change history and release notes", ["doc", "history"], 1.0
+    ),
+    FilenameRule("CHANGELOG", "Project change history and release notes", ["doc", "history"], 1.0),
+    FilenameRule("HISTORY.md", "Project history", ["doc", "history"], 1.0),
+    FilenameRule("CONTRIBUTING.md", "Contribution guidelines", ["doc", "dev-guide"], 1.0),
+    FilenameRule("CODE_OF_CONDUCT.md", "Community code of conduct", ["doc"], 1.0),
+    FilenameRule("LICENSE", "Project license", ["doc", "legal"], 1.0),
+    FilenameRule("LICENSE.md", "Project license", ["doc", "legal"], 1.0),
+    FilenameRule("LICENSE.txt", "Project license", ["doc", "legal"], 1.0),
+    FilenameRule("AUTHORS", "Project authors list", ["doc"], 0.95),
+    FilenameRule("AUTHORS.md", "Project authors list", ["doc"], 0.95),
+    FilenameRule("SECURITY.md", "Security policy and reporting", ["doc", "security"], 1.0),
+    # === AI Agent Context Files ===
+    FilenameRule(
+        "CLAUDE.md",
+        "Claude AI agent project context and directives",
+        ["doc", "ai", "agent-context"],
+        1.0,
+    ),
+    FilenameRule(
+        "GEMINI.md", "Google Gemini agent project context", ["doc", "ai", "agent-context"], 1.0
+    ),
+    FilenameRule("AGENTS.md", "AI agent project context", ["doc", "ai", "agent-context"], 1.0),
+    FilenameRule("WARP.md", "AI/Warp agent project context", ["doc", "ai", "agent-context"], 1.0),
+    FilenameRule("COPILOT.md", "GitHub Copilot context", ["doc", "ai", "agent-context"], 1.0),
+    FilenameRule(".cursorrules", "Cursor AI editor rules", ["config", "ai", "agent-context"], 1.0),
+    FilenameRule(".cursorignore", "Cursor AI ignore patterns", ["config", "ai", "ignore"], 1.0),
+    FilenameRule(".aider.conf.yml", "Aider AI assistant configuration", ["config", "ai"], 1.0),
+    # === System/Generated Files ===
+    FilenameRule(
+        ".DS_Store", "macOS Finder metadata (should be git-ignored)", ["system", "generated"], 1.0
+    ),
+    FilenameRule(
+        "Thumbs.db", "Windows thumbnail cache (should be git-ignored)", ["system", "generated"], 1.0
+    ),
+    FilenameRule(".editorconfig", "Editor configuration", ["config"], 1.0),
+    # === CI/CD Files ===
+    FilenameRule("Makefile", "Build automation rules", ["config", "build"], 0.95),
+    FilenameRule("Dockerfile", "Docker container definition", ["config", "container"], 1.0),
+    FilenameRule(
+        "docker-compose.yml",
+        "Docker Compose service definitions",
+        ["config", "container", "orchestration"],
+        1.0,
+    ),
+    FilenameRule(
+        "docker-compose.yaml",
+        "Docker Compose service definitions",
+        ["config", "container", "orchestration"],
+        1.0,
+    ),
+    FilenameRule(
+        ".dockerignore", "Docker build ignore patterns", ["config", "container", "ignore"], 1.0
+    ),
+    FilenameRule("Jenkinsfile", "Jenkins pipeline definition", ["config", "ci-cd"], 1.0),
+    FilenameRule(".travis.yml", "Travis CI configuration", ["config", "ci-cd"], 1.0),
+    FilenameRule(".gitlab-ci.yml", "GitLab CI configuration", ["config", "ci-cd"], 1.0),
+]
+
+DEFAULT_PATH_PATTERN_RULES: list[PathPatternRule] = [
+    # === CI/CD Patterns ===
+    PathPatternRule(
+        ".github/workflows/*.yml", "GitHub Actions workflow", ["config", "ci-cd"], 0.95
+    ),
+    PathPatternRule(
+        ".github/workflows/*.yaml", "GitHub Actions workflow", ["config", "ci-cd"], 0.95
+    ),
+    PathPatternRule(".circleci/config.yml", "CircleCI configuration", ["config", "ci-cd"], 1.0),
+    # === Scientific Computing Patterns ===
+    PathPatternRule(
+        "**/compute_*.py",
+        "Computational data processing module",
+        ["module", "data-processing"],
+        0.80,
+        True,
+    ),
+    PathPatternRule(
+        "**/process_*.py", "Data processing module", ["module", "data-processing"], 0.80, True
+    ),
+    PathPatternRule(
+        "**/analyze_*.py",
+        "Data analysis module",
+        ["module", "data-processing", "statistics"],
+        0.80,
+        True,
+    ),
+    # === Data Operations Patterns ===
+    PathPatternRule(
+        "**/upload_*.sh", "Data upload script", ["script", "upload", "deployment"], 0.85
+    ),
+    PathPatternRule("**/download_*.sh", "Data download script", ["script", "download"], 0.85),
+    PathPatternRule("**/sync_*.sh", "Data synchronization script", ["script", "sync"], 0.85),
+    # === Test Patterns ===
+    PathPatternRule("**/test_*.py", "Python test module", ["test"], 0.90),
+    PathPatternRule("**/*_test.py", "Python test module", ["test"], 0.90),
+    PathPatternRule("**/tests/**/*.py", "Python test module", ["test"], 0.85, True),
+    # === Prompt/AI Patterns ===
+    # Match prompts/ at any level, with files directly in prompts/ or in subdirs
+    PathPatternRule("prompts/**/*.md", "LLM prompt template", ["doc", "ai", "llm-prompt"], 0.85),
+    PathPatternRule("prompts/**/*.txt", "LLM prompt template", ["doc", "ai", "llm-prompt"], 0.85),
+    PathPatternRule("prompts/*.md", "LLM prompt template", ["doc", "ai", "llm-prompt"], 0.85),
+    PathPatternRule("prompts/*.txt", "LLM prompt template", ["doc", "ai", "llm-prompt"], 0.85),
+]
+
+DEFAULT_EXTENSION_RULES: list[ExtensionRule] = [
+    # === Scientific/HPC Extensions ===
+    ExtensionRule(
+        ".slurm", "SLURM batch job submission script", ["script", "hpc", "slurm", "batch"], 0.95
+    ),
+    ExtensionRule(".sbatch", "SLURM batch script", ["script", "hpc", "slurm", "batch"], 0.95),
+    ExtensionRule(".pbs", "PBS/Torque batch script", ["script", "hpc", "pbs", "batch"], 0.95),
+    ExtensionRule(".sge", "Sun Grid Engine batch script", ["script", "hpc", "batch"], 0.95),
+    # === Data/Config Extensions (low confidence, fallback to content) ===
+    ExtensionRule(".yaml", "YAML configuration or data", ["config"], 0.50, True),
+    ExtensionRule(".yml", "YAML configuration or data", ["config"], 0.50, True),
+    ExtensionRule(".toml", "TOML configuration", ["config"], 0.60, True),
+    ExtensionRule(".json", "JSON data or configuration", ["config"], 0.50, True),
+    ExtensionRule(".ini", "INI configuration file", ["config"], 0.60, True),
+    ExtensionRule(".env", "Environment variables file", ["config", "security"], 0.80),
+    # === Script Extensions ===
+    ExtensionRule(".sh", "Shell script", ["script"], 0.60, True),
+    ExtensionRule(".bash", "Bash script", ["script"], 0.65, True),
+    ExtensionRule(".zsh", "Zsh script", ["script"], 0.65, True),
+    # === Documentation Extensions ===
+    ExtensionRule(".md", "Markdown documentation", ["doc"], 0.60, True),
+    ExtensionRule(".rst", "reStructuredText documentation", ["doc"], 0.65, True),
+    ExtensionRule(".txt", "Plain text file", [], 0.30, True),
+]
+
+
+def get_default_rules() -> InferenceRules:
+    """Get the default built-in inference rules."""
+    return InferenceRules(
+        exact_filenames=DEFAULT_FILENAME_RULES.copy(),
+        path_patterns=DEFAULT_PATH_PATTERN_RULES.copy(),
+        extension_rules=DEFAULT_EXTENSION_RULES.copy(),
+    )
+
+
+# =============================================================================
+# Rule-Based Inference
+# =============================================================================
+
+
+def infer_from_rules(
+    file_path: str,
+    rules: InferenceRules | None = None,
+) -> tuple[InferredIntent | None, list[InferredTag], bool]:
+    """
+    Apply inference rules to a file path.
+
+    Rules are evaluated in priority order:
+    1. Exact filename match (highest confidence)
+    2. Path pattern match (glob patterns)
+    3. Extension match (lowest confidence, fallback)
+
+    Args:
+        file_path: Relative path to the file
+        rules: Inference rules to apply (defaults to built-in rules)
+
+    Returns:
+        Tuple of (intent, tags, should_fallback_to_content)
+        - intent: Inferred intent if a rule matched, None otherwise
+        - tags: List of inferred tags from the matching rule
+        - should_fallback_to_content: Whether to also run content-based inference
+    """
+    if rules is None:
+        rules = get_default_rules()
+
+    path = Path(file_path)
+    filename = path.name
+
+    # 1. Try exact filename match (highest priority)
+    for fn_rule in rules.exact_filenames:
+        if filename == fn_rule.filename:
+            intent = InferredIntent(
+                intent=fn_rule.intent,
+                confidence=fn_rule.confidence,
+                reason=f"Exact filename match: {fn_rule.filename}",
+            )
+            tags = [
+                InferredTag(
+                    tag=t,
+                    confidence=fn_rule.confidence,
+                    reason=f"From filename rule: {fn_rule.filename}",
+                )
+                for t in fn_rule.tags
+            ]
+            return intent, tags, False  # No fallback for exact matches
+
+    # 2. Try path pattern match
+    for pat_rule in rules.path_patterns:
+        # Use PurePath.match for proper ** glob support
+        if path.match(pat_rule.pattern):
+            intent = InferredIntent(
+                intent=pat_rule.intent,
+                confidence=pat_rule.confidence,
+                reason=f"Path pattern match: {pat_rule.pattern}",
+            )
+            tags = [
+                InferredTag(
+                    tag=t,
+                    confidence=pat_rule.confidence,
+                    reason=f"From path pattern: {pat_rule.pattern}",
+                )
+                for t in pat_rule.tags
+            ]
+            return intent, tags, pat_rule.fallback_to_content
+
+    # 3. Try extension match (lowest priority)
+    extension = path.suffix.lower()
+    if extension:
+        for ext_rule in rules.extension_rules:
+            if extension == ext_rule.extension.lower():
+                intent = InferredIntent(
+                    intent=ext_rule.intent,
+                    confidence=ext_rule.confidence,
+                    reason=f"Extension match: {ext_rule.extension}",
+                )
+                tags = [
+                    InferredTag(
+                        tag=t,
+                        confidence=ext_rule.confidence,
+                        reason=f"From extension rule: {ext_rule.extension}",
+                    )
+                    for t in ext_rule.tags
+                ]
+                return intent, tags, ext_rule.fallback_to_content
+
+    # No rule matched
+    return None, [], True  # Fallback to content analysis
 
 
 # =============================================================================
@@ -685,63 +1030,103 @@ def infer_file_metadata(
     project_dir: Path,
     index: MeaningIndex,
     schema: MeaningSchema,
+    rules: InferenceRules | None = None,
 ) -> FileInferenceResult:
     """
     Run all inference on a single file.
+
+    Inference is applied in priority order:
+    1. Rule-based inference (filename, path pattern, extension)
+    2. Content-based inference (if rule allows fallback or no rule matched)
+    3. Path-based tag inference (always runs, merged with rule tags)
 
     Args:
         file_path: Relative path to file
         project_dir: Project root directory
         index: Current meaning index
         schema: Schema with vocabulary
+        rules: Optional custom inference rules (defaults to built-in)
 
     Returns:
         FileInferenceResult with all inferences
     """
     result = FileInferenceResult(path=file_path)
 
-    # Infer tags from path
-    try:
-        tags = infer_tags_from_path(file_path, schema)
-        for tag in tags:
-            result.add_tag(tag.tag, tag.confidence, tag.reason)
-    except Exception as e:
-        result.add_error(f"Failed to infer tags: {e}")
+    # Step 1: Apply rule-based inference first
+    rule_intent: InferredIntent | None = None
+    rule_tags: list[InferredTag] = []
+    fallback_to_content = True
 
-    # Infer test relationships
+    try:
+        rule_intent, rule_tags, fallback_to_content = infer_from_rules(file_path, rules)
+
+        # Add rule-based tags
+        for tag in rule_tags:
+            result.add_tag(tag.tag, tag.confidence, tag.reason)
+
+        # Set rule-based intent (may be overridden by content if fallback)
+        if rule_intent:
+            result.set_intent(rule_intent.intent, rule_intent.confidence, rule_intent.reason)
+
+    except Exception as e:
+        result.add_error(f"Failed to apply inference rules: {e}")
+        fallback_to_content = True  # On error, try content analysis
+
+    # Step 2: Infer additional tags from path patterns (always runs)
+    try:
+        path_tags = infer_tags_from_path(file_path, schema)
+        # Only add tags not already present from rules
+        existing_tags = {t.tag for t in result.tags}
+        for tag in path_tags:
+            if tag.tag not in existing_tags:
+                result.add_tag(tag.tag, tag.confidence, tag.reason)
+    except Exception as e:
+        result.add_error(f"Failed to infer tags from path: {e}")
+
+    # Step 3: Content-based inference (if allowed by rules)
+    if fallback_to_content:
+        # Infer intent from content (docstring/markdown) if no rule intent or fallback
+        try:
+            content_intent = None
+            parts = Path(file_path).parts
+
+            # Special handling for agent sessions and audits
+            if parts and parts[0] in {".agent-sessions", "audits"}:
+                content_intent = infer_intent_from_path(file_path)
+
+            if not content_intent:
+                content_intent = infer_intent_from_docstring(file_path, project_dir)
+
+            if not content_intent:
+                content_intent = infer_intent_from_path(file_path)
+
+            # Only override rule intent if content has higher confidence
+            if content_intent:
+                if result.intent is None or content_intent.confidence > result.intent.confidence:
+                    result.set_intent(
+                        content_intent.intent, content_intent.confidence, content_intent.reason
+                    )
+
+        except Exception as e:
+            result.add_error(f"Failed to infer intent from content: {e}")
+
+    # Step 4: Infer relationships (always runs)
     try:
         test_rels = infer_test_relationships(file_path, project_dir, index)
         result.relationships.extend(test_rels)
     except Exception as e:
         result.add_error(f"Failed to infer test relationships: {e}")
 
-    # Infer document relationships
     try:
         doc_rels = infer_document_relationships(file_path, project_dir, index)
         result.relationships.extend(doc_rels)
     except Exception as e:
         result.add_error(f"Failed to infer document relationships: {e}")
 
-    # Infer import relationships
     try:
         import_rels = infer_import_relationships(file_path, project_dir, index)
         result.relationships.extend(import_rels)
     except Exception as e:
         result.add_error(f"Failed to infer import relationships: {e}")
-
-    # Infer intent
-    try:
-        intent = None
-        parts = Path(file_path).parts
-        if parts and parts[0] in {".agent-sessions", "audits"}:
-            intent = infer_intent_from_path(file_path)
-        if not intent:
-            intent = infer_intent_from_docstring(file_path, project_dir)
-        if not intent:
-            intent = infer_intent_from_path(file_path)
-        if intent:
-            result.set_intent(intent.intent, intent.confidence, intent.reason)
-    except Exception as e:
-        result.add_error(f"Failed to infer intent: {e}")
 
     return result
