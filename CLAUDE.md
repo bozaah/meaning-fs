@@ -148,7 +148,7 @@ python -m meaning query "what needs review?"
 ## CLI Smoke-Test Fixture
 
 - Keep `/tmp/meaning-test-I7e97f` around as a minimal CLI fixture (README + `src/app.py`).
-- `meaning review` only auto-applies high-confidence inference (docstrings / markdown paragraphs); files without those stay `needs_review`. Use `--interactive` or update the index manually when testing review behavior.
+- `meaning review` only auto-applies high-confidence inference (docstrings, markdown summaries, leading comment blocks, and high-confidence rules); files without those stay `needs_review`. Use `--interactive` or update the index manually when testing review behavior.
 
 ## Architecture Decisions
 
@@ -342,4 +342,4 @@ Check `IMPLEMENTATION-PLAN.md` for detailed specifications. If something isn't c
 
 ---
 
-*Last updated: 2026-01-23*
+*Last updated: 2026-01-24*

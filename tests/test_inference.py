@@ -26,6 +26,7 @@ from meaning.meaning_inference import (
     infer_file_metadata,
     infer_from_rules,
     infer_import_relationships,
+    infer_intent_from_comment_block,
     infer_intent_from_docstring,
     infer_intent_from_path,
     infer_tags_from_path,
@@ -767,6 +768,41 @@ This guide explains how to use the API client. It covers authentication and requ
     assert intent.confidence >= 0.8
 
 
+def test_infer_intent_from_comment_block_shell(tmp_path):
+    sh_file = tmp_path / "run.sh"
+    sh_file.write_text(
+        """#!/usr/bin/env bash
+# Upload derived artifacts to S3.
+# Uses aws cli for sync.
+echo \"ok\"
+"""
+    )
+
+    intent = infer_intent_from_comment_block("run.sh", tmp_path)
+
+    assert intent is not None
+    assert "Upload derived artifacts to S3" in intent.intent
+    assert intent.confidence >= 0.8
+
+
+def test_infer_intent_from_comment_block_python(tmp_path):
+    py_file = tmp_path / "script.py"
+    py_file.write_text(
+        """# -*- coding: utf-8 -*-
+# Compute zonal statistics for monthly datasets.
+
+def main():
+    pass
+"""
+    )
+
+    intent = infer_intent_from_comment_block("script.py", tmp_path)
+
+    assert intent is not None
+    assert "Compute zonal statistics" in intent.intent
+    assert intent.confidence >= 0.8
+
+
 def test_infer_intent_sanitizes_markdown(tmp_path):
     md_file = tmp_path / "notes.md"
     md_file.write_text("""# Notes
@@ -926,6 +962,24 @@ This project implements an API client using `src/api/client.py`.
     # Should have document relationships
     doc_rels = [r for r in result.relationships if r.relationship.type == "documents"]
     assert len(doc_rels) >= 1
+
+
+def test_infer_file_metadata_slurm_rule_definitive(index, schema, tmp_path):
+    slurm_file = tmp_path / "jobs" / "run_analysis.slurm"
+    slurm_file.parent.mkdir(parents=True, exist_ok=True)
+    slurm_file.write_text(
+        """# Run monthly aggregates for 1990-2020
+# Uses array jobs
+
+srun python run.py
+"""
+    )
+
+    result = infer_file_metadata("jobs/run_analysis.slurm", tmp_path, index, schema)
+
+    assert result.intent is not None
+    assert result.intent.intent == "SLURM batch job submission script"
+    assert result.intent.confidence >= 0.9
 
 
 # =============================================================================

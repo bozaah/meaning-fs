@@ -130,6 +130,7 @@ Or use the skill in Claude Code:
   - Filename rules: `.gitignore`, `requirements.txt`, `CLAUDE.md`, `Dockerfile`, etc.
   - Path patterns: `**/test_*.py`, `.github/workflows/*.yml`, `**/prompts/**/*.md`
   - Extension rules: `.slurm`, `.pbs`, `.env` for domain-specific files
+- **Intent Extraction** - Docstrings, markdown summaries, and leading comment blocks for scripts
 - **AI Agent Context Recognition** - Automatic detection of `CLAUDE.md`, `GEMINI.md`, `WARP.md`, `.cursorrules`
 - **Enhanced Tag Vocabulary** - 7 domain-specific categories:
   - `vcs` (git, ignore, hooks)
@@ -146,6 +147,7 @@ Or use the skill in Claude Code:
 - **Claude Code Integration** - Automatic tracking via hooks on file changes
 - **Transparent** - All suggestions show confidence levels and reasoning
 - **Non-Destructive** - Human reviews and approves all changes
+- **Exclusion-Aware Updates** - `meaning update` drops index entries matching exclude patterns
 
 ## How It Works
 

@@ -8,6 +8,13 @@ All notable changes to the Meaning project will be documented in this file.
 
 #### Changed
 - **pyproject.toml** — Bumped package version to 0.1.1 for PyPI publishing
+- **Default config template** — Expanded exclude patterns for OS metadata and git helper files
+- **Inference rules** — Added high-confidence `.py` intent and elevated shell-script confidence for auto-intent
+- **Index maintenance** — `meaning update` now drops entries that are excluded by config
+- **Intent inference** — Added leading comment-block extraction for scripts and job files
+- **Schema templates** — Expanded tag vocabularies to cover built-in inference tags
+- **Inference precedence** — High-confidence rules now skip content fallback
+- **CLI guidance** — `meaning update` suggests `--re-infer` when modified files are detected
 
 ### 2026-01-23 — Filename-Based Inference & Tag Vocabulary Enhancement
 

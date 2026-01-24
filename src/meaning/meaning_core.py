@@ -718,6 +718,40 @@ def scan_project_files(project_root: Path, config: MeaningConfig) -> list[str]:
     return sorted(files)
 
 
+def prune_excluded_entries(index: MeaningIndex, config: MeaningConfig) -> list[str]:
+    """
+    Remove index entries that are now excluded by config.
+
+    Returns:
+        List of removed file paths.
+    """
+    removed = [entry.path for entry in index.files if config.is_excluded(entry.path)]
+    if not removed:
+        return []
+
+    removed_set = set(removed)
+    index.files = [entry for entry in index.files if entry.path not in removed_set]
+
+    # Remove references from concepts
+    for concept in index.concepts:
+        if concept.files:
+            concept.files = [path for path in concept.files if path not in removed_set]
+        if concept.entry_point in removed_set:
+            concept.entry_point = None
+
+    # Remove relationships pointing to excluded files
+    for entry in index.files:
+        if entry.relationships:
+            entry.relationships = [
+                rel
+                for rel in entry.relationships
+                if (rel.target is None or rel.target not in removed_set)
+                and (rel.source is None or rel.source not in removed_set)
+            ]
+
+    return removed
+
+
 def find_unindexed_files(
     project_root: Path, index: MeaningIndex, config: MeaningConfig
 ) -> list[str]:
@@ -1549,6 +1583,16 @@ def main() -> None:
         schema = load_schema(project_root)
         config = load_config(project_root)
 
+        excluded = [entry.path for entry in index.files if config.is_excluded(entry.path)]
+        if excluded:
+            print(f"\n🧹 Removing {len(excluded)} excluded files from index:")
+            for path in excluded[:10]:
+                print(f"   • {path}")
+            if len(excluded) > 10:
+                print(f"   ... and {len(excluded) - 10} more")
+            if not args.dry_run:
+                prune_excluded_entries(index, config)
+
         new_files = find_unindexed_files(project_root, index, config)
         modified_files = find_modified_files(project_root, index)
         deleted_files = find_deleted_files(project_root, index)
@@ -1563,7 +1607,7 @@ def main() -> None:
             new_files = []
             modified_files = []
 
-        if not new_files and not modified_files and not deleted_files:
+        if not new_files and not modified_files and not deleted_files and not excluded:
             print("✓ Index is up to date")
             return
 
@@ -1617,6 +1661,8 @@ def main() -> None:
         print(f"✓ Files in index: {len(index.files)}")
         print(f"⚠️  Files needing review: {len(index.files_needing_review())}")
         print(f"✓ Validation: {validation.is_valid}")
+        if modified_files and not args.re_infer:
+            print("💡 Tip: run 'meaning update --re-infer' to refresh intents and tags")
         return
 
     if args.command == "review":

@@ -7,6 +7,19 @@ exclude:
     - ".git/**"
     - ".svn/**"
     - ".hg/**"
+    - ".gitignore"
+    - ".gitattributes"
+    - ".gitmodules"
+    - ".gitkeep"
+
+    # OS metadata
+    - ".DS_Store"
+    - "._*"
+    - ".AppleDouble/**"
+    - ".LSOverride"
+    - "Thumbs.db"
+    - "ehthumbs.db"
+    - "Desktop.ini"
 
     # Dependencies
     - "node_modules/**"

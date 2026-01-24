@@ -330,6 +330,8 @@ DEFAULT_EXTENSION_RULES: list[ExtensionRule] = [
     ExtensionRule(".sbatch", "SLURM batch script", ["script", "hpc", "slurm", "batch"], 0.95),
     ExtensionRule(".pbs", "PBS/Torque batch script", ["script", "hpc", "pbs", "batch"], 0.95),
     ExtensionRule(".sge", "Sun Grid Engine batch script", ["script", "hpc", "batch"], 0.95),
+    # === Source Code Extensions ===
+    ExtensionRule(".py", "Python source module", ["module"], 0.85, True),
     # === Data/Config Extensions (low confidence, fallback to content) ===
     ExtensionRule(".yaml", "YAML configuration or data", ["config"], 0.50, True),
     ExtensionRule(".yml", "YAML configuration or data", ["config"], 0.50, True),
@@ -338,9 +340,9 @@ DEFAULT_EXTENSION_RULES: list[ExtensionRule] = [
     ExtensionRule(".ini", "INI configuration file", ["config"], 0.60, True),
     ExtensionRule(".env", "Environment variables file", ["config", "security"], 0.80),
     # === Script Extensions ===
-    ExtensionRule(".sh", "Shell script", ["script"], 0.60, True),
-    ExtensionRule(".bash", "Bash script", ["script"], 0.65, True),
-    ExtensionRule(".zsh", "Zsh script", ["script"], 0.65, True),
+    ExtensionRule(".sh", "Shell script", ["script"], 0.80, True),
+    ExtensionRule(".bash", "Bash script", ["script"], 0.80, True),
+    ExtensionRule(".zsh", "Zsh script", ["script"], 0.80, True),
     # === Documentation Extensions ===
     ExtensionRule(".md", "Markdown documentation", ["doc"], 0.60, True),
     ExtensionRule(".rst", "reStructuredText documentation", ["doc"], 0.65, True),
@@ -877,6 +879,78 @@ def infer_intent_from_docstring(
     return None
 
 
+def infer_intent_from_comment_block(
+    file_path: str, project_dir: Path, max_length: int = 280
+) -> InferredIntent | None:
+    """
+    Infer intent from a leading comment block in script-like files.
+
+    Skips shebang and common tooling directives.
+    """
+    path = Path(file_path)
+    if path.suffix not in {".py", ".sh", ".bash", ".zsh", ".slurm", ".sbatch", ".pbs", ".sge"}:
+        return None
+
+    try:
+        full_path = project_dir / file_path
+        content = full_path.read_text(encoding="utf-8", errors="ignore")
+    except Exception:
+        return None
+
+    lines = content.splitlines()
+    i = 0
+
+    # Skip leading blank lines
+    while i < len(lines) and not lines[i].strip():
+        i += 1
+
+    # Skip shebang
+    if i < len(lines) and lines[i].startswith("#!"):
+        i += 1
+
+    comment_lines: list[str] = []
+    while i < len(lines):
+        line = lines[i]
+        stripped = line.strip()
+
+        if not stripped:
+            if comment_lines:
+                break
+            i += 1
+            continue
+
+        if stripped.startswith("#"):
+            text = stripped[1:].strip()
+            if not text:
+                i += 1
+                continue
+            lower = text.lower()
+            if "coding:" in lower or "coding=" in lower:
+                i += 1
+                continue
+            if lower.startswith(("pylint:", "flake8:", "ruff:", "mypy:", "pyright:", "type:")):
+                i += 1
+                continue
+            comment_lines.append(text)
+            i += 1
+            continue
+
+        break
+
+    if not comment_lines:
+        return None
+
+    intent = _extract_summary(_sanitize_inline_markdown(" ".join(comment_lines)), max_length)
+    if not intent:
+        return None
+
+    return InferredIntent(
+        intent=intent,
+        confidence=0.8,
+        reason="Extracted from leading comment block",
+    )
+
+
 def _strip_markdown_leading(text: str) -> str:
     text = re.sub(r"^>\s*", "", text)
     text = re.sub(r"^[-*+]\s+", "", text)
@@ -1067,6 +1141,8 @@ def infer_file_metadata(
         # Set rule-based intent (may be overridden by content if fallback)
         if rule_intent:
             result.set_intent(rule_intent.intent, rule_intent.confidence, rule_intent.reason)
+            if rule_intent.confidence >= 0.9:
+                fallback_to_content = False
 
     except Exception as e:
         result.add_error(f"Failed to apply inference rules: {e}")
@@ -1098,11 +1174,25 @@ def infer_file_metadata(
                 content_intent = infer_intent_from_docstring(file_path, project_dir)
 
             if not content_intent:
+                content_intent = infer_intent_from_comment_block(file_path, project_dir)
+
+            if not content_intent:
                 content_intent = infer_intent_from_path(file_path)
 
             # Only override rule intent if content has higher confidence
             if content_intent:
-                if result.intent is None or content_intent.confidence > result.intent.confidence:
+                if result.intent is None:
+                    result.set_intent(
+                        content_intent.intent, content_intent.confidence, content_intent.reason
+                    )
+                elif (
+                    result.intent.reason.startswith("Extension match")
+                    and content_intent.confidence >= 0.8
+                ):
+                    result.set_intent(
+                        content_intent.intent, content_intent.confidence, content_intent.reason
+                    )
+                elif content_intent.confidence > result.intent.confidence:
                     result.set_intent(
                         content_intent.intent, content_intent.confidence, content_intent.reason
                     )
