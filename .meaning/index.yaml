@@ -1,6 +1,6 @@
 version: '0.1'
 generated_at: '2026-01-21T04:11:00+00:00'
-last_updated: '2026-01-24T04:48:11.568719+00:00'
+last_updated: '2026-01-24T05:09:49.487858+00:00'
 concepts:
 - name: project-documentation
   description: Project-level documentation for human and AI understanding
@@ -43,7 +43,7 @@ files:
   intent: Project overview and quick start guide for users
   status: active
   needs_review: false
-  last_verified: '2026-01-24T04:47:30.292043+00:00'
+  last_verified: '2026-01-24T05:09:49.480003+00:00'
   tags:
   - doc
   - core
@@ -65,7 +65,7 @@ files:
   intent: Symlink to CLAUDE.md providing development guide for all AI agents
   status: active
   needs_review: false
-  last_verified: '2026-01-24T04:47:30.292043+00:00'
+  last_verified: '2026-01-24T05:09:49.480003+00:00'
   tags:
   - doc
   - core
@@ -79,7 +79,7 @@ files:
   intent: Development guide and architectural reference for AI agents working on Meaning
   status: active
   needs_review: false
-  last_verified: '2026-01-24T04:47:30.292043+00:00'
+  last_verified: '2026-01-24T05:09:49.480003+00:00'
   tags:
   - doc
   - core
@@ -116,7 +116,7 @@ files:
   intent: Chronological record of project changes, decisions, and milestones
   status: active
   needs_review: false
-  last_verified: '2026-01-24T04:47:30.292043+00:00'
+  last_verified: '2026-01-24T05:09:49.480003+00:00'
   tags:
   - doc
   - core
@@ -129,7 +129,7 @@ files:
     and index operations
   status: active
   needs_review: false
-  last_verified: '2026-01-24T04:47:30.292043+00:00'
+  last_verified: '2026-01-24T05:05:41.410564+00:00'
   tags:
   - core
   - module
@@ -143,12 +143,28 @@ files:
     target: src/meaning/meaning_inference.py
   - type: imports
     target: src/meaning/installer.py
+  - type: imports
+    target: src/meaning/cli.py
+  - type: imports
+    target: src/meaning/constants.py
+  - type: imports
+    target: src/meaning/index_io.py
+  - type: imports
+    target: src/meaning/index_ops.py
+  - type: imports
+    target: src/meaning/models.py
+  - type: imports
+    target: src/meaning/project.py
+  - type: imports
+    target: src/meaning/query.py
+  - type: imports
+    target: src/meaning/validation.py
 - path: src/meaning/meaning_inference.py
   intent: Inference engine that automatically generates semantic metadata with confidence
     scoring
   status: active
   needs_review: false
-  last_verified: '2026-01-24T04:47:30.292043+00:00'
+  last_verified: '2026-01-24T05:09:49.480003+00:00'
   tags:
   - core
   - module
@@ -310,7 +326,7 @@ files:
   intent: Local Claude Code settings overrides (user-specific, not committed)
   status: active
   needs_review: false
-  last_verified: '2026-01-21T09:24:10.405341+00:00'
+  last_verified: '2026-01-24T05:05:41.410564+00:00'
   tags:
   - config
   - ai
@@ -778,5 +794,106 @@ files:
   status: active
   needs_review: false
   last_verified: '2026-01-24T04:48:11.567670+00:00'
+  tags:
+  - x-needs-tags
+- path: src/meaning/cli.py
+  intent: 'Meaning: Command-line interface.'
+  status: active
+  needs_review: false
+  last_verified: '2026-01-24T05:05:41.397114+00:00'
+  tags:
+  - module
+  - cli
+  relationships:
+  - type: imports
+    target: src/meaning/installer.py
+  - type: imports
+    target: src/meaning/meaning_inference.py
+  - type: imports
+    target: src/meaning/meaning_inference.py
+  - type: imports
+    target: src/meaning/meaning_inference.py
+- path: src/meaning/constants.py
+  intent: 'Meaning: Constants and default values.'
+  status: active
+  needs_review: false
+  last_verified: '2026-01-24T05:05:41.397114+00:00'
+  tags:
+  - module
+- path: src/meaning/index_io.py
+  intent: 'Meaning: File I/O operations for indexes, schemas, and configs.'
+  status: active
+  needs_review: false
+  last_verified: '2026-01-24T05:05:41.397114+00:00'
+  tags:
+  - module
+  relationships:
+  - type: imports
+    target: src/meaning/constants.py
+- path: src/meaning/index_ops.py
+  intent: 'Meaning: Index operations.'
+  status: active
+  needs_review: false
+  last_verified: '2026-01-24T05:05:41.397114+00:00'
+  tags:
+  - module
+  relationships:
+  - type: imports
+    target: src/meaning/constants.py
+  - type: imports
+    target: src/meaning/index_io.py
+- path: src/meaning/models.py
+  intent: 'Meaning: Core data models.'
+  status: active
+  needs_review: false
+  last_verified: '2026-01-24T05:05:41.397114+00:00'
+  tags:
+  - module
+  - model
+  relationships:
+  - type: imports
+    target: src/meaning/constants.py
+- path: src/meaning/project.py
+  intent: 'Meaning: Project detection and scanning utilities.'
+  status: active
+  needs_review: false
+  last_verified: '2026-01-24T05:05:41.397114+00:00'
+  tags:
+  - module
+  relationships:
+  - type: imports
+    target: src/meaning/constants.py
+  - type: imports
+    target: src/meaning/models.py
+- path: src/meaning/query.py
+  intent: 'Meaning: Query engine and display functions.'
+  status: active
+  needs_review: false
+  last_verified: '2026-01-24T05:05:41.397114+00:00'
+  tags:
+  - module
+  relationships:
+  - type: imports
+    target: src/meaning/models.py
+  - type: imports
+    target: src/meaning/index_io.py
+  - type: imports
+    target: src/meaning/project.py
+- path: src/meaning/validation.py
+  intent: 'Meaning: Index validation.'
+  status: active
+  needs_review: false
+  last_verified: '2026-01-24T05:05:41.397114+00:00'
+  tags:
+  - module
+  - validation
+  relationships:
+  - type: imports
+    target: src/meaning/models.py
+- path: .agent-sessions/2026-01-24-modular-architecture-refactor.md
+  intent: 'Agent session note: 2026 01 24 modular architecture refactor.'
+  status: active
+  needs_review: false
+  last_verified: '2026-01-24T05:09:49.480003+00:00'
   tags:
   - x-needs-tags

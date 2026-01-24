@@ -4,6 +4,40 @@ All notable changes to the Meaning project will be documented in this file.
 
 ## [Unreleased]
 
+### 2026-01-24 — Modular Architecture Refactor
+
+#### Refactored
+- **Codebase modularization** — Split `meaning_core.py` (1,766 lines) into 8 specialized modules
+  - `constants.py` (17 lines) — Constants and default values
+  - `models.py` (433 lines) — Core dataclasses (FileEntry, MeaningIndex, MeaningSchema, etc.)
+  - `index_io.py` (85 lines) — YAML file I/O operations
+  - `validation.py` (117 lines) — Index validation against schema and filesystem
+  - `project.py` (59 lines) — Project detection and file scanning utilities
+  - `index_ops.py` (409 lines) — Index manipulation (find, prune, create, inference application)
+  - `query.py` (356 lines) — Query engine and display functions
+  - `cli.py` (400 lines) — CLI command routing and argument parsing
+  - `meaning_core.py` (178 lines) — Thin facade re-exporting all functions for backward compatibility
+
+#### Benefits
+- **Separation of concerns** — Each module has a single, clear responsibility
+- **Easier testing** — Modules can be tested in isolation
+- **Better maintainability** — Changes are localized to specific modules
+- **No circular imports** — Clean dependency hierarchy: constants → models → index_io → validation/project → index_ops → query → cli
+- **Backward compatibility** — Existing imports from `meaning.meaning_core` continue to work
+
+#### Impact
+- **90% code reduction** in `meaning_core.py` (1,766 → 178 lines)
+- **All 190 tests passing** — No behavior changes
+- **CLI fully functional** — All commands (status, query, validate, init, update, review) verified
+- **8 new modules indexed** — Project now has 75 files in semantic index
+
+#### Documentation
+- Added `audits/refactor-plan-2026-01-24.md` — Modularization plan and rationale
+- Updated `CLAUDE.md` with new module structure
+- Updated `README.md` status to v0.2
+
+---
+
 ### 2026-01-24 — Release Version Bump
 
 #### Changed

@@ -26,17 +26,17 @@ When you say "update how API responses are parsed," your AI agent can read the i
 
 ## Status
 
-**Phase 6 Complete** — Rule-based inference and enhanced tag vocabulary ✅
+**v0.2 — Modular Architecture** ✅
 
-- ✅ Core library (`meaning_core.py`) - 1,100+ lines
-- ✅ Inference engine (`meaning_inference.py`) - 950+ lines with **80+ built-in rules**
+- ✅ **Modular codebase** - 8 specialized modules (constants, models, index_io, validation, project, index_ops, query, cli)
+- ✅ **Inference engine** (`meaning_inference.py`) - 1,222 lines with **80+ built-in rules**
 - ✅ **Rule-based inference** - Automatic metadata for common files (`.gitignore`, `CLAUDE.md`, `*.slurm`)
-- ✅ **Enhanced tag vocabulary** - 7 new categories (HPC, AI agents, scientific computing, data ops)
+- ✅ **Enhanced tag vocabulary** - 7 categories (HPC, AI agents, scientific computing, data ops)
 - ✅ **Status command** - Instant project overview with concepts, health metrics, and recent activity
 - ✅ **Query engine** - Natural language semantic search (6 query types, <50ms response)
 - ✅ Five Claude Code skills (`/meaning-init`, `/meaning-update`, `/meaning-validate`, `/meaning-review`, `/meaning-query`)
 - ✅ Hook scripts for automatic tracking
-- ✅ Dog-fooded on itself (64 files indexed, 186 tests passing)
+- ✅ Dog-fooded on itself (75 files indexed, 190 tests passing)
 
 **Next:** PyPI release, real-world validation testing
 
