@@ -4,6 +4,11 @@ All notable changes to the Meaning project will be documented in this file.
 
 ## [Unreleased]
 
+### 2026-01-24 — Release Version Bump
+
+#### Changed
+- **pyproject.toml** — Bumped package version to 0.1.1 for PyPI publishing
+
 ### 2026-01-23 — Filename-Based Inference & Tag Vocabulary Enhancement
 
 #### Added
