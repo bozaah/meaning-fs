@@ -4,6 +4,31 @@ All notable changes to the Meaning project will be documented in this file.
 
 ## [Unreleased]
 
+### 2026-01-24 — Enhanced Status Display
+
+#### Added
+- **PROJECT OVERVIEW section** in `meaning status` output
+  - Entry points showing concepts with file counts and primary files
+  - Coverage percentage prominently displayed
+  - Relationship type summary (top 3 types + count)
+  - Last session info moved to overview for immediate context
+  - Visual distinction using `━` Unicode box-drawing characters
+
+#### Improved
+- **Status output structure** optimized for both humans and AI agents
+  - Story-driven narrative flow: Overview → Attention → Details → Next Steps
+  - Agent-first actionable information at each level
+  - Clean text-based indicators (`[OK]`, `[!]`, bullet points)
+  - No emoji characters for professional, parseable output
+  - Relative time display (e.g., "12m ago", "4d ago")
+
+#### Impact
+- **Better project understanding** — New users and AI agents get instant architecture overview
+- **Faster orientation** — Entry points visible immediately without needing to explore semantic map
+- **Context preservation** — Last session info appears in overview for continuity across sessions
+
+---
+
 ### 2026-01-24 — Modular Architecture Refactor
 
 #### Refactored

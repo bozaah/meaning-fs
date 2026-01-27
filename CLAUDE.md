@@ -133,7 +133,7 @@ meaning/
 
 This ensures continuity and prevents repeated discovery of the same issues.
 
-**Pro tip:** Start every session with `python -m meaning status` to see concepts, health, and recent activity instantly.
+**Pro tip:** Start every session with `python -m meaning status` to see project overview, entry points, health, and recent activity instantly.
 
 ## Development Commands
 

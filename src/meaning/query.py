@@ -225,6 +225,8 @@ def display_query_results(result: QueryResult, max_results: int = 20) -> None:
 def display_status(project_root: Path) -> None:
     """Display a comprehensive status overview of the meaning index."""
     # Import here to avoid circular imports
+    from datetime import datetime, timezone
+
     from meaning.index_io import load_config, load_index, load_schema
     from meaning.project import detect_project_type, scan_project_files
     from meaning.validation import validate_index
@@ -234,8 +236,8 @@ def display_status(project_root: Path) -> None:
         schema = load_schema(project_root)
         config = load_config(project_root)
     except FileNotFoundError:
-        print(f"❌ No .meaning/ directory found in {project_root}")
-        print("\n💡 Initialize with: python -m meaning init")
+        print(f"[!] No .meaning/ directory found in {project_root}")
+        print("\nInitialize with: python -m meaning init")
         return
 
     # Validate to get health metrics
@@ -247,7 +249,8 @@ def display_status(project_root: Path) -> None:
 
     # Calculate metrics
     total_files = len(index.files)
-    needs_review = len(index.files_needing_review())
+    needs_review_list = index.files_needing_review()
+    needs_review = len(needs_review_list)
     stale = sum(1 for f in index.files if f.is_stale())
 
     # Find unindexed files
@@ -255,102 +258,214 @@ def display_status(project_root: Path) -> None:
     indexed_paths = {f.path for f in index.files}
     unindexed = [f for f in all_files if f not in indexed_paths]
 
+    # Calculate coverage
+    total_project_files = len(all_files)
+    coverage_pct = (total_files / total_project_files * 100) if total_project_files > 0 else 0
+
+    # Count relationships and unique tags
+    total_relationships = sum(len(f.relationships) for f in index.files)
+    all_tags = set()
+    for f in index.files:
+        all_tags.update(f.tags)
+    unique_tags = len(all_tags)
+
+    # Time since last update
+    now = datetime.now(timezone.utc)
+    time_since_update = now - index.last_updated
+    if time_since_update.days > 0:
+        last_update_str = f"{time_since_update.days}d ago"
+    elif time_since_update.seconds > 3600:
+        last_update_str = f"{time_since_update.seconds // 3600}h ago"
+    elif time_since_update.seconds > 60:
+        last_update_str = f"{time_since_update.seconds // 60}m ago"
+    else:
+        last_update_str = "just now"
+
     # Find latest session note
     agent_sessions = project_root / ".agent-sessions"
     latest_session = None
+    session_time = None
     if agent_sessions.exists():
         session_files = sorted(
             agent_sessions.glob("*.md"), key=lambda p: p.stat().st_mtime, reverse=True
         )
         if session_files:
             latest_session = session_files[0].name
+            session_mtime = datetime.fromtimestamp(
+                session_files[0].stat().st_mtime, tz=timezone.utc
+            )
+            session_delta = now - session_mtime
+            if session_delta.days > 0:
+                session_time = f"{session_delta.days}d ago"
+            elif session_delta.seconds > 3600:
+                session_time = f"{session_delta.seconds // 3600}h ago"
+            elif session_delta.seconds > 60:
+                session_time = f"{session_delta.seconds // 60}m ago"
+            else:
+                session_time = "just now"
 
-    # Print status
-    print("📊 Meaning Index Status")
+    # Header
+    print("=" * 70)
+    print("MEANING INDEX STATUS")
+    print("=" * 70)
     print()
     print(f"Project: {project_name} ({project_type})")
-    print(f"Version: {index.version}")
-    print(f"Last Updated: {index.last_updated.strftime('%Y-%m-%d %H:%M:%S')}")
+    print(f"Coverage: {total_files}/{total_project_files} files ({coverage_pct:.0f}%)")
+    print(f"Last Updated: {last_update_str}")
     print()
 
-    # Concepts section
+    # Project Overview - entry points and high-level stats
     if index.concepts:
-        print("━" * 60)
-        print(f"CONCEPTS ({len(index.concepts)})")
-        print("━" * 60)
+        print("━" * 70)
+        print("PROJECT OVERVIEW")
+        print("━" * 70)
+        print()
+        print("  Entry Points:")
+        for concept in index.concepts:
+            file_count = len(concept.files)
+            print(
+                f"    • {concept.name.replace('-', ' ').title()} ({file_count} files) → {concept.entry_point}"
+            )
+        print()
+        print(
+            f"  Coverage: {total_files}/{total_project_files} files indexed ({coverage_pct:.0f}%)"
+        )
+
+        # Count relationship types
+        rel_types = {}
+        for f in index.files:
+            for rel in f.relationships:
+                rel_types[rel.type] = rel_types.get(rel.type, 0) + 1
+        rel_summary = ", ".join(sorted(rel_types.keys())[:3])
+        if len(rel_types) > 3:
+            rel_summary += f", +{len(rel_types) - 3} more"
+
+        print(f"  Relationships: {total_relationships} tracked ({rel_summary})")
+
+        if latest_session and session_time:
+            print(f"  Last session: {latest_session} ({session_time})")
+        print()
+
+    # Attention section - show problems first
+    has_issues = needs_review > 0 or len(unindexed) > 0 or stale > 0 or len(result.errors) > 0
+
+    if has_issues:
+        print("-" * 70)
+        print("ATTENTION NEEDED")
+        print("-" * 70)
+        print()
+
+        if needs_review > 0:
+            print(f"  [{needs_review}] Files need review")
+            for i, entry in enumerate(needs_review_list[:3], 1):
+                reason = (
+                    "auto-inferred" if entry.intent.startswith("[NEEDS REVIEW]") else "modified"
+                )
+                print(f"      {i}. {entry.path} ({reason})")
+            if needs_review > 3:
+                print(f"      ... and {needs_review - 3} more")
+            print()
+
+        if len(unindexed) > 0:
+            print(f"  [{len(unindexed)}] Files unindexed")
+            # Show first 3 unindexed files
+            for i, path in enumerate(unindexed[:3], 1):
+                print(f"      {i}. {path}")
+            if len(unindexed) > 3:
+                print(f"      ... and {len(unindexed) - 3} more")
+            print()
+
+        if stale > 0:
+            print(f"  [{stale}] Files stale (not verified in >{config.stale_threshold_days} days)")
+            print()
+
+        if result.errors:
+            print(f"  [{len(result.errors)}] Validation errors")
+            for i, err in enumerate(result.errors[:3], 1):
+                print(f"      {i}. {err}")
+            if len(result.errors) > 3:
+                print(f"      ... and {len(result.errors) - 3} more")
+            print()
+
+    # Semantic map - concepts as entry points
+    if index.concepts:
+        print("-" * 70)
+        print("SEMANTIC MAP")
+        print("-" * 70)
         print()
         for concept in index.concepts:
             file_count = len(concept.files)
-            print(f"  {concept.name} ({file_count} files)")
-            print(f"    └─ {concept.entry_point}")
-
-            # Show intent from entry point file
-            entry = index.get_file(concept.entry_point)
-            if entry and entry.intent:
-                intent = entry.intent[:70] + "..." if len(entry.intent) > 70 else entry.intent
-                print(f'       "{intent}"')
-            print()
-    else:
-        print("⚠️  No concepts defined")
+            print(f"  [{concept.name}] {file_count} files -> {concept.entry_point}")
+            # Show description instead of entry point intent
+            if concept.description:
+                desc = (
+                    concept.description[:65] + "..."
+                    if len(concept.description) > 65
+                    else concept.description
+                )
+                print(f"      {desc}")
         print()
 
-    # Health section
-    print("━" * 60)
-    print("HEALTH")
-    print("━" * 60)
+    # Index health summary
+    print("-" * 70)
+    print("INDEX HEALTH")
+    print("-" * 70)
     print()
 
-    # Files
-    status_icon = "✅" if total_files > 0 else "⚠️ "
-    print(f"  {status_icon} {total_files} files indexed")
+    health_items = [
+        ("Indexed", total_files, total_files > 0),
+        ("Need Review", needs_review, needs_review == 0),
+        ("Stale", stale, stale == 0),
+        ("Unindexed", len(unindexed), len(unindexed) == 0),
+        ("Errors", len(result.errors), len(result.errors) == 0),
+    ]
 
-    # Needs review
-    if needs_review > 0:
-        print(f"  ⚠️  {needs_review} need review")
-    else:
-        print("  ✅ 0 need review")
-
-    # Stale
-    if stale > 0:
-        print(f"  ⚠️  {stale} stale entries")
-    else:
-        print("  ✅ 0 stale entries")
-
-    # Unindexed
-    if unindexed:
-        print(f"  ⚠️  {len(unindexed)} unindexed files")
-    else:
-        print("  ✅ 0 unindexed files")
-
-    # Validation errors
-    if result.errors:
-        print(f"  ❌ {len(result.errors)} validation errors")
-    else:
-        print("  ✅ 0 validation errors")
-
+    for label, count, is_good in health_items:
+        status = "[OK]" if is_good else "[!]"
+        print(f"  {status} {label}: {count}")
     print()
 
-    # Recent activity
+    # Metadata stats
+    print("-" * 70)
+    print("METADATA")
+    print("-" * 70)
+    print()
+    print(f"  Relationships: {total_relationships} tracked")
+    print(f"  Tags: {unique_tags} unique types")
+    print(f"  Concepts: {len(index.concepts)} defined")
+    print()
+
+    # Recent context
     if latest_session:
-        print("━" * 60)
-        print("RECENT ACTIVITY")
-        print("━" * 60)
+        print("-" * 70)
+        print("RECENT CONTEXT")
+        print("-" * 70)
         print()
-        print(f"  Latest session: {latest_session}")
+        print(f"  Last session: {latest_session}")
+        if session_time:
+            print(f"  Time: {session_time}")
         print()
 
-    # Quick actions
-    print("━" * 60)
-    print("QUICK ACTIONS")
-    print("━" * 60)
+    # Next steps - actionable commands
+    print("-" * 70)
+    print("NEXT STEPS")
+    print("-" * 70)
     print()
 
     if needs_review > 0:
-        print("  python -m meaning review    # Review flagged files")
-    if unindexed:
-        print("  python -m meaning update    # Sync with filesystem")
+        print("  meaning review              # Review and approve inferred metadata")
+    if len(unindexed) > 0:
+        print("  meaning update              # Sync with filesystem changes")
     if result.errors:
-        print("  python -m meaning validate  # See detailed errors")
+        print("  meaning validate            # See detailed validation errors")
 
-    print('  python -m meaning query "<question>"  # Semantic search')
+    print('  meaning query "<question>"  # Semantic search for files/concepts')
+
+    # Show example query based on concepts
+    if index.concepts:
+        first_concept = index.concepts[0].name
+        print(f'  meaning query "{first_concept}"  # Explore {first_concept} files')
+
+    print()
+    print("=" * 70)
     print()

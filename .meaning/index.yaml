@@ -1,6 +1,6 @@
 version: '0.1'
 generated_at: '2026-01-21T04:11:00+00:00'
-last_updated: '2026-01-24T05:09:49.487858+00:00'
+last_updated: '2026-01-26T05:35:32.778182+00:00'
 concepts:
 - name: project-documentation
   description: Project-level documentation for human and AI understanding
@@ -65,7 +65,7 @@ files:
   intent: Symlink to CLAUDE.md providing development guide for all AI agents
   status: active
   needs_review: false
-  last_verified: '2026-01-24T05:09:49.480003+00:00'
+  last_verified: '2026-01-26T05:35:32.765386+00:00'
   tags:
   - doc
   - core
@@ -79,7 +79,7 @@ files:
   intent: Development guide and architectural reference for AI agents working on Meaning
   status: active
   needs_review: false
-  last_verified: '2026-01-24T05:09:49.480003+00:00'
+  last_verified: '2026-01-26T05:35:32.765386+00:00'
   tags:
   - doc
   - core
@@ -116,7 +116,7 @@ files:
   intent: Chronological record of project changes, decisions, and milestones
   status: active
   needs_review: false
-  last_verified: '2026-01-24T05:09:49.480003+00:00'
+  last_verified: '2026-01-26T05:35:32.765386+00:00'
   tags:
   - doc
   - core
@@ -164,7 +164,7 @@ files:
     scoring
   status: active
   needs_review: false
-  last_verified: '2026-01-24T05:09:49.480003+00:00'
+  last_verified: '2026-01-26T05:35:32.765386+00:00'
   tags:
   - core
   - module
@@ -869,7 +869,7 @@ files:
   intent: 'Meaning: Query engine and display functions.'
   status: active
   needs_review: false
-  last_verified: '2026-01-24T05:05:41.397114+00:00'
+  last_verified: '2026-01-26T05:35:32.765386+00:00'
   tags:
   - module
   relationships:
@@ -879,6 +879,8 @@ files:
     target: src/meaning/index_io.py
   - type: imports
     target: src/meaning/project.py
+  - type: imports
+    target: src/meaning/validation.py
 - path: src/meaning/validation.py
   intent: 'Meaning: Index validation.'
   status: active
@@ -895,5 +897,12 @@ files:
   status: active
   needs_review: false
   last_verified: '2026-01-24T05:09:49.480003+00:00'
+  tags:
+  - x-needs-tags
+- path: .agent-sessions/2026-01-24-enhanced-status-display.md
+  intent: 'Agent session note: 2026 01 24 enhanced status display.'
+  status: active
+  needs_review: false
+  last_verified: '2026-01-26T05:35:32.765386+00:00'
   tags:
   - x-needs-tags
