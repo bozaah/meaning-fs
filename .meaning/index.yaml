@@ -1,6 +1,6 @@
 version: 0.2.0
 generated_at: '2026-01-21T04:11:00+00:00'
-last_updated: '2026-01-28T00:20:48.449899+00:00'
+last_updated: '2026-01-28T05:10:18.682274+00:00'
 concepts:
 - name: project-documentation
   description: Project-level documentation for human and AI understanding
@@ -38,12 +38,13 @@ concepts:
   - tests/test_core.py
   - tests/test_inference.py
   entry_point: tests/test_core.py
+collections: []
 files:
 - path: README.md
   intent: Project overview and quick start guide for users
   status: active
   needs_review: false
-  last_verified: '2026-01-28T00:20:48.424310+00:00'
+  last_verified: '2026-01-28T05:09:40.454494+00:00'
   tags:
   - doc
   - core
@@ -96,7 +97,7 @@ files:
     and design decisions
   status: active
   needs_review: false
-  last_verified: '2026-01-21T09:23:35.799168+00:00'
+  last_verified: '2026-01-28T05:09:40.454494+00:00'
   tags:
   - doc
   - core
@@ -116,7 +117,7 @@ files:
   intent: Chronological record of project changes, decisions, and milestones
   status: active
   needs_review: false
-  last_verified: '2026-01-28T00:20:48.424310+00:00'
+  last_verified: '2026-01-28T05:09:40.454494+00:00'
   tags:
   - doc
   - core
@@ -129,7 +130,7 @@ files:
     and index operations
   status: active
   needs_review: false
-  last_verified: '2026-01-28T00:20:48.424310+00:00'
+  last_verified: '2026-01-28T05:09:40.454494+00:00'
   tags:
   - core
   - module
@@ -164,7 +165,7 @@ files:
     scoring
   status: active
   needs_review: false
-  last_verified: '2026-01-28T00:20:23.217619+00:00'
+  last_verified: '2026-01-28T05:08:49.980376+00:00'
   tags:
   - core
   - module
@@ -243,7 +244,7 @@ files:
   intent: Tests for meaning_core module.
   status: active
   needs_review: false
-  last_verified: '2026-01-28T00:20:48.424310+00:00'
+  last_verified: '2026-01-28T05:09:40.454494+00:00'
   tags:
   - test
   - module
@@ -258,7 +259,7 @@ files:
   intent: Tests for meaning_inference.
   status: active
   needs_review: false
-  last_verified: '2026-01-28T00:20:48.424310+00:00'
+  last_verified: '2026-01-28T05:09:40.454494+00:00'
   tags:
   - test
   - module
@@ -496,7 +497,7 @@ files:
     layer for codebases.'
   status: active
   needs_review: false
-  last_verified: '2026-01-24T04:47:30.292043+00:00'
+  last_verified: '2026-01-28T05:09:40.454494+00:00'
   tags:
   - module
   relationships:
@@ -542,7 +543,7 @@ files:
   intent: Default configuration template for Meaning projects.
   status: active
   needs_review: false
-  last_verified: '2026-01-28T00:20:48.424310+00:00'
+  last_verified: '2026-01-28T03:52:25.611732+00:00'
   tags:
   - config
 - path: src/meaning/templates/hooks.json
@@ -556,28 +557,28 @@ files:
   intent: Schema template for docs projects.
   status: active
   needs_review: false
-  last_verified: '2026-01-28T00:20:48.424310+00:00'
+  last_verified: '2026-01-28T05:09:40.454494+00:00'
   tags:
   - config
 - path: src/meaning/templates/schema/node.yaml
   intent: Schema template for node projects.
   status: active
   needs_review: false
-  last_verified: '2026-01-28T00:20:48.424310+00:00'
+  last_verified: '2026-01-28T05:09:40.454494+00:00'
   tags:
   - config
 - path: src/meaning/templates/schema/python.yaml
   intent: Schema template for python projects.
   status: active
   needs_review: false
-  last_verified: '2026-01-28T00:20:48.424310+00:00'
+  last_verified: '2026-01-28T05:09:40.454494+00:00'
   tags:
   - config
 - path: src/meaning/templates/schema/rust.yaml
   intent: Schema template for rust projects.
   status: active
   needs_review: false
-  last_verified: '2026-01-28T00:20:48.424310+00:00'
+  last_verified: '2026-01-28T05:09:40.454494+00:00'
   tags:
   - config
 - path: src/meaning/templates/scripts/meaning-post-write.sh
@@ -661,7 +662,7 @@ files:
   intent: Schema template for mixed projects.
   status: active
   needs_review: false
-  last_verified: '2026-01-28T00:20:48.424310+00:00'
+  last_verified: '2026-01-28T05:09:40.454494+00:00'
   tags:
   - config
 - path: src/meaning/templates/skills/meaning-init/SKILL.md
@@ -800,7 +801,7 @@ files:
   intent: 'Meaning: Command-line interface.'
   status: active
   needs_review: false
-  last_verified: '2026-01-28T00:20:48.424310+00:00'
+  last_verified: '2026-01-28T03:52:25.611732+00:00'
   tags:
   - module
   - cli
@@ -848,7 +849,7 @@ files:
   intent: 'Meaning: Index operations.'
   status: active
   needs_review: false
-  last_verified: '2026-01-28T00:20:48.424310+00:00'
+  last_verified: '2026-01-28T05:09:40.454494+00:00'
   tags:
   - module
   relationships:
@@ -864,7 +865,7 @@ files:
   intent: 'Meaning: Core data models.'
   status: active
   needs_review: false
-  last_verified: '2026-01-28T00:20:48.424310+00:00'
+  last_verified: '2026-01-28T05:09:40.454494+00:00'
   tags:
   - module
   - model
@@ -887,7 +888,7 @@ files:
   intent: 'Meaning: Query engine and display functions.'
   status: active
   needs_review: false
-  last_verified: '2026-01-28T00:20:48.424310+00:00'
+  last_verified: '2026-01-28T05:09:40.454494+00:00'
   tags:
   - module
   relationships:
@@ -903,7 +904,7 @@ files:
   intent: 'Meaning: Index validation.'
   status: active
   needs_review: false
-  last_verified: '2026-01-28T00:20:48.424310+00:00'
+  last_verified: '2026-01-28T05:09:40.454494+00:00'
   tags:
   - module
   - validation
@@ -929,5 +930,20 @@ files:
   status: active
   needs_review: false
   last_verified: '2026-01-28T00:20:48.424310+00:00'
+  tags:
+  - x-needs-tags
+- path: audits/audit-external-pydst-2026-01-28.md
+  intent: 'Date: 2026-01-28 Project: pydst (Python Disease Simulation Tools) Total
+    Files Indexed: 340 Files Requiring Manual Review: 205 (60%)'
+  status: active
+  needs_review: false
+  last_verified: '2026-01-28T03:52:25.611732+00:00'
+  tags:
+  - x-needs-tags
+- path: .agent-sessions/2026-01-28-collections-update.md
+  intent: 'Agent session note: 2026 01 28 collections update.'
+  status: active
+  needs_review: false
+  last_verified: '2026-01-28T05:09:40.454494+00:00'
   tags:
   - x-needs-tags

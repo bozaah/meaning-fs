@@ -134,6 +134,14 @@ concepts:
       - src/models/api_models.py
     entry_point: src/api/parsers/response_parser.py
 
+# Collection-level grouping for repetitive files
+collections:
+  - name: "Weather Stations"
+    pattern: "data/weather/*.parquet"
+    intent: "Daily weather observations for all stations"
+    tags: [data, weather, timeseries, binary]
+    member_intent_template: "Daily weather data for {location}"
+
 # Individual file records
 files:
   - path: src/api/client.py
@@ -311,6 +319,14 @@ exclude:
 include:
   paths: []
 
+# Inference configuration
+inference:
+  file_patterns:
+    - pattern: "data/*.csv"
+      intent_template: "Dataset: {stem}"
+      tags: [data]
+      confidence: 0.9
+
 # Behavior settings
 settings:
   require_intent: true          # Every file must have intent
@@ -379,7 +395,7 @@ settings:
 
 **Output**:
 ```
-✓ Initialized .meaning/ for python project
+OK Initialized .meaning/ for python project
   - 127 files indexed
   - 12 files need review
   - 34 files excluded
@@ -434,15 +450,15 @@ Run `/skill:meaning-review` to refine entries marked for review.
 ```
 Meaning Index Health Report
 ===========================
-✓ 127 files indexed
-✓ All files exist on disk
-✓ No orphaned entries
+OK 127 files indexed
+OK All files exist on disk
+OK No orphaned entries
 
-⚠ Warnings:
+WARN Warnings:
   - 3 files have stale entries (>7 days)
   - 1 unknown tag: "x-legacy" (custom tags allowed)
 
-✗ Errors:
+Errors:
   - 2 dangling relationships:
     - src/api/old_parser.py (referenced by src/api/client.py)
     - tests/test_removed.py (referenced by src/models/user.py)
@@ -781,12 +797,12 @@ This implementation is successful if:
 ### 13.1 Query Engine Improvements
 
 **Completed in Phase 5:**
-- ✅ Natural language query engine with 6 query types
-- ✅ Status command for instant project overview
-- ✅ Sub-50ms response time with zero LLM calls
-- ✅ Relationship graph traversal
-- ✅ Tag vocabulary matching
-- ✅ Intent keyword search
+- OK Natural language query engine with 7 query types
+- OK Status command for instant project overview
+- OK Sub-50ms response time with zero LLM calls
+- OK Relationship graph traversal
+- OK Tag vocabulary matching
+- OK Intent keyword search
 
 **Future Enhancements:**
 

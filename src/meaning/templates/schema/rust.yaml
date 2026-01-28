@@ -115,6 +115,7 @@ tag_vocabulary:
     - spec
     - dev-guide
     - history
+    - notes
     - ai
     - legal
 
@@ -126,6 +127,11 @@ tag_vocabulary:
     - bench
     - build-script
     - config
+    - data
+    - output
+    - reference
+    - metadata
+    - binary
 
   vcs:
     - vcs
@@ -148,10 +154,15 @@ tag_vocabulary:
     - bioinformatics
     - visualization
     - statistics
+    - weather
+    - disease
+    - modeling
+    - simulation
 
   infrastructure:
     - hpc
     - cloud
+    - ui
     - container
     - orchestration
     - ci-cd

@@ -17,10 +17,10 @@ Result: **0% auto-accept rate** in `/meaning-review`, defeating the purpose of a
 
 **Test Results:**
 ```
-✓ Loaded 34 files
-🔍 20 files need review (59%)
+OK Loaded 34 files
+QUERY 20 files need review (59%)
 
-📊 Categorizing...
+SUMMARY Categorizing...
    • 0 high-confidence (auto-accept)
    • 20 need manual review
 ```
@@ -216,13 +216,13 @@ Tag coverage: 85%+ (29-31/34)
 Proper domain tags applied automatically
 
 Auto-accepted files:
-  ✓ .gitignore → [config, vcs, ignore]
-  ✓ requirements.txt → [config, dependencies]
-  ✓ GEMINI.md → [doc, ai, agent-context]
-  ✓ WARP.md → [doc, ai, agent-context]
-  ✓ 10 × *.slurm → [script, hpc, slurm, batch]
-  ✓ upload_*.sh → [script, upload, deployment]
-  ✓ compute_*.py → [module, data-processing]
+  OK .gitignore → [config, vcs, ignore]
+  OK requirements.txt → [config, dependencies]
+  OK GEMINI.md → [doc, ai, agent-context]
+  OK WARP.md → [doc, ai, agent-context]
+  OK 10 × *.slurm → [script, hpc, slurm, batch]
+  OK upload_*.sh → [script, upload, deployment]
+  OK compute_*.py → [module, data-processing]
 ```
 
 **Metrics:**
@@ -324,9 +324,9 @@ Auto-accepted files:
 
 ### Alternative Approaches Considered
 
-❌ **Hardcode in Python:** Not user-customizable
-❌ **AI-only inference:** Slow, expensive, unpredictable
-✅ **Default rules + overrides:** Fast, deterministic, customizable
+ERROR **Hardcode in Python:** Not user-customizable
+ERROR **AI-only inference:** Slow, expensive, unpredictable
+OK **Default rules + overrides:** Fast, deterministic, customizable
 
 ### Migration Strategy
 
@@ -348,7 +348,7 @@ Full technical analysis available:
 
 **Testing Date:** 2026-01-23
 **Package:** `meaning-fs` (external release)
-**First Real-World Test:** ✅
+**First Real-World Test:** OK
 **Priority:** P0 (Critical for usability)
 **Labels:** enhancement, inference, dx, vocabulary
 **Milestone:** v0.2

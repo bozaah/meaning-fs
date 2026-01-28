@@ -20,8 +20,10 @@ from meaning.meaning_core import (
     VALID_STATUSES,
     # Constants
     VERSION,
+    Collection,
     Concept,
     FileEntry,
+    FilePattern,
     MeaningConfig,
     MeaningIndex,
     MeaningSchema,
@@ -61,7 +63,9 @@ __all__ = [
     # Core data classes
     "Relationship",
     "FileEntry",
+    "FilePattern",
     "Concept",
+    "Collection",
     "MeaningIndex",
     "MeaningSchema",
     "MeaningConfig",

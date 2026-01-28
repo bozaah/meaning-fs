@@ -72,6 +72,7 @@ def main() -> None:
     update_mode.add_argument("--all", action="store_true")
     update_parser.add_argument("--re-infer", action="store_true")
     update_parser.add_argument("--dry-run", action="store_true")
+    update_parser.add_argument("--verbose", action="store_true")
     update_parser.add_argument("--threshold", type=float, default=DEFAULT_REVIEW_THRESHOLD)
 
     review_parser = subparsers.add_parser("review", help="Review and accept inferred metadata")
@@ -96,8 +97,8 @@ def main() -> None:
             query_result = query_index(index, schema, query_str)
             display_query_results(query_result)
         except FileNotFoundError:
-            print(f"❌ No .meaning/ directory found in {project_root}")
-            print("\n💡 Initialize with: python -m meaning init")
+            print(f"ERROR: No .meaning/ directory found in {project_root}")
+            print("\nTIP: Initialize with: python -m meaning init")
             sys.exit(1)
         return
 
@@ -113,11 +114,11 @@ def main() -> None:
             if validation_result.errors:
                 print(f"\nErrors ({len(validation_result.errors)}):")
                 for err in validation_result.errors:
-                    print(f"  ✗ {err}")
+                    print(f"  - {err}")
             if validation_result.warnings:
                 print(f"\nWarnings ({len(validation_result.warnings)}):")
                 for warn in validation_result.warnings:
-                    print(f"  ⚠ {warn}")
+                    print(f"  WARN: {warn}")
         except FileNotFoundError as e:
             print(f"Error: {e}")
             sys.exit(1)
@@ -152,21 +153,21 @@ def main() -> None:
 
         if not install_result.success:
             for err in install_result.errors:
-                print(f"❌ {err}")
+                print(f"ERROR: {err}")
             sys.exit(1)
 
         # Report installation results
         if install_result.meaning_dir_created:
-            print(f"✓ Created .meaning/ with {len(install_result.files_copied)} files")
+            print(f"OK: Created .meaning/ with {len(install_result.files_copied)} files")
 
         if install_result.hooks_installed:
-            print("✓ Installed Claude Code hooks")
+            print("OK: Installed Claude Code hooks")
 
         if install_result.skills_installed:
-            print(f"✓ Installed {len(install_result.skills_installed)} skills")
+            print(f"OK: Installed {len(install_result.skills_installed)} skills")
 
         for warning in install_result.warnings:
-            print(f"⚠️  {warning}")
+            print(f"WARN: {warning}")
 
         # Load the created config/schema
         index = load_index(project_root)
@@ -175,7 +176,7 @@ def main() -> None:
 
         # Skip crawl if requested
         if args.skip_crawl:
-            print("✓ Skipped file scanning (use 'meaning update' to index files)")
+            print("OK: Skipped file scanning (use 'meaning update' to index files)")
             return
 
         # Scan and infer files
@@ -188,20 +189,20 @@ def main() -> None:
 
         now = infer_timestamps()
         for file_path in files_to_process:
-            result_infer = infer_file_metadata(file_path, project_root, index, schema)
+            result_infer = infer_file_metadata(file_path, project_root, index, schema, config)
             entry = entry_from_inference(file_path, result_infer, DEFAULT_REVIEW_THRESHOLD, now)
             index.add_file(entry)
 
         save_index(project_root, index)
 
         validation = validate_index(index, schema, config, project_root)
-        print(f"✓ Indexed {len(index.files)} files")
+        print(f"OK: Indexed {len(index.files)} files")
         if limit is not None and limit > 0 and len(all_files) > limit:
             print(
-                f"⚠️  Limited to first {limit} files. Run 'meaning update' to index remaining {len(all_files) - limit} files."
+                f"WARN: Limited to first {limit} files. Run 'meaning update' to index remaining {len(all_files) - limit} files."
             )
-        print(f"⚠️  Files needing review: {len(index.files_needing_review())}")
-        print(f"✓ Validation: {validation.is_valid}")
+        print(f"WARN: Files needing review: {len(index.files_needing_review())}")
+        print(f"OK: Validation: {validation.is_valid}")
         return
 
     if args.command == "update":
@@ -209,7 +210,7 @@ def main() -> None:
 
         project_root = Path(args.project_root).resolve()
         if not meaning_dir_exists(project_root):
-            print(f"❌ No .meaning/ directory found in {project_root}")
+            print(f"ERROR: No .meaning/ directory found in {project_root}")
             print("Run 'meaning init' to create semantic index first")
             sys.exit(1)
 
@@ -218,16 +219,23 @@ def main() -> None:
         config = load_config(project_root)
 
         excluded = [entry.path for entry in index.files if config.is_excluded(entry.path)]
-        if excluded:
-            print(f"\n🧹 Removing {len(excluded)} excluded files from index:")
-            for path in excluded[:10]:
-                print(f"   • {path}")
-            if len(excluded) > 10:
-                print(f"   ... and {len(excluded) - 10} more")
-            if not args.dry_run:
-                prune_excluded_entries(index, config)
 
-        new_files = find_unindexed_files(project_root, index, config)
+        def print_file_list(label: str, files: list[str]) -> None:
+            if not files:
+                return
+            print(f"{label}: {len(files)}")
+            shown = files if args.verbose else files[:10]
+            for path in shown:
+                print(f"  - {path}")
+            if len(files) > len(shown):
+                print(f"  ... and {len(files) - len(shown)} more")
+
+        all_files = scan_project_files(project_root, config)
+        indexed_paths = {entry.path for entry in index.files}
+        collection_skipped = [
+            f for f in all_files if f not in indexed_paths and index.is_collected(f)
+        ]
+        new_files = [f for f in all_files if f not in indexed_paths and not index.is_collected(f)]
         modified_files = find_modified_files(project_root, index)
         deleted_files = find_deleted_files(project_root, index)
 
@@ -242,63 +250,83 @@ def main() -> None:
             modified_files = []
 
         if not new_files and not modified_files and not deleted_files and not excluded:
-            print("✓ Index is up to date")
+            print("OK: Index is up to date")
+            if collection_skipped:
+                print(f"INFO: Collection-covered files (not indexed): {len(collection_skipped)}")
             return
 
-        print("📊 Changes detected:")
-        print(f"   • New files: {len(new_files)}")
-        print(f"   • Modified files: {len(modified_files)}")
-        print(f"   • Deleted files: {len(deleted_files)}")
+        print("UPDATE SUMMARY")
+        print(f"  Project files: {len(all_files)}")
+        print(f"  Indexed files: {len(index.files)}")
+        print(f"  Collections: {len(index.collections)}")
+        print(f"  Collection-covered (not indexed): {len(collection_skipped)}")
+        print(
+            "  Pending changes: "
+            f"new {len(new_files)}, modified {len(modified_files)}, "
+            f"deleted {len(deleted_files)}, excluded {len(excluded)}"
+        )
+        if args.dry_run:
+            print("  Mode: dry-run")
+        print()
+
+        if excluded:
+            print_file_list("CLEAN excluded entries", excluded)
+            if not args.dry_run:
+                prune_excluded_entries(index, config)
 
         if deleted_files:
-            print(f"\n🗑️  Removing {len(deleted_files)} deleted files:")
-            for path in deleted_files:
-                print(f"   • {path}")
-                if not args.dry_run:
+            print_file_list("REMOVE deleted files", deleted_files)
+            if not args.dry_run:
+                for path in deleted_files:
                     index.remove_file(path)
 
         if new_files:
-            print(f"\n✨ Adding {len(new_files)} new files:")
-            now = infer_timestamps()
-            for file_path in new_files:
-                print(f"   • {file_path}")
-                inference_result = infer_file_metadata(file_path, project_root, index, schema)
-                entry = entry_from_inference(file_path, inference_result, args.threshold, now)
-                if not args.dry_run:
+            print_file_list("ADD new files", new_files)
+            if not args.dry_run:
+                now = infer_timestamps()
+                for file_path in new_files:
+                    inference_result = infer_file_metadata(
+                        file_path, project_root, index, schema, config
+                    )
+                    entry = entry_from_inference(file_path, inference_result, args.threshold, now)
                     index.add_file(entry)
 
         if modified_files:
-            print(f"\n🔄 Processing {len(modified_files)} modified files:")
-            now = infer_timestamps()
-            for file_path in modified_files:
-                print(f"   • {file_path}")
-                modified_entry = index.get_file(file_path)
-                if modified_entry is None:
-                    continue
-                if args.re_infer:
-                    inference_result = infer_file_metadata(file_path, project_root, index, schema)
-                    if not args.dry_run:
+            mode_label = "re-infer" if args.re_infer else "flag review"
+            print_file_list(f"UPDATE modified files ({mode_label})", modified_files)
+            if not args.dry_run:
+                now = infer_timestamps()
+                for file_path in modified_files:
+                    modified_entry = index.get_file(file_path)
+                    if modified_entry is None:
+                        continue
+                    if args.re_infer:
+                        inference_result = infer_file_metadata(
+                            file_path, project_root, index, schema, config
+                        )
                         apply_inference_to_entry(
                             modified_entry, inference_result, args.threshold, config, now
                         )
-                else:
-                    if not args.dry_run:
+                    else:
                         modified_entry.needs_review = True
                         modified_entry.last_verified = now
 
+        if collection_skipped and args.verbose:
+            print_file_list("INFO collection-covered files (not indexed)", collection_skipped)
+
         if args.dry_run:
-            print("\n⚠️  Dry run: no changes written")
+            print("\nWARN: Dry run: no changes written")
             return
 
         save_index(project_root, index)
         validation = validate_index(index, schema, config, project_root)
 
-        print("\n📋 Update complete")
-        print(f"✓ Files in index: {len(index.files)}")
-        print(f"⚠️  Files needing review: {len(index.files_needing_review())}")
-        print(f"✓ Validation: {validation.is_valid}")
+        print("\nUPDATE RESULTS")
+        print(f"  Files in index: {len(index.files)}")
+        print(f"  Files needing review: {len(index.files_needing_review())}")
+        print(f"  Validation: {validation.is_valid}")
         if modified_files and not args.re_infer:
-            print("💡 Tip: run 'meaning update --re-infer' to refresh intents and tags")
+            print("TIP: run 'meaning update --re-infer' to refresh intents and tags")
         return
 
     if args.command == "review":
@@ -306,7 +334,7 @@ def main() -> None:
 
         project_root = Path(args.project_root).resolve()
         if not meaning_dir_exists(project_root):
-            print(f"❌ No .meaning/ directory found in {project_root}")
+            print(f"ERROR: No .meaning/ directory found in {project_root}")
             print("Run 'meaning init' to create semantic index first")
             sys.exit(1)
 
@@ -321,7 +349,7 @@ def main() -> None:
             entries = index.files_needing_review()
 
         if not entries:
-            print("✓ No files need review")
+            print("OK: No files need review")
             return
 
         now = infer_timestamps()
@@ -329,7 +357,7 @@ def main() -> None:
         skipped = 0
 
         for entry in entries:
-            inference_result = infer_file_metadata(entry.path, project_root, index, schema)
+            inference_result = infer_file_metadata(entry.path, project_root, index, schema, config)
             if args.interactive:
                 diff = preview_inference_diff(entry, inference_result, args.threshold, config, now)
                 print(f"\nFile: {entry.path}")
@@ -385,20 +413,20 @@ def main() -> None:
                 skipped += 1
 
         if args.dry_run:
-            print("\n⚠️  Dry run: no changes written")
-            print(f"✓ Would update {updated} file(s)")
+            print("\nWARN: Dry run: no changes written")
+            print(f"OK: Would update {updated} file(s)")
             if skipped:
-                print(f"⚠️  {skipped} file(s) have no high-confidence changes")
+                print(f"WARN: {skipped} file(s) have no high-confidence changes")
             return
 
         save_index(project_root, index)
-        print(f"✓ Reviewed {updated} file(s)")
+        print(f"OK: Reviewed {updated} file(s)")
         if skipped:
-            print(f"⚠️  {skipped} file(s) still need review")
+            print(f"WARN: {skipped} file(s) still need review")
             print("   Add docstrings/markdown summaries or use --interactive")
         remaining = len(index.files_needing_review())
         if remaining:
-            print(f"⚠️  Files still needing review: {remaining}")
+            print(f"WARN: Files still needing review: {remaining}")
         return
 
 

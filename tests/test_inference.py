@@ -11,6 +11,8 @@ import pytest
 
 from meaning.meaning_core import (
     FileEntry,
+    FilePattern,
+    MeaningConfig,
     MeaningIndex,
     MeaningSchema,
     RelationshipType,
@@ -557,6 +559,22 @@ def test_infer_tags_parser_file(schema):
     assert "parsing" in tag_names
 
 
+def test_infer_tags_src_data_directory(schema):
+    tags = infer_tags_from_path("src/app/data/inputs.csv", schema)
+    tag_names = [t.tag for t in tags]
+
+    assert "data" in tag_names
+    assert "config" in tag_names
+
+
+def test_infer_tags_docs_notes_directory(schema):
+    tags = infer_tags_from_path("docs/notes/summary.csv", schema)
+    tag_names = [t.tag for t in tags]
+
+    assert "doc" in tag_names
+    assert "notes" in tag_names
+
+
 # =============================================================================
 # Test Test Relationship Inference
 # =============================================================================
@@ -974,6 +992,55 @@ srun python run.py
     assert result.intent is not None
     assert result.intent.intent == "SLURM batch job submission script"
     assert result.intent.confidence >= 0.9
+
+
+def test_infer_file_metadata_file_pattern_template(index, schema, tmp_path):
+    config = MeaningConfig(
+        file_patterns=[
+            FilePattern(
+                pattern="data/*.csv",
+                intent_template="Dataset: {stem}",
+                tags=["data"],
+                confidence=0.95,
+                fallback_to_content=False,
+            )
+        ]
+    )
+
+    result = infer_file_metadata("data/weather.csv", tmp_path, index, schema, config)
+
+    assert result.intent is not None
+    assert result.intent.intent == "Dataset: weather"
+    assert any(t.tag == "data" for t in result.tags)
+
+
+def test_infer_file_metadata_directory_context_test_files(index, schema, tmp_path):
+    result = infer_file_metadata("tests/test_files/ModelA/report.csv", tmp_path, index, schema)
+
+    assert result.intent is not None
+    assert result.intent.intent == "Test output data for ModelA."
+    assert result.intent.confidence >= 0.8
+
+
+def test_infer_file_metadata_config_directory_context(index, schema, tmp_path):
+    config_file = tmp_path / "src" / "app" / "configs" / "default.json"
+    config_file.parent.mkdir(parents=True, exist_ok=True)
+    config_file.write_text("{}")
+
+    result = infer_file_metadata("src/app/configs/default.json", tmp_path, index, schema)
+
+    assert result.intent is not None
+    assert result.intent.intent == "Configuration files for app."
+
+
+def test_infer_file_metadata_config_content_keys(index, schema, tmp_path):
+    config_file = tmp_path / "deps.json"
+    config_file.write_text('{"dependencies": {"foo": "1.0"}}')
+
+    result = infer_file_metadata("deps.json", tmp_path, index, schema)
+
+    assert result.intent is not None
+    assert result.intent.intent == "Dependency configuration."
 
 
 # =============================================================================

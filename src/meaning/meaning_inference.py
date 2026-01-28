@@ -7,12 +7,23 @@ Automatically infer semantic metadata for files to reduce manual work.
 from __future__ import annotations
 
 import ast
+import configparser
+import json
 import re
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
+from typing import Any
+
+import yaml
+
+try:  # Python 3.11+
+    import tomllib
+except ImportError:  # pragma: no cover - fallback for older runtimes
+    tomllib = None
 
 from meaning.meaning_core import (
+    MeaningConfig,
     MeaningIndex,
     MeaningSchema,
     Relationship,
@@ -26,6 +37,12 @@ from meaning.meaning_core import (
 CONFIDENCE_HIGH = 0.8
 CONFIDENCE_MEDIUM = 0.5
 CONFIDENCE_LOW = 0.3
+
+# File type groupings
+CONFIG_EXTENSIONS = {".yaml", ".yml", ".json", ".toml", ".ini"}
+DATA_EXTENSIONS = {".csv", ".tsv", ".parquet", ".nc", ".hdf5", ".h5", ".zarr"}
+BINARY_DATA_EXTENSIONS = {".parquet", ".nc", ".hdf5", ".h5", ".zarr"}
+MAX_CONFIG_BYTES = 256_000
 
 
 # =============================================================================
@@ -186,6 +203,8 @@ DEFAULT_FILENAME_RULES: list[FilenameRule] = [
     FilenameRule(".python-version", "Python version specification", ["config"], 1.0),
     FilenameRule("tox.ini", "Tox testing configuration", ["config", "test"], 1.0),
     FilenameRule(".coveragerc", "Coverage.py configuration", ["config", "test"], 1.0),
+    FilenameRule("mkdocs.yml", "MkDocs documentation configuration", ["config", "doc"], 0.95),
+    FilenameRule("mkdocs.yaml", "MkDocs documentation configuration", ["config", "doc"], 0.95),
     # === Node/JavaScript Files ===
     FilenameRule(
         "package.json", "Node.js package manifest", ["config", "dependencies", "packaging"], 1.0
@@ -453,6 +472,68 @@ def infer_from_rules(
     return None, [], True  # Fallback to content analysis
 
 
+def _build_template_values(file_path: str, capture_regex: str | None) -> dict[str, str]:
+    path = Path(file_path)
+    values = {
+        "path": file_path,
+        "filename": path.name,
+        "stem": path.stem,
+        "suffix": path.suffix.lstrip("."),
+        "parent": path.parent.name if path.parent else "",
+    }
+    if capture_regex:
+        match = re.search(capture_regex, file_path)
+        if match:
+            values.update({k: v for k, v in match.groupdict().items() if v is not None})
+    return values
+
+
+def infer_from_file_patterns(
+    file_path: str,
+    config: MeaningConfig | None,
+) -> tuple[bool, InferredIntent | None, list[InferredTag], bool]:
+    """Apply user-configured file pattern templates."""
+    if not config or not config.file_patterns:
+        return False, None, [], True
+
+    path = Path(file_path)
+    for pattern in config.file_patterns:
+        if not pattern.pattern:
+            continue
+        if path.match(pattern.pattern):
+            intent: InferredIntent | None = None
+            reason = f"Config file pattern: {pattern.pattern}"
+            values = _build_template_values(file_path, pattern.capture_regex)
+
+            if pattern.intent_template:
+                try:
+                    rendered = pattern.intent_template.format(**values).strip()
+                    if rendered:
+                        intent = InferredIntent(
+                            intent=rendered,
+                            confidence=pattern.confidence,
+                            reason=reason,
+                        )
+                except (KeyError, ValueError):
+                    intent = None
+
+            if intent is None and pattern.intent:
+                intent = InferredIntent(
+                    intent=pattern.intent,
+                    confidence=pattern.confidence,
+                    reason=reason,
+                )
+
+            tags = [
+                InferredTag(tag=tag, confidence=pattern.confidence, reason=reason)
+                for tag in pattern.tags
+            ]
+
+            return True, intent, tags, pattern.fallback_to_content
+
+    return False, None, [], True
+
+
 # =============================================================================
 # Timestamp Inference (Trivial)
 # =============================================================================
@@ -551,7 +632,247 @@ def infer_tags_from_path(file_path: str, schema: MeaningSchema) -> list[Inferred
     if "pars" in name:
         tags.append(InferredTag(tag="parsing", confidence=0.85, reason="Parser/parsing in name"))
 
+    # Data/file collection patterns
+    if path.suffix in DATA_EXTENSIONS or "data" in parts:
+        tags.append(InferredTag(tag="data", confidence=0.8, reason="Data file pattern"))
+    if "data" in parts and "src" in parts:
+        tags.append(InferredTag(tag="config", confidence=0.75, reason="src/*/data context"))
+    if "output" in parts or "outputs" in parts or "output" in name:
+        tags.append(InferredTag(tag="output", confidence=0.8, reason="Output file pattern"))
+    if "reference" in parts or "ref" in parts or "reference" in name:
+        tags.append(InferredTag(tag="reference", confidence=0.75, reason="Reference data pattern"))
+    if "metadata" in parts or "meta" in name:
+        tags.append(InferredTag(tag="metadata", confidence=0.75, reason="Metadata file pattern"))
+    if path.suffix in BINARY_DATA_EXTENSIONS:
+        tags.append(InferredTag(tag="binary", confidence=0.7, reason="Binary data extension"))
+    if "weather" in parts or "weather" in name:
+        tags.append(InferredTag(tag="weather", confidence=0.8, reason="Weather keyword in path"))
+    if "disease" in parts or "disease" in name:
+        tags.append(InferredTag(tag="disease", confidence=0.8, reason="Disease keyword in path"))
+    if "docs" in parts and "notes" in parts:
+        tags.append(InferredTag(tag="doc", confidence=0.85, reason="docs/notes context"))
+        tags.append(InferredTag(tag="notes", confidence=0.8, reason="docs/notes context"))
+
     return tags
+
+
+# =============================================================================
+# Directory Context Intent Inference
+# =============================================================================
+
+
+def _format_context_label(label: str | None) -> str | None:
+    if not label:
+        return None
+    return label.replace("_", " ").replace("-", " ").strip()
+
+
+def _context_from_path(path: Path) -> str | None:
+    parts = list(path.parts)
+    lower = [p.lower() for p in parts]
+
+    if "test_files" in lower:
+        idx = lower.index("test_files")
+        if idx + 1 < len(parts):
+            return parts[idx + 1]
+
+    if "src" in lower:
+        idx = lower.index("src")
+        if idx + 1 < len(parts):
+            return parts[idx + 1]
+    if "tests" in lower:
+        idx = lower.index("tests")
+        if idx + 1 < len(parts) and lower[idx + 1] != "test_files":
+            return parts[idx + 1]
+
+    parent = parts[-2] if len(parts) >= 2 else None
+    if parent and parent.lower() not in {
+        "config",
+        "configs",
+        "data",
+        "test_files",
+        "fixtures",
+        "tests",
+        "docs",
+        "notes",
+    }:
+        return parent
+
+    return None
+
+
+def infer_intent_from_directory_context(file_path: str) -> InferredIntent | None:
+    """
+    Infer intent based on directory structure for data/config/test artifacts.
+    """
+    path = Path(file_path)
+    lower_parts = [p.lower() for p in path.parts]
+    context = _format_context_label(_context_from_path(path))
+
+    if "tests" in lower_parts and "test_files" in lower_parts:
+        suffix = f" for {context}." if context else "."
+        return InferredIntent(
+            intent=f"Test output data{suffix}",
+            confidence=0.85,
+            reason="Directory context: tests/test_files",
+        )
+
+    if "fixtures" in lower_parts or "fixture" in lower_parts:
+        suffix = f" for {context}." if context else "."
+        return InferredIntent(
+            intent=f"Test fixture data{suffix}",
+            confidence=0.8,
+            reason="Directory context: fixtures",
+        )
+
+    if "configs" in lower_parts or "config" in lower_parts:
+        suffix = f" for {context}." if context else "."
+        return InferredIntent(
+            intent=f"Configuration files{suffix}",
+            confidence=0.8,
+            reason="Directory context: config",
+        )
+
+    if "data" in lower_parts:
+        suffix = f" for {context}." if context else "."
+        return InferredIntent(
+            intent=f"Data files{suffix}",
+            confidence=0.75,
+            reason="Directory context: data",
+        )
+
+    if "docs" in lower_parts and "notes" in lower_parts:
+        return InferredIntent(
+            intent="Documentation notes and data.",
+            confidence=0.75,
+            reason="Directory context: docs/notes",
+        )
+
+    return None
+
+
+# =============================================================================
+# Config Intent Inference
+# =============================================================================
+
+
+def _load_config_payload(file_path: str, project_dir: Path) -> Any | None:
+    path = Path(file_path)
+    full_path = project_dir / file_path
+    try:
+        if full_path.stat().st_size > MAX_CONFIG_BYTES:
+            return None
+        raw = full_path.read_text(encoding="utf-8", errors="ignore")
+    except Exception:
+        return None
+
+    try:
+        if path.suffix in {".yaml", ".yml"}:
+            return yaml.safe_load(raw)
+        if path.suffix == ".json":
+            return json.loads(raw)
+        if path.suffix == ".toml" and tomllib is not None:
+            return tomllib.loads(raw)
+        if path.suffix == ".ini":
+            parser = configparser.ConfigParser()
+            parser.read_string(raw)
+            return {section: dict(parser.items(section)) for section in parser.sections()}
+    except Exception:
+        return None
+
+    return None
+
+
+def _extract_config_keys(data: Any) -> set[str]:
+    if isinstance(data, dict):
+        keys = set(data.keys())
+        return {str(k).lower() for k in keys}
+    if isinstance(data, list):
+        keys: set[str] = set()
+        for item in data:
+            if isinstance(item, dict):
+                keys.update(str(k).lower() for k in item.keys())
+        return keys
+    return set()
+
+
+def infer_intent_from_config(file_path: str, project_dir: Path) -> InferredIntent | None:
+    """Infer intent for config files using path context and content keys."""
+    path = Path(file_path)
+    if path.suffix not in CONFIG_EXTENSIONS:
+        return None
+
+    name = path.name.lower()
+    known_config_files = {
+        "mkdocs.yml": "MkDocs documentation configuration.",
+        "mkdocs.yaml": "MkDocs documentation configuration.",
+        "config.json": "Project configuration file.",
+        "config.yaml": "Project configuration file.",
+        "config.yml": "Project configuration file.",
+        "settings.json": "Project settings configuration.",
+        "settings.yaml": "Project settings configuration.",
+        "settings.yml": "Project settings configuration.",
+    }
+    if name in known_config_files:
+        return InferredIntent(
+            intent=known_config_files[name],
+            confidence=0.85,
+            reason="Known config filename",
+        )
+
+    payload = _load_config_payload(file_path, project_dir)
+    if payload is not None:
+        keys = _extract_config_keys(payload)
+        if {"dependencies", "devdependencies", "peerdependencies"} & keys:
+            return InferredIntent(
+                intent="Dependency configuration.",
+                confidence=0.85,
+                reason="Config content keys",
+            )
+        if {"logging", "loggers", "handlers"} & keys:
+            return InferredIntent(
+                intent="Logging configuration.",
+                confidence=0.85,
+                reason="Config content keys",
+            )
+        if {"database", "databases", "db"} & keys:
+            return InferredIntent(
+                intent="Database configuration.",
+                confidence=0.85,
+                reason="Config content keys",
+            )
+        if {"input", "inputs", "output", "outputs"} & keys:
+            return InferredIntent(
+                intent="Input/output parameter configuration.",
+                confidence=0.8,
+                reason="Config content keys",
+            )
+        if {"parameters", "params", "model"} & keys:
+            return InferredIntent(
+                intent="Model parameter configuration.",
+                confidence=0.8,
+                reason="Config content keys",
+            )
+
+    # Directory context (configs/data)
+    context = _format_context_label(_context_from_path(path))
+    lower_parts = [p.lower() for p in path.parts]
+    if "configs" in lower_parts or "config" in lower_parts:
+        suffix = f" for {context}." if context else "."
+        return InferredIntent(
+            intent=f"Configuration files{suffix}",
+            confidence=0.8,
+            reason="Config directory context",
+        )
+    if "data" in lower_parts:
+        suffix = f" for {context}." if context else "."
+        return InferredIntent(
+            intent=f"Reference data or configuration{suffix}",
+            confidence=0.75,
+            reason="Data directory context",
+        )
+
+    return None
 
 
 # =============================================================================
@@ -1104,6 +1425,7 @@ def infer_file_metadata(
     project_dir: Path,
     index: MeaningIndex,
     schema: MeaningSchema,
+    config: MeaningConfig | None = None,
     rules: InferenceRules | None = None,
 ) -> FileInferenceResult:
     """
@@ -1119,6 +1441,7 @@ def infer_file_metadata(
         project_dir: Project root directory
         index: Current meaning index
         schema: Schema with vocabulary
+        config: Optional config for file pattern templates
         rules: Optional custom inference rules (defaults to built-in)
 
     Returns:
@@ -1132,7 +1455,13 @@ def infer_file_metadata(
     fallback_to_content = True
 
     try:
-        rule_intent, rule_tags, fallback_to_content = infer_from_rules(file_path, rules)
+        matched_pattern = False
+        if config and config.file_patterns:
+            matched_pattern, rule_intent, rule_tags, fallback_to_content = infer_from_file_patterns(
+                file_path, config
+            )
+        if not matched_pattern:
+            rule_intent, rule_tags, fallback_to_content = infer_from_rules(file_path, rules)
 
         # Add rule-based tags
         for tag in rule_tags:
@@ -1170,11 +1499,17 @@ def infer_file_metadata(
             if parts and parts[0] in {".agent-sessions", "audits"}:
                 content_intent = infer_intent_from_path(file_path)
 
+            if not content_intent and Path(file_path).suffix in CONFIG_EXTENSIONS:
+                content_intent = infer_intent_from_config(file_path, project_dir)
+
             if not content_intent:
                 content_intent = infer_intent_from_docstring(file_path, project_dir)
 
             if not content_intent:
                 content_intent = infer_intent_from_comment_block(file_path, project_dir)
+
+            if not content_intent:
+                content_intent = infer_intent_from_directory_context(file_path)
 
             if not content_intent:
                 content_intent = infer_intent_from_path(file_path)

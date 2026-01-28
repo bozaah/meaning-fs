@@ -32,7 +32,7 @@ project_root = Path.cwd()
 
 # Check if .meaning/ already exists
 if meaning_dir_exists(project_root):
-    print("❌ .meaning/ already exists!")
+    print("ERROR .meaning/ already exists!")
     print("Use /meaning-update to sync with filesystem changes")
     exit(1)
 
@@ -40,8 +40,8 @@ if meaning_dir_exists(project_root):
 project_type = detect_project_type(project_root)
 is_git = is_git_repo(project_root)
 
-print(f"✓ Detected project type: {project_type}")
-print(f"✓ Git repository: {is_git}")
+print(f"OK Detected project type: {project_type}")
+print(f"OK Git repository: {is_git}")
 ```
 
 ### 2. Initialize Structure
@@ -52,9 +52,9 @@ from meaning.meaning_core import initialize_meaning, save_index
 # Create .meaning/ with templates
 index, schema, config = initialize_meaning(project_root, project_type=project_type)
 
-print(f"✓ Created .meaning/ directory")
-print(f"✓ Installed {project_type} schema")
-print(f"✓ Installed default config")
+print(f"OK Created .meaning/ directory")
+print(f"OK Installed {project_type} schema")
+print(f"OK Installed default config")
 ```
 
 ### 3. Scan and Infer
@@ -65,7 +65,7 @@ from meaning_inference import infer_file_metadata, infer_timestamps
 
 # Scan project files
 all_files = scan_project_files(project_root, config)
-print(f"✓ Found {len(all_files)} files to index")
+print(f"OK Found {len(all_files)} files to index")
 
 # Run inference on each file (limit for initial run)
 limit = 50  # Process first 50 files by default
@@ -77,7 +77,7 @@ for i, file_path in enumerate(all_files[:limit]):
     results.append(result)
 
 if len(all_files) > limit:
-    print(f"⚠️  Limited to first {limit} files. Run /meaning-update to index remaining {len(all_files) - limit} files.")
+    print(f"WARN  Limited to first {limit} files. Run /meaning-update to index remaining {len(all_files) - limit} files.")
 ```
 
 ### 4. Build Index with Suggestions
@@ -115,7 +115,7 @@ for result in results:
     
     index.add_file(entry)
 
-print(f"✓ Created {len(index.files)} file entries")
+print(f"OK Created {len(index.files)} file entries")
 ```
 
 ### 5. Save and Report
@@ -129,21 +129,21 @@ index.last_updated = now
 # Save index
 save_index(index, project_root)
 
-print(f"✓ Saved index.yaml")
+print(f"OK Saved index.yaml")
 
 # Validate
 validation = validate_index(index, schema, config, project_root)
 
 print("\n" + "="*60)
-print("📋 INITIALIZATION COMPLETE")
+print("REPORT INITIALIZATION COMPLETE")
 print("="*60)
-print(f"✓ Files indexed: {len(index.files)}")
-print(f"✓ Concepts: {len(index.concepts)} (none yet - add manually or use /meaning-review)")
-print(f"⚠️  Files needing review: {len(index.files_needing_review())}")
-print(f"✓ Validation: {validation.is_valid}")
+print(f"OK Files indexed: {len(index.files)}")
+print(f"OK Concepts: {len(index.concepts)} (none yet - add manually or use /meaning-review)")
+print(f"WARN  Files needing review: {len(index.files_needing_review())}")
+print(f"OK Validation: {validation.is_valid}")
 
 if validation.warnings:
-    print(f"\n⚠️  Warnings: {len(validation.warnings)}")
+    print(f"\nWARN  Warnings: {len(validation.warnings)}")
     for w in validation.warnings[:5]:
         print(f"   • {w}")
     if len(validation.warnings) > 5:
@@ -181,29 +181,29 @@ Common errors and solutions:
 ## Example Output
 
 ```
-✓ Detected project type: python
-✓ Git repository: true
-✓ Created .meaning/ directory
-✓ Installed python schema
-✓ Installed default config
-✓ Found 127 files to index
+OK Detected project type: python
+OK Git repository: true
+OK Created .meaning/ directory
+OK Installed python schema
+OK Installed default config
+OK Found 127 files to index
   Inferring 1/50: src/main.py
   Inferring 2/50: src/api/client.py
   ...
   Inferring 50/50: tests/test_utils.py
-⚠️  Limited to first 50 files. Run /meaning-update to index remaining 77 files.
-✓ Created 50 file entries
-✓ Saved index.yaml
+WARN  Limited to first 50 files. Run /meaning-update to index remaining 77 files.
+OK Created 50 file entries
+OK Saved index.yaml
 
 ============================================================
-📋 INITIALIZATION COMPLETE
+REPORT INITIALIZATION COMPLETE
 ============================================================
-✓ Files indexed: 50
-✓ Concepts: 0 (none yet - add manually or use /meaning-review)
-⚠️  Files needing review: 12
-✓ Validation: True
+OK Files indexed: 50
+OK Concepts: 0 (none yet - add manually or use /meaning-review)
+WARN  Files needing review: 12
+OK Validation: True
 
-⚠️  Warnings: 77
+WARN  Warnings: 77
    • File not indexed: docs/api.md
    • File not indexed: scripts/deploy.sh
    ... and 75 more
@@ -235,7 +235,7 @@ Under what conditions does this work?
 ```
 
 This skill:
-- ✓ States assumptions (project type, file accessibility)
-- ✓ Verifies correctness (validation after creation)
-- ✓ Handles errors (checks for existing .meaning/, permission issues)
-- ✓ Documents conditions (requires write access, valid project structure)
+- OK States assumptions (project type, file accessibility)
+- OK Verifies correctness (validation after creation)
+- OK Handles errors (checks for existing .meaning/, permission issues)
+- OK Documents conditions (requires write access, valid project structure)

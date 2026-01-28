@@ -17,8 +17,10 @@ sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 from meaning.meaning_core import (
     VALID_STATUSES,
     VERSION,
+    Collection,
     Concept,
     FileEntry,
+    FilePattern,
     MeaningConfig,
     MeaningIndex,
     MeaningSchema,
@@ -27,6 +29,7 @@ from meaning.meaning_core import (
     apply_inference_to_entry,
     create_skeleton_entry,
     detect_project_type,
+    find_unindexed_files,
     is_git_repo,
     load_yaml,
     preview_inference_changes,
@@ -301,12 +304,21 @@ class TestMeaningIndex:
     def test_to_dict_from_dict_roundtrip(self):
         index = MeaningIndex(
             concepts=[Concept(name="auth", description="Auth", files=["a.py"])],
+            collections=[
+                Collection(
+                    name="datasets",
+                    pattern="data/*.csv",
+                    intent="CSV datasets",
+                    tags=["data"],
+                )
+            ],
             files=[FileEntry(path="a.py", intent="A", tags=["auth"])],
         )
         d = index.to_dict()
         restored = MeaningIndex.from_dict(d)
         assert len(restored.files) == 1
         assert len(restored.concepts) == 1
+        assert len(restored.collections) == 1
         assert restored.files[0].path == "a.py"
 
 
@@ -391,11 +403,21 @@ class TestMeaningConfig:
         config = MeaningConfig(
             exclude_patterns=["*.pyc"],
             stale_threshold_days=14,
+            file_patterns=[
+                FilePattern(
+                    pattern="data/*.csv",
+                    intent_template="Dataset: {stem}",
+                    tags=["data"],
+                    confidence=0.9,
+                    capture_regex=r"data/(?P<stem>[^/]+)\\.csv",
+                )
+            ],
         )
         d = config.to_dict()
         restored = MeaningConfig.from_dict(d)
         assert restored.stale_threshold_days == 14
         assert "*.pyc" in restored.exclude_patterns
+        assert restored.file_patterns[0].pattern == "data/*.csv"
 
 
 # =============================================================================
@@ -435,6 +457,28 @@ class TestIndexMaintenance:
         assert concept.files == ["src/main.py"]
         assert concept.entry_point is None
         assert entry_keep.relationships == []
+
+    def test_find_unindexed_files_skips_collections(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            project_root = Path(tmpdir)
+            data_dir = project_root / "data"
+            data_dir.mkdir(parents=True, exist_ok=True)
+            (data_dir / "sample.csv").write_text("a,b\n1,2\n")
+
+            index = MeaningIndex(
+                collections=[
+                    Collection(
+                        name="datasets",
+                        pattern="data/*.csv",
+                        intent="CSV datasets",
+                        tags=["data"],
+                    )
+                ]
+            )
+            config = MeaningConfig()
+
+            unindexed = find_unindexed_files(project_root, index, config)
+            assert "data/sample.csv" not in unindexed
 
 
 # =============================================================================
@@ -485,6 +529,29 @@ class TestValidation:
 
             result = validate_index(index, schema, config, project_root)
             assert any("Dangling relationship" in e for e in result.errors)
+
+    def test_validate_collection_skips_unindexed_files(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            project_root = Path(tmpdir)
+            data_dir = project_root / "data"
+            data_dir.mkdir(parents=True, exist_ok=True)
+            (data_dir / "sample.csv").write_text("a,b\n1,2\n")
+
+            index = MeaningIndex(
+                collections=[
+                    Collection(
+                        name="datasets",
+                        pattern="data/*.csv",
+                        intent="CSV datasets",
+                        tags=["data"],
+                    )
+                ]
+            )
+            schema = MeaningSchema(tag_vocabulary={"file_type": ["data"]})
+            config = MeaningConfig()
+
+            result = validate_index(index, schema, config, project_root)
+            assert not any("File not indexed: data/sample.csv" in w for w in result.warnings)
 
     def test_validate_unknown_tag_warning(self):
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -650,7 +717,19 @@ class TestQueryEngine:
         ]
 
         return MeaningIndex(
-            version="0.1", generated_at=now, last_updated=now, concepts=concepts, files=files
+            version="0.1",
+            generated_at=now,
+            last_updated=now,
+            concepts=concepts,
+            collections=[
+                Collection(
+                    name="datasets",
+                    pattern="data/*.csv",
+                    intent="CSV datasets",
+                    tags=["data"],
+                )
+            ],
+            files=files,
         )
 
     @pytest.fixture
@@ -720,6 +799,12 @@ class TestQueryEngine:
         # Should find src/api.py with "API client for external services"
         paths = [f.path for f in result.files]
         assert "src/api.py" in paths
+
+    def test_collection_query(self, sample_index, sample_schema):
+        result = query_index(sample_index, sample_schema, "list collections")
+        assert result.query_type == "collection"
+        assert len(result.collections) == 1
+        assert result.collections[0].name == "datasets"
 
     def test_no_match_query(self, sample_index, sample_schema):
         result = query_index(sample_index, sample_schema, "nonexistent thing")

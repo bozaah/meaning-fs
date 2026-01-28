@@ -497,9 +497,9 @@ def format_install_result(result: InstallResult, project_type: str) -> str:
     lines = []
 
     if result.success:
-        lines.append(f"✓ Initialized meaning for {project_type} project")
+        lines.append(f"OK: Initialized meaning for {project_type} project")
     else:
-        lines.append("❌ Installation failed")
+        lines.append("ERROR: Installation failed")
 
     if result.meaning_dir_created:
         lines.append(f"  • Created .meaning/ with {len(result.files_copied)} files")
@@ -514,13 +514,13 @@ def format_install_result(result: InstallResult, project_type: str) -> str:
         lines.append("")
         lines.append("Warnings:")
         for w in result.warnings:
-            lines.append(f"  ⚠️  {w}")
+            lines.append(f"  WARN: {w}")
 
     if result.errors:
         lines.append("")
         lines.append("Errors:")
         for e in result.errors:
-            lines.append(f"  ❌ {e}")
+            lines.append(f"  ERROR: {e}")
 
     if result.success:
         lines.append("")

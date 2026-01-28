@@ -4,6 +4,24 @@ All notable changes to the Meaning project will be documented in this file.
 
 ## [Unreleased]
 
+### 2026-01-28 — Update Output and Coverage Fixes
+
+#### Changed
+- **CLI output cleanup** — Removed emojis across CLI/scripts/docs and added dense `meaning update` summaries
+- **Verbose update output** — Added `--verbose` to list all files per change category
+
+#### Fixed
+- **Coverage >100%** — Status coverage now counts collection-covered files and ignores excluded entries
+
+### 2026-01-28 — Collections Support
+
+#### Added
+- **Collections in index.yaml** — Group large, repetitive file sets via patterns with shared intent/tags
+- **Collection queries** — `meaning query` now supports listing and viewing collections
+
+#### Changed
+- **Update behavior** — `meaning update` skips indexing files covered by collection patterns
+
 ### 2026-01-28 — Release v0.2.0
 
 #### Changed

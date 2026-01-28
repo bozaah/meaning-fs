@@ -26,22 +26,22 @@ config = load_config(project_dir)
 
 result = validate_index(index, schema, config, project_dir)
 
-print('📋 Meaning Index Validation')
+print('Meaning Index Validation')
 print('=' * 60)
-print(f'✓ Valid: {result.is_valid}')
+print(f'OK: Valid: {result.is_valid}')
 print(f'  Errors: {len(result.errors)}')
 print(f'  Warnings: {len(result.warnings)}')
 print()
 
 if result.errors:
-    print('❌ ERRORS:')
+    print('ERRORS:')
     for error in result.errors:
         print(f'  • {error}')
     print()
     exit(1)
 
 if result.warnings:
-    print('⚠️  WARNINGS:')
+    print('WARNINGS:')
     shown = 0
     for warning in result.warnings:
         if 'not indexed' not in warning:  # Skip unindexed file warnings for now
@@ -53,6 +53,6 @@ if result.warnings:
     print()
 
 if not result.errors:
-    print('✅ Index is valid!')
+    print('OK: Index is valid!')
 print('=' * 60)
 "

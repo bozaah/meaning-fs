@@ -20,23 +20,23 @@ When you say "update how API responses are parsed," your AI agent can read the i
 
 ---
 
-**👉 [Get Started in 5 Minutes](QUICKSTART.md) 👈**
+** [Get Started in 5 Minutes](QUICKSTART.md) **
 
 ---
 
 ## Status
 
-**v0.2 — Modular Architecture** ✅
+**v0.2 — Modular Architecture** OK
 
-- ✅ **Modular codebase** - 8 specialized modules (constants, models, index_io, validation, project, index_ops, query, cli)
-- ✅ **Inference engine** (`meaning_inference.py`) - 1,222 lines with **80+ built-in rules**
-- ✅ **Rule-based inference** - Automatic metadata for common files (`.gitignore`, `CLAUDE.md`, `*.slurm`)
-- ✅ **Enhanced tag vocabulary** - 7 categories (HPC, AI agents, scientific computing, data ops)
-- ✅ **Status command** - Instant project overview with concepts, health metrics, and recent activity
-- ✅ **Query engine** - Natural language semantic search (6 query types, <50ms response)
-- ✅ Five Claude Code skills (`/meaning-init`, `/meaning-update`, `/meaning-validate`, `/meaning-review`, `/meaning-query`)
-- ✅ Hook scripts for automatic tracking
-- ✅ Dog-fooded on itself (75 files indexed, 190 tests passing)
+- OK **Modular codebase** - 8 specialized modules (constants, models, index_io, validation, project, index_ops, query, cli)
+- OK **Inference engine** (`meaning_inference.py`) - 1,222 lines with **80+ built-in rules**
+- OK **Rule-based inference** - Automatic metadata for common files (`.gitignore`, `CLAUDE.md`, `*.slurm`)
+- OK **Enhanced tag vocabulary** - 7 categories (HPC, AI agents, scientific computing, data ops)
+- OK **Status command** - Instant project overview with concepts, health metrics, and recent activity
+- OK **Query engine** - Natural language semantic search (7 query types, <50ms response)
+- OK Five Claude Code skills (`/meaning-init`, `/meaning-update`, `/meaning-validate`, `/meaning-review`, `/meaning-query`)
+- OK Hook scripts for automatic tracking
+- OK Dog-fooded on itself (75 files indexed, 190 tests passing)
 
 **Next:** PyPI release, real-world validation testing
 
@@ -98,7 +98,7 @@ python -m meaning query "what changed recently?"
 
 **Example output:**
 ```
-🔍 Query Results: Files that tests src/meaning/meaning_core.py
+QUERY Query Results: Files that tests src/meaning/meaning_core.py
    Type: relationship
 
   Found 1 file (showing 1):
@@ -114,18 +114,19 @@ Or use the skill in Claude Code:
 /meaning-query what tests the inference engine?
 ```
 
-**6 Query Types Supported:**
+**7 Query Types Supported:**
 - **Status**: "what needs review?", "what is stale?"
 - **Tag**: "show me all test files", "find config files"
 - **Relationship**: "what tests X?", "what documents Y?"
 - **Intent**: "files that do parsing", "files about auth"
 - **Temporal**: "what changed recently?"
 - **Concept**: "show me the core library"
+- **Collection**: "list collections", "show me weather datasets"
 
 ## Features
 
 - **Instant Discovery** - `status` command shows project overview in <50ms
-- **Semantic Query** - Natural language search across 6 query types (status, tag, relationship, intent, temporal, concept)
+- **Semantic Query** - Natural language search across 7 query types (status, tag, relationship, intent, temporal, concept, collection)
 - **Rule-Based Inference** - 80+ built-in rules for automatic metadata on common files
   - Filename rules: `.gitignore`, `requirements.txt`, `CLAUDE.md`, `Dockerfile`, etc.
   - Path patterns: `**/test_*.py`, `.github/workflows/*.yml`, `**/prompts/**/*.md`
@@ -144,6 +145,7 @@ Or use the skill in Claude Code:
 - **Git-Friendly** - Human-readable YAML files that diff and merge cleanly
 - **Zero Dependencies** - Works offline, no external services or embeddings
 - **Batch Review** - Efficient workflows for reviewing many files at once
+- **Collection-Level Metadata** - Group large file sets with shared intent/tags
 - **Claude Code Integration** - Automatic tracking via hooks on file changes
 - **Transparent** - All suggestions show confidence levels and reasoning
 - **Non-Destructive** - Human reviews and approves all changes
@@ -200,6 +202,19 @@ concepts:
       - src/api/parser.py
       - src/models/api_models.py
     entry_point: src/api/parser.py
+```
+
+### Collections
+
+Collections let you group large, repetitive datasets without indexing every file:
+
+```yaml
+collections:
+  - name: "Australian Weather Stations"
+    pattern: "src/pydst/weather_data/*.parquet"
+    intent: "Daily weather observations from Australian BoM stations"
+    tags: [data, weather, timeseries, binary]
+    member_intent_template: "Daily weather data for {location}"
 ```
 
 ### Claude Code Integration
