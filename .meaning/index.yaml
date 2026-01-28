@@ -1,6 +1,6 @@
 version: 0.2.0
 generated_at: '2026-01-21T04:11:00+00:00'
-last_updated: '2026-01-28T05:10:18.682274+00:00'
+last_updated: '2026-01-28T05:51:50.442720+00:00'
 concepts:
 - name: project-documentation
   description: Project-level documentation for human and AI understanding
@@ -44,7 +44,7 @@ files:
   intent: Project overview and quick start guide for users
   status: active
   needs_review: false
-  last_verified: '2026-01-28T05:09:40.454494+00:00'
+  last_verified: '2026-01-28T05:51:50.424629+00:00'
   tags:
   - doc
   - core
@@ -97,7 +97,7 @@ files:
     and design decisions
   status: active
   needs_review: false
-  last_verified: '2026-01-28T05:09:40.454494+00:00'
+  last_verified: '2026-01-28T05:51:50.424629+00:00'
   tags:
   - doc
   - core
@@ -117,7 +117,7 @@ files:
   intent: Chronological record of project changes, decisions, and milestones
   status: active
   needs_review: false
-  last_verified: '2026-01-28T05:09:40.454494+00:00'
+  last_verified: '2026-01-28T05:51:50.424629+00:00'
   tags:
   - doc
   - core
@@ -165,7 +165,7 @@ files:
     scoring
   status: active
   needs_review: false
-  last_verified: '2026-01-28T05:08:49.980376+00:00'
+  last_verified: '2026-01-28T05:51:45.713255+00:00'
   tags:
   - core
   - module
@@ -194,7 +194,7 @@ files:
     inference engine planning
   status: active
   needs_review: false
-  last_verified: '2026-01-21T08:28:47.306382+00:00'
+  last_verified: '2026-01-28T05:51:50.424629+00:00'
   tags:
   - doc
   - history
@@ -214,7 +214,7 @@ files:
   intent: Validation script to check .meaning/ index health with formatted output
   status: active
   needs_review: false
-  last_verified: '2026-01-22T03:09:11.846747+00:00'
+  last_verified: '2026-01-28T05:51:50.424629+00:00'
   tags:
   - script
   - validation
@@ -226,7 +226,7 @@ files:
   intent: CLI tool to run inference on files and display results with confidence visualization
   status: active
   needs_review: false
-  last_verified: '2026-01-22T03:09:11.846747+00:00'
+  last_verified: '2026-01-28T05:51:50.424629+00:00'
   tags:
   - script
   - util
@@ -277,7 +277,7 @@ files:
     decisions, and results
   status: active
   needs_review: false
-  last_verified: '2026-01-21T08:28:47.306382+00:00'
+  last_verified: '2026-01-28T05:51:50.424629+00:00'
   tags:
   - doc
   - history
@@ -296,7 +296,7 @@ files:
     Code integration
   status: active
   needs_review: false
-  last_verified: '2026-01-21T08:28:47.306382+00:00'
+  last_verified: '2026-01-28T05:51:50.424629+00:00'
   tags:
   - doc
   - history
@@ -336,7 +336,7 @@ files:
     inference
   status: active
   needs_review: false
-  last_verified: '2026-01-22T03:09:11.846747+00:00'
+  last_verified: '2026-01-28T05:51:50.424629+00:00'
   tags:
   - doc
   - ai
@@ -350,7 +350,7 @@ files:
   intent: Skill definition for interactive review workflow to refine inference suggestions
   status: active
   needs_review: false
-  last_verified: '2026-01-22T03:09:11.846747+00:00'
+  last_verified: '2026-01-28T05:51:50.424629+00:00'
   tags:
   - doc
   - ai
@@ -364,7 +364,7 @@ files:
   intent: Skill definition for syncing .meaning/index.yaml with filesystem changes
   status: active
   needs_review: false
-  last_verified: '2026-01-22T03:09:11.846747+00:00'
+  last_verified: '2026-01-28T05:51:50.424629+00:00'
   tags:
   - doc
   - ai
@@ -378,7 +378,7 @@ files:
   intent: Skill definition for running health checks on .meaning/ semantic index
   status: active
   needs_review: false
-  last_verified: '2026-01-22T03:09:11.846747+00:00'
+  last_verified: '2026-01-28T05:51:50.424629+00:00'
   tags:
   - doc
   - ai
@@ -445,7 +445,7 @@ files:
     and hook bug fixes
   status: active
   needs_review: false
-  last_verified: '2026-01-21T08:38:02.621435+00:00'
+  last_verified: '2026-01-28T05:51:50.424629+00:00'
   tags:
   - doc
   - history
@@ -460,7 +460,7 @@ files:
     with status command and natural language search
   status: active
   needs_review: false
-  last_verified: '2026-01-21T09:22:59.340449+00:00'
+  last_verified: '2026-01-28T05:51:50.424629+00:00'
   tags:
   - doc
   - history
@@ -472,7 +472,7 @@ files:
   intent: Natural language search through the .meaning/ semantic index.
   status: active
   needs_review: false
-  last_verified: '2026-01-22T04:18:10.750684+00:00'
+  last_verified: '2026-01-28T05:51:50.424629+00:00'
   tags:
   - doc
   relationships:
@@ -484,7 +484,7 @@ files:
   intent: Get up and running with Meaning in 5 minutes
   status: active
   needs_review: false
-  last_verified: '2026-01-28T00:20:48.424310+00:00'
+  last_verified: '2026-01-28T05:51:50.424629+00:00'
   tags:
   - doc
   relationships:
@@ -527,7 +527,7 @@ files:
   intent: 'Agent session note: 2026 01 22 package structure fix.'
   status: active
   needs_review: false
-  last_verified: '2026-01-22T04:18:10.750684+00:00'
+  last_verified: '2026-01-28T05:51:50.424629+00:00'
   tags:
   - doc
 - path: audits/audit-report-2026-01-22.md
@@ -638,14 +638,14 @@ files:
   intent: 'Agent session note: 2026 01 23 installer distribution prep.'
   status: active
   needs_review: false
-  last_verified: '2026-01-23T05:45:36.896472+00:00'
+  last_verified: '2026-01-28T05:51:50.424629+00:00'
   tags:
   - doc
 - path: DISTRIBUTION-PLAN.md
   intent: 'Enable frictionless adoption of meaning with a single command:'
   status: active
   needs_review: false
-  last_verified: '2026-01-23T06:57:11.398965+00:00'
+  last_verified: '2026-01-28T05:51:50.424629+00:00'
   tags:
   - doc
 - path: src/meaning/installer.py
@@ -655,7 +655,7 @@ files:
     setup logic, separate from the core...'
   status: active
   needs_review: false
-  last_verified: '2026-01-28T00:20:48.424310+00:00'
+  last_verified: '2026-01-28T05:51:50.424629+00:00'
   tags:
   - module
 - path: src/meaning/templates/schema/mixed.yaml
@@ -670,14 +670,14 @@ files:
     and intelligent inference.
   status: active
   needs_review: false
-  last_verified: '2026-01-23T05:45:36.896472+00:00'
+  last_verified: '2026-01-28T05:51:50.424629+00:00'
   tags:
   - doc
 - path: src/meaning/templates/skills/meaning-query/SKILL.md
   intent: Natural language search through the .meaning/ semantic index.
   status: active
   needs_review: false
-  last_verified: '2026-01-23T05:45:36.896472+00:00'
+  last_verified: '2026-01-28T05:51:50.424629+00:00'
   tags:
   - doc
 - path: src/meaning/templates/skills/meaning-review/SKILL.md
@@ -685,7 +685,7 @@ files:
     and only prompts for manual review when needed.
   status: active
   needs_review: false
-  last_verified: '2026-01-23T05:45:36.896472+00:00'
+  last_verified: '2026-01-28T05:51:50.424629+00:00'
   tags:
   - doc
 - path: src/meaning/templates/skills/meaning-update/SKILL.md
@@ -693,7 +693,7 @@ files:
     new, modified, and deleted files.
   status: active
   needs_review: false
-  last_verified: '2026-01-23T05:45:36.896472+00:00'
+  last_verified: '2026-01-28T05:51:50.424629+00:00'
   tags:
   - doc
 - path: src/meaning/templates/skills/meaning-validate/SKILL.md
@@ -701,14 +701,14 @@ files:
     inconsistencies.
   status: active
   needs_review: false
-  last_verified: '2026-01-23T05:45:36.896472+00:00'
+  last_verified: '2026-01-28T05:51:50.424629+00:00'
   tags:
   - doc
 - path: tests/test_installer.py
   intent: Tests for the meaning installer module.
   status: active
   needs_review: false
-  last_verified: '2026-01-23T06:31:26.672110+00:00'
+  last_verified: '2026-01-28T05:51:50.424629+00:00'
   tags:
   - module
   - test
@@ -746,7 +746,7 @@ files:
     enhancement
   status: active
   needs_review: false
-  last_verified: '2026-01-24T04:47:30.292043+00:00'
+  last_verified: '2026-01-28T05:51:50.424629+00:00'
   tags:
   - doc
   - history
@@ -761,7 +761,7 @@ files:
     gaps
   status: active
   needs_review: false
-  last_verified: '2026-01-24T04:47:30.292043+00:00'
+  last_verified: '2026-01-28T05:51:50.424629+00:00'
   tags:
   - doc
   - spec
@@ -774,7 +774,7 @@ files:
     (v0.2)
   status: active
   needs_review: false
-  last_verified: '2026-01-24T04:47:30.292043+00:00'
+  last_verified: '2026-01-28T05:51:50.424629+00:00'
   tags:
   - doc
   - spec
@@ -801,7 +801,7 @@ files:
   intent: 'Meaning: Command-line interface.'
   status: active
   needs_review: false
-  last_verified: '2026-01-28T03:52:25.611732+00:00'
+  last_verified: '2026-01-28T05:51:50.424629+00:00'
   tags:
   - module
   - cli
@@ -888,7 +888,7 @@ files:
   intent: 'Meaning: Query engine and display functions.'
   status: active
   needs_review: false
-  last_verified: '2026-01-28T05:09:40.454494+00:00'
+  last_verified: '2026-01-28T05:51:50.424629+00:00'
   tags:
   - module
   relationships:
@@ -915,14 +915,14 @@ files:
   intent: 'Agent session note: 2026 01 24 modular architecture refactor.'
   status: active
   needs_review: false
-  last_verified: '2026-01-28T00:20:48.424310+00:00'
+  last_verified: '2026-01-28T05:51:50.424629+00:00'
   tags:
   - x-needs-tags
 - path: .agent-sessions/2026-01-24-enhanced-status-display.md
   intent: 'Agent session note: 2026 01 24 enhanced status display.'
   status: active
   needs_review: false
-  last_verified: '2026-01-28T00:20:48.424310+00:00'
+  last_verified: '2026-01-28T05:51:50.424629+00:00'
   tags:
   - x-needs-tags
 - path: .agent-sessions/2026-01-28-release-v0.2.0-lint-fixes.md
@@ -937,7 +937,7 @@ files:
     Files Indexed: 340 Files Requiring Manual Review: 205 (60%)'
   status: active
   needs_review: false
-  last_verified: '2026-01-28T03:52:25.611732+00:00'
+  last_verified: '2026-01-28T05:51:50.424629+00:00'
   tags:
   - x-needs-tags
 - path: .agent-sessions/2026-01-28-collections-update.md
@@ -947,3 +947,10 @@ files:
   last_verified: '2026-01-28T05:09:40.454494+00:00'
   tags:
   - x-needs-tags
+- path: .agent-sessions/2026-01-28-update-output-cleanup.md
+  intent: 'Agent session note: 2026 01 28 update output cleanup.'
+  status: active
+  needs_review: false
+  last_verified: '2026-01-28T05:51:37.312736+00:00'
+  tags:
+  - output
