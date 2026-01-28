@@ -87,6 +87,14 @@ Each session document should include:
 - Expected impact: 0% → 60%+ auto-accept rate
 - Status: Phases 1, 3, 4 complete; config override support deferred
 
+### 2026-01-24 - Intent Inference + Exclusion Pruning + Refactor Plan
+- Added comment-block intent inference for scripts and job files
+- High-confidence rule intents skip content fallback
+- `meaning update` prunes newly excluded entries (concepts and relationships cleaned)
+- Schema templates expanded to include built-in inference tags
+- Docs updated and refactor plan drafted
+- Status: ready to refactor after validation
+
 ---
 
 **For AI Agents:** Read the most recent session note to understand current project state before proceeding. Always start with `python -m meaning status` for instant project overview.

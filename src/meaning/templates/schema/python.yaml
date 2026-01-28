@@ -108,6 +108,7 @@ tag_vocabulary:
     - dev-guide
     - history
     - ai
+    - legal
 
   file_type:
     - module
@@ -117,6 +118,62 @@ tag_vocabulary:
     - config
     - migration
     - fixture
+
+  vcs:
+    - vcs
+    - git
+    - ignore
+    - hooks
+
+  ai_context:
+    - ai
+    - agent-context
+    - llm-prompt
+    - agent-directive
+    - context-doc
+
+  scientific_domain:
+    - data-processing
+    - ml
+    - climate
+    - geospatial
+    - bioinformatics
+    - visualization
+    - statistics
+
+  infrastructure:
+    - hpc
+    - cloud
+    - container
+    - orchestration
+    - ci-cd
+    - deployment
+    - build
+    - system
+
+  data_ops:
+    - etl
+    - ingestion
+    - aggregation
+    - batch
+    - sync
+    - upload
+    - download
+
+  compute:
+    - slurm
+    - pbs
+    - spark
+    - dask
+    - parallel
+    - distributed
+    - job-array
+
+  packaging:
+    - dependencies
+    - packaging
+    - dev
+    - generated
 
 # Allow custom tags with prefix
 custom_prefix: "x-"

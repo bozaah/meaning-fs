@@ -108,7 +108,7 @@ python -m meaning review
 ```
 
 This will **automatically accept** high-confidence suggestions (≥0.8) and only prompt for low-confidence files.
-If a file has no docstring/markdown summary or known filename pattern, intent inference may be skipped and the file can remain `needs_review`.
+If a file has no docstring, markdown summary, leading comment block, or known filename pattern, intent inference may be skipped and the file can remain `needs_review`.
 Interactive review now shows a diff-style preview of intent/tags/relationships before you accept changes.
 
 **Output:**
@@ -186,7 +186,7 @@ python -m meaning query "what changed recently?"
 ### 🤖 Intelligent Inference
 
 Meaning automatically suggests:
-- **Intents** from docstrings/markdown headers (70-80% confidence)
+- **Intents** from docstrings, markdown summaries, and leading comment blocks (70-80% confidence)
 - **Tags** from file patterns (80-95% confidence)
 - **Relationships** from imports/links (85-95% confidence)
 - **Timestamps** (100% confidence)
@@ -208,6 +208,7 @@ Meaning automatically suggests:
 ✨ Adding 3 new files...
 🔄 Flagging 2 modified files for review...
 🗑️  Removing 1 deleted file...
+🧹 Removing 2 excluded files from index...
 
 ✅ Index updated
 ```
@@ -304,6 +305,8 @@ exclude_patterns:
   - "**/build/**"
   - "**/tmp/**"
 ```
+
+`meaning update` will automatically drop any indexed files that now match these exclude patterns.
 
 ### Custom Tags
 
@@ -522,4 +525,4 @@ Meaning is built to be:
 
 ---
 
-*Last updated: 2026-01-23*
+*Last updated: 2026-01-24*

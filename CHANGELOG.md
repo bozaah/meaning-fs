@@ -4,10 +4,76 @@ All notable changes to the Meaning project will be documented in this file.
 
 ## [Unreleased]
 
+### 2026-01-24 — Enhanced Status Display
+
+#### Added
+- **PROJECT OVERVIEW section** in `meaning status` output
+  - Entry points showing concepts with file counts and primary files
+  - Coverage percentage prominently displayed
+  - Relationship type summary (top 3 types + count)
+  - Last session info moved to overview for immediate context
+  - Visual distinction using `━` Unicode box-drawing characters
+
+#### Improved
+- **Status output structure** optimized for both humans and AI agents
+  - Story-driven narrative flow: Overview → Attention → Details → Next Steps
+  - Agent-first actionable information at each level
+  - Clean text-based indicators (`[OK]`, `[!]`, bullet points)
+  - No emoji characters for professional, parseable output
+  - Relative time display (e.g., "12m ago", "4d ago")
+
+#### Impact
+- **Better project understanding** — New users and AI agents get instant architecture overview
+- **Faster orientation** — Entry points visible immediately without needing to explore semantic map
+- **Context preservation** — Last session info appears in overview for continuity across sessions
+
+---
+
+### 2026-01-24 — Modular Architecture Refactor
+
+#### Refactored
+- **Codebase modularization** — Split `meaning_core.py` (1,766 lines) into 8 specialized modules
+  - `constants.py` (17 lines) — Constants and default values
+  - `models.py` (433 lines) — Core dataclasses (FileEntry, MeaningIndex, MeaningSchema, etc.)
+  - `index_io.py` (85 lines) — YAML file I/O operations
+  - `validation.py` (117 lines) — Index validation against schema and filesystem
+  - `project.py` (59 lines) — Project detection and file scanning utilities
+  - `index_ops.py` (409 lines) — Index manipulation (find, prune, create, inference application)
+  - `query.py` (356 lines) — Query engine and display functions
+  - `cli.py` (400 lines) — CLI command routing and argument parsing
+  - `meaning_core.py` (178 lines) — Thin facade re-exporting all functions for backward compatibility
+
+#### Benefits
+- **Separation of concerns** — Each module has a single, clear responsibility
+- **Easier testing** — Modules can be tested in isolation
+- **Better maintainability** — Changes are localized to specific modules
+- **No circular imports** — Clean dependency hierarchy: constants → models → index_io → validation/project → index_ops → query → cli
+- **Backward compatibility** — Existing imports from `meaning.meaning_core` continue to work
+
+#### Impact
+- **90% code reduction** in `meaning_core.py` (1,766 → 178 lines)
+- **All 190 tests passing** — No behavior changes
+- **CLI fully functional** — All commands (status, query, validate, init, update, review) verified
+- **8 new modules indexed** — Project now has 75 files in semantic index
+
+#### Documentation
+- Added `audits/refactor-plan-2026-01-24.md` — Modularization plan and rationale
+- Updated `CLAUDE.md` with new module structure
+- Updated `README.md` status to v0.2
+
+---
+
 ### 2026-01-24 — Release Version Bump
 
 #### Changed
 - **pyproject.toml** — Bumped package version to 0.1.1 for PyPI publishing
+- **Default config template** — Expanded exclude patterns for OS metadata and git helper files
+- **Inference rules** — Added high-confidence `.py` intent and elevated shell-script confidence for auto-intent
+- **Index maintenance** — `meaning update` now drops entries that are excluded by config
+- **Intent inference** — Added leading comment-block extraction for scripts and job files
+- **Schema templates** — Expanded tag vocabularies to cover built-in inference tags
+- **Inference precedence** — High-confidence rules now skip content fallback
+- **CLI guidance** — `meaning update` suggests `--re-infer` when modified files are detected
 
 ### 2026-01-23 — Filename-Based Inference & Tag Vocabulary Enhancement
 

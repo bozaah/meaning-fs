@@ -30,6 +30,7 @@ from meaning.meaning_core import (
     is_git_repo,
     load_yaml,
     preview_inference_changes,
+    prune_excluded_entries,
     query_index,
     save_yaml,
     validate_index,
@@ -395,6 +396,45 @@ class TestMeaningConfig:
         restored = MeaningConfig.from_dict(d)
         assert restored.stale_threshold_days == 14
         assert "*.pyc" in restored.exclude_patterns
+
+
+# =============================================================================
+# Index Maintenance Tests
+# =============================================================================
+
+
+class TestIndexMaintenance:
+    def test_prune_excluded_entries_updates_index(self):
+        now = datetime.now(timezone.utc)
+        entry_excluded = FileEntry(path="logs/app.log", intent="Log file")
+        entry_keep = FileEntry(
+            path="src/main.py",
+            intent="Main entry point",
+            relationships=[Relationship(type="documents", target="logs/app.log")],
+        )
+        concept = Concept(
+            name="logging",
+            description="Logging workflow",
+            files=["logs/app.log", "src/main.py"],
+            entry_point="logs/app.log",
+        )
+        index = MeaningIndex(
+            version="0.1",
+            generated_at=now,
+            last_updated=now,
+            concepts=[concept],
+            files=[entry_excluded, entry_keep],
+        )
+        config = MeaningConfig(exclude_patterns=["logs/**"])
+
+        removed = prune_excluded_entries(index, config)
+
+        assert set(removed) == {"logs/app.log"}
+        assert index.get_file("logs/app.log") is None
+        assert index.get_file("src/main.py") is not None
+        assert concept.files == ["src/main.py"]
+        assert concept.entry_point is None
+        assert entry_keep.relationships == []
 
 
 # =============================================================================

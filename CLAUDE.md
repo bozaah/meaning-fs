@@ -17,7 +17,7 @@ Do not handle only the happy path.
 Under what conditions does this work?
 ```
 
-**Lean by design**: YAML files, bash scripts, one Python module. No databases, no vector stores, no external APIs.
+**Lean by design**: YAML files, bash scripts, modular Python codebase. No databases, no vector stores, no external APIs.
 
 **Deterministic over probabilistic**: Hooks are scripts, not prompts. Behavior must be identical across runs.
 
@@ -52,7 +52,15 @@ meaning/
 │   └── meaning/                # Core Python package
 │       ├── __init__.py         # Public API exports
 │       ├── __main__.py         # CLI entry point
-│       ├── meaning_core.py     # Core library
+│       ├── constants.py        # Constants and default values
+│       ├── models.py           # Core dataclasses (FileEntry, MeaningIndex, etc.)
+│       ├── index_io.py         # YAML file I/O operations
+│       ├── validation.py       # Index validation logic
+│       ├── project.py          # Project detection and file scanning
+│       ├── index_ops.py        # Index manipulation operations
+│       ├── query.py            # Query engine and display functions
+│       ├── cli.py              # CLI command routing
+│       ├── meaning_core.py     # Facade module (re-exports for compatibility)
 │       ├── meaning_inference.py # Inference engine
 │       ├── installer.py        # Installation logic for target projects
 │       └── templates/          # Templates for target projects
@@ -91,7 +99,16 @@ meaning/
 | `IMPLEMENTATION-PLAN.md` | Full specification—read this first for any design questions |
 | `DISTRIBUTION-PLAN.md` | PyPI packaging and installation strategy |
 | `audits/IMPLEMENTATION-PLAN-v0.2.md` | Rule-based inference implementation plan |
-| `src/meaning/meaning_core.py` | Core library: YAML parsing, validation, query engine |
+| `audits/refactor-plan-2026-01-24.md` | Modularization refactor plan and rationale |
+| `src/meaning/constants.py` | Constants and default values (VERSION, VALID_STATUSES, etc.) |
+| `src/meaning/models.py` | Core dataclasses (FileEntry, MeaningIndex, etc.) |
+| `src/meaning/index_io.py` | YAML file I/O operations |
+| `src/meaning/validation.py` | Index validation against schema and filesystem |
+| `src/meaning/project.py` | Project type detection and file scanning utilities |
+| `src/meaning/index_ops.py` | Index manipulation (find, prune, create, apply inference) |
+| `src/meaning/query.py` | Query engine and display functions |
+| `src/meaning/cli.py` | CLI command routing (status, query, validate, etc.) |
+| `src/meaning/meaning_core.py` | Facade module re-exporting all functions (backward compatibility) |
 | `src/meaning/meaning_inference.py` | Inference engine: 80+ built-in rules, auto-generate metadata |
 | `src/meaning/installer.py` | Installation logic: setup .meaning/, hooks, skills |
 | `src/meaning/__init__.py` | Package API exports (use `from meaning import ...`) |
@@ -116,7 +133,7 @@ meaning/
 
 This ensures continuity and prevents repeated discovery of the same issues.
 
-**Pro tip:** Start every session with `python -m meaning status` to see concepts, health, and recent activity instantly.
+**Pro tip:** Start every session with `python -m meaning status` to see project overview, entry points, health, and recent activity instantly.
 
 ## Development Commands
 
@@ -148,7 +165,7 @@ python -m meaning query "what needs review?"
 ## CLI Smoke-Test Fixture
 
 - Keep `/tmp/meaning-test-I7e97f` around as a minimal CLI fixture (README + `src/app.py`).
-- `meaning review` only auto-applies high-confidence inference (docstrings / markdown paragraphs); files without those stay `needs_review`. Use `--interactive` or update the index manually when testing review behavior.
+- `meaning review` only auto-applies high-confidence inference (docstrings, markdown summaries, leading comment blocks, and high-confidence rules); files without those stay `needs_review`. Use `--interactive` or update the index manually when testing review behavior.
 
 ## Architecture Decisions
 
@@ -342,4 +359,4 @@ Check `IMPLEMENTATION-PLAN.md` for detailed specifications. If something isn't c
 
 ---
 
-*Last updated: 2026-01-23*
+*Last updated: 2026-01-24*
