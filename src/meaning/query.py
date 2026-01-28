@@ -258,16 +258,16 @@ def display_query_results(result: QueryResult, max_results: int = 20) -> None:
                 tags_str += f" +{len(file.tags) - 5} more"
             print(f"      Tags: {tags_str}")
 
-        # Key relationships
-        if file.relationships:
-            rel_summary: dict[str, list[str]] = {}
-            for rel in file.relationships:
-                if rel.type not in rel_summary:
-                    rel_summary[rel.type] = []
-                if rel.target:
-                    rel_summary[rel.type].append(rel.target)
+            # Key relationships
+            if file.relationships:
+                file_rel_summary: dict[str, list[str]] = {}
+                for rel in file.relationships:
+                    if rel.type not in file_rel_summary:
+                        file_rel_summary[rel.type] = []
+                    if rel.target:
+                        file_rel_summary[rel.type].append(rel.target)
 
-            rel_strs = [f"{k}({len(v)})" for k, v in rel_summary.items()]
+            rel_strs = [f"{k}({len(v)})" for k, v in file_rel_summary.items()]
             print(f"      Relationships: {', '.join(rel_strs)}")
 
         print()

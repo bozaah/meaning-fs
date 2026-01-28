@@ -785,14 +785,14 @@ def _load_config_payload(file_path: str, project_dir: Path) -> Any | None:
 
 def _extract_config_keys(data: Any) -> set[str]:
     if isinstance(data, dict):
-        keys = set(data.keys())
-        return {str(k).lower() for k in keys}
+        dict_keys = set(data.keys())
+        return {str(k).lower() for k in dict_keys}
     if isinstance(data, list):
-        keys: set[str] = set()
+        list_keys: set[str] = set()
         for item in data:
             if isinstance(item, dict):
-                keys.update(str(k).lower() for k in item.keys())
-        return keys
+                list_keys.update(str(k).lower() for k in item.keys())
+        return list_keys
     return set()
 
 

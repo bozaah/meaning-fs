@@ -17,7 +17,6 @@ from meaning.index_ops import (
     entry_from_inference,
     find_deleted_files,
     find_modified_files,
-    find_unindexed_files,
     preview_inference_changes,
     preview_inference_diff,
     prune_excluded_entries,

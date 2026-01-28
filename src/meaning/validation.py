@@ -44,8 +44,6 @@ def validate_index(
 
     # Track all indexed paths for relationship validation
     indexed_paths = {f.path for f in index.files}
-    collection_patterns = [c.pattern for c in index.collections if c.pattern]
-
     collection_match_paths: set[str] = set()
     collection_hits = {c.name: 0 for c in index.collections}
 

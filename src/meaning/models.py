@@ -159,7 +159,7 @@ class Collection:
     relationships: list[Relationship] = field(default_factory=list)
 
     def to_dict(self) -> dict[str, Any]:
-        d = {
+        d: dict[str, Any] = {
             "name": self.name,
             "pattern": self.pattern,
             "intent": self.intent,
