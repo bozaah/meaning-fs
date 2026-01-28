@@ -93,8 +93,8 @@ def main() -> None:
         try:
             index = load_index(project_root)
             schema = load_schema(project_root)
-            result = query_index(index, schema, query_str)
-            display_query_results(result)
+            query_result = query_index(index, schema, query_str)
+            display_query_results(query_result)
         except FileNotFoundError:
             print(f"❌ No .meaning/ directory found in {project_root}")
             print("\n💡 Initialize with: python -m meaning init")
@@ -107,16 +107,16 @@ def main() -> None:
             index = load_index(project_root)
             schema = load_schema(project_root)
             config = load_config(project_root)
-            result = validate_index(index, schema, config, project_root)
+            validation_result = validate_index(index, schema, config, project_root)
 
-            print(f"Valid: {result.is_valid}")
-            if result.errors:
-                print(f"\nErrors ({len(result.errors)}):")
-                for err in result.errors:
+            print(f"Valid: {validation_result.is_valid}")
+            if validation_result.errors:
+                print(f"\nErrors ({len(validation_result.errors)}):")
+                for err in validation_result.errors:
                     print(f"  ✗ {err}")
-            if result.warnings:
-                print(f"\nWarnings ({len(result.warnings)}):")
-                for warn in result.warnings:
+            if validation_result.warnings:
+                print(f"\nWarnings ({len(validation_result.warnings)}):")
+                for warn in validation_result.warnings:
                     print(f"  ⚠ {warn}")
         except FileNotFoundError as e:
             print(f"Error: {e}")
@@ -148,24 +148,24 @@ def main() -> None:
             force_hooks=args.force_hooks,
         )
 
-        result = install_meaning(project_root, options)
+        install_result = install_meaning(project_root, options)
 
-        if not result.success:
-            for err in result.errors:
+        if not install_result.success:
+            for err in install_result.errors:
                 print(f"❌ {err}")
             sys.exit(1)
 
         # Report installation results
-        if result.meaning_dir_created:
-            print(f"✓ Created .meaning/ with {len(result.files_copied)} files")
+        if install_result.meaning_dir_created:
+            print(f"✓ Created .meaning/ with {len(install_result.files_copied)} files")
 
-        if result.hooks_installed:
+        if install_result.hooks_installed:
             print("✓ Installed Claude Code hooks")
 
-        if result.skills_installed:
-            print(f"✓ Installed {len(result.skills_installed)} skills")
+        if install_result.skills_installed:
+            print(f"✓ Installed {len(install_result.skills_installed)} skills")
 
-        for warning in result.warnings:
+        for warning in install_result.warnings:
             print(f"⚠️  {warning}")
 
         # Load the created config/schema
@@ -262,8 +262,8 @@ def main() -> None:
             now = infer_timestamps()
             for file_path in new_files:
                 print(f"   • {file_path}")
-                result = infer_file_metadata(file_path, project_root, index, schema)
-                entry = entry_from_inference(file_path, result, args.threshold, now)
+                inference_result = infer_file_metadata(file_path, project_root, index, schema)
+                entry = entry_from_inference(file_path, inference_result, args.threshold, now)
                 if not args.dry_run:
                     index.add_file(entry)
 
@@ -272,17 +272,19 @@ def main() -> None:
             now = infer_timestamps()
             for file_path in modified_files:
                 print(f"   • {file_path}")
-                entry = index.get_file(file_path)
-                if entry is None:
+                modified_entry = index.get_file(file_path)
+                if modified_entry is None:
                     continue
                 if args.re_infer:
-                    result = infer_file_metadata(file_path, project_root, index, schema)
+                    inference_result = infer_file_metadata(file_path, project_root, index, schema)
                     if not args.dry_run:
-                        apply_inference_to_entry(entry, result, args.threshold, config, now)
+                        apply_inference_to_entry(
+                            modified_entry, inference_result, args.threshold, config, now
+                        )
                 else:
                     if not args.dry_run:
-                        entry.needs_review = True
-                        entry.last_verified = now
+                        modified_entry.needs_review = True
+                        modified_entry.last_verified = now
 
         if args.dry_run:
             print("\n⚠️  Dry run: no changes written")
@@ -313,8 +315,8 @@ def main() -> None:
         config = load_config(project_root)
 
         if args.file_path:
-            entries = [index.get_file(args.file_path)]
-            entries = [e for e in entries if e is not None]
+            selected_entry = index.get_file(args.file_path)
+            entries = [selected_entry] if selected_entry is not None else []
         else:
             entries = index.files_needing_review()
 
@@ -327,9 +329,9 @@ def main() -> None:
         skipped = 0
 
         for entry in entries:
-            result = infer_file_metadata(entry.path, project_root, index, schema)
+            inference_result = infer_file_metadata(entry.path, project_root, index, schema)
             if args.interactive:
-                diff = preview_inference_diff(entry, result, args.threshold, config, now)
+                diff = preview_inference_diff(entry, inference_result, args.threshold, config, now)
                 print(f"\nFile: {entry.path}")
                 if diff["intent"]:
                     print("  Intent:")
@@ -369,9 +371,13 @@ def main() -> None:
                     continue
 
             if args.dry_run:
-                changed = preview_inference_changes(entry, result, args.threshold, config, now)
+                changed = preview_inference_changes(
+                    entry, inference_result, args.threshold, config, now
+                )
             else:
-                changed = apply_inference_to_entry(entry, result, args.threshold, config, now)
+                changed = apply_inference_to_entry(
+                    entry, inference_result, args.threshold, config, now
+                )
 
             if changed:
                 updated += 1

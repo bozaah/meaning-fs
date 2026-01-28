@@ -205,7 +205,7 @@ def display_query_results(result: QueryResult, max_results: int = 20) -> None:
 
         # Key relationships
         if file.relationships:
-            rel_summary = {}
+            rel_summary: dict[str, list[str]] = {}
             for rel in file.relationships:
                 if rel.type not in rel_summary:
                     rel_summary[rel.type] = []
@@ -332,7 +332,7 @@ def display_status(project_root: Path) -> None:
         )
 
         # Count relationship types
-        rel_types = {}
+        rel_types: dict[str, int] = {}
         for f in index.files:
             for rel in f.relationships:
                 rel_types[rel.type] = rel_types.get(rel.type, 0) + 1

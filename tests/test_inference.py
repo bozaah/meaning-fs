@@ -770,13 +770,11 @@ This guide explains how to use the API client. It covers authentication and requ
 
 def test_infer_intent_from_comment_block_shell(tmp_path):
     sh_file = tmp_path / "run.sh"
-    sh_file.write_text(
-        """#!/usr/bin/env bash
+    sh_file.write_text("""#!/usr/bin/env bash
 # Upload derived artifacts to S3.
 # Uses aws cli for sync.
 echo \"ok\"
-"""
-    )
+""")
 
     intent = infer_intent_from_comment_block("run.sh", tmp_path)
 
@@ -787,14 +785,12 @@ echo \"ok\"
 
 def test_infer_intent_from_comment_block_python(tmp_path):
     py_file = tmp_path / "script.py"
-    py_file.write_text(
-        """# -*- coding: utf-8 -*-
+    py_file.write_text("""# -*- coding: utf-8 -*-
 # Compute zonal statistics for monthly datasets.
 
 def main():
     pass
-"""
-    )
+""")
 
     intent = infer_intent_from_comment_block("script.py", tmp_path)
 
@@ -967,13 +963,11 @@ This project implements an API client using `src/api/client.py`.
 def test_infer_file_metadata_slurm_rule_definitive(index, schema, tmp_path):
     slurm_file = tmp_path / "jobs" / "run_analysis.slurm"
     slurm_file.parent.mkdir(parents=True, exist_ok=True)
-    slurm_file.write_text(
-        """# Run monthly aggregates for 1990-2020
+    slurm_file.write_text("""# Run monthly aggregates for 1990-2020
 # Uses array jobs
 
 srun python run.py
-"""
-    )
+""")
 
     result = infer_file_metadata("jobs/run_analysis.slurm", tmp_path, index, schema)
 

@@ -104,10 +104,10 @@ def validate_index(
 
     # Validate concepts
     for concept in index.concepts:
-        for file_path in concept.files:
-            if file_path not in indexed_paths:
+        for concept_file in concept.files:
+            if concept_file not in indexed_paths:
                 result.add_warning(
-                    f"Concept '{concept.name}' references non-indexed file: {file_path}"
+                    f"Concept '{concept.name}' references non-indexed file: {concept_file}"
                 )
         if concept.entry_point and concept.entry_point not in concept.files:
             result.add_warning(
