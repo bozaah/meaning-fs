@@ -1,6 +1,6 @@
-version: '0.1'
+version: 0.2.0
 generated_at: '2026-01-21T04:11:00+00:00'
-last_updated: '2026-01-26T05:35:32.778182+00:00'
+last_updated: '2026-01-28T00:20:48.449899+00:00'
 concepts:
 - name: project-documentation
   description: Project-level documentation for human and AI understanding
@@ -43,7 +43,7 @@ files:
   intent: Project overview and quick start guide for users
   status: active
   needs_review: false
-  last_verified: '2026-01-24T05:09:49.480003+00:00'
+  last_verified: '2026-01-28T00:20:48.424310+00:00'
   tags:
   - doc
   - core
@@ -65,7 +65,7 @@ files:
   intent: Symlink to CLAUDE.md providing development guide for all AI agents
   status: active
   needs_review: false
-  last_verified: '2026-01-26T05:35:32.765386+00:00'
+  last_verified: '2026-01-28T00:20:48.424310+00:00'
   tags:
   - doc
   - core
@@ -79,7 +79,7 @@ files:
   intent: Development guide and architectural reference for AI agents working on Meaning
   status: active
   needs_review: false
-  last_verified: '2026-01-26T05:35:32.765386+00:00'
+  last_verified: '2026-01-28T00:20:48.424310+00:00'
   tags:
   - doc
   - core
@@ -116,7 +116,7 @@ files:
   intent: Chronological record of project changes, decisions, and milestones
   status: active
   needs_review: false
-  last_verified: '2026-01-26T05:35:32.765386+00:00'
+  last_verified: '2026-01-28T00:20:48.424310+00:00'
   tags:
   - doc
   - core
@@ -129,7 +129,7 @@ files:
     and index operations
   status: active
   needs_review: false
-  last_verified: '2026-01-24T05:05:41.410564+00:00'
+  last_verified: '2026-01-28T00:20:48.424310+00:00'
   tags:
   - core
   - module
@@ -164,7 +164,7 @@ files:
     scoring
   status: active
   needs_review: false
-  last_verified: '2026-01-26T05:35:32.765386+00:00'
+  last_verified: '2026-01-28T00:20:23.217619+00:00'
   tags:
   - core
   - module
@@ -179,7 +179,7 @@ files:
   intent: Guide for AI agents on documenting sessions and maintaining project continuity
   status: active
   needs_review: false
-  last_verified: '2026-01-24T04:47:30.292043+00:00'
+  last_verified: '2026-01-28T00:20:48.424310+00:00'
   tags:
   - doc
   - dev-guide
@@ -243,7 +243,7 @@ files:
   intent: Tests for meaning_core module.
   status: active
   needs_review: false
-  last_verified: '2026-01-24T04:47:30.292043+00:00'
+  last_verified: '2026-01-28T00:20:48.424310+00:00'
   tags:
   - test
   - module
@@ -258,7 +258,7 @@ files:
   intent: Tests for meaning_inference.
   status: active
   needs_review: false
-  last_verified: '2026-01-24T04:47:30.292043+00:00'
+  last_verified: '2026-01-28T00:20:48.424310+00:00'
   tags:
   - test
   - module
@@ -399,7 +399,7 @@ files:
     build settings
   status: active
   needs_review: false
-  last_verified: '2026-01-24T04:47:30.292043+00:00'
+  last_verified: '2026-01-28T00:20:48.424310+00:00'
   tags:
   - config
   - package
@@ -483,7 +483,7 @@ files:
   intent: Get up and running with Meaning in 5 minutes
   status: active
   needs_review: false
-  last_verified: '2026-01-24T04:47:30.292043+00:00'
+  last_verified: '2026-01-28T00:20:48.424310+00:00'
   tags:
   - doc
   relationships:
@@ -542,7 +542,7 @@ files:
   intent: Default configuration template for Meaning projects.
   status: active
   needs_review: false
-  last_verified: '2026-01-24T04:47:30.292043+00:00'
+  last_verified: '2026-01-28T00:20:48.424310+00:00'
   tags:
   - config
 - path: src/meaning/templates/hooks.json
@@ -556,28 +556,28 @@ files:
   intent: Schema template for docs projects.
   status: active
   needs_review: false
-  last_verified: '2026-01-24T04:47:30.292043+00:00'
+  last_verified: '2026-01-28T00:20:48.424310+00:00'
   tags:
   - config
 - path: src/meaning/templates/schema/node.yaml
   intent: Schema template for node projects.
   status: active
   needs_review: false
-  last_verified: '2026-01-24T04:47:30.292043+00:00'
+  last_verified: '2026-01-28T00:20:48.424310+00:00'
   tags:
   - config
 - path: src/meaning/templates/schema/python.yaml
   intent: Schema template for python projects.
   status: active
   needs_review: false
-  last_verified: '2026-01-24T04:47:30.292043+00:00'
+  last_verified: '2026-01-28T00:20:48.424310+00:00'
   tags:
   - config
 - path: src/meaning/templates/schema/rust.yaml
   intent: Schema template for rust projects.
   status: active
   needs_review: false
-  last_verified: '2026-01-24T04:47:30.292043+00:00'
+  last_verified: '2026-01-28T00:20:48.424310+00:00'
   tags:
   - config
 - path: src/meaning/templates/scripts/meaning-post-write.sh
@@ -654,14 +654,14 @@ files:
     setup logic, separate from the core...'
   status: active
   needs_review: false
-  last_verified: '2026-01-23T05:45:36.896472+00:00'
+  last_verified: '2026-01-28T00:20:48.424310+00:00'
   tags:
   - module
 - path: src/meaning/templates/schema/mixed.yaml
   intent: Schema template for mixed projects.
   status: active
   needs_review: false
-  last_verified: '2026-01-24T04:47:30.292043+00:00'
+  last_verified: '2026-01-28T00:20:48.424310+00:00'
   tags:
   - config
 - path: src/meaning/templates/skills/meaning-init/SKILL.md
@@ -786,21 +786,21 @@ files:
   intent: 'Agent session note: 2026 01 24 intent inference pruning refactor plan.'
   status: active
   needs_review: false
-  last_verified: '2026-01-24T04:48:11.567670+00:00'
+  last_verified: '2026-01-28T00:20:48.424310+00:00'
   tags:
   - x-needs-tags
 - path: audits/refactor-plan-2026-01-24.md
   intent: 'Date: 2026-01-24 Author: Codex (GPT-5) Status: Proposed'
   status: active
   needs_review: false
-  last_verified: '2026-01-24T04:48:11.567670+00:00'
+  last_verified: '2026-01-28T00:20:48.424310+00:00'
   tags:
   - x-needs-tags
 - path: src/meaning/cli.py
   intent: 'Meaning: Command-line interface.'
   status: active
   needs_review: false
-  last_verified: '2026-01-24T05:05:41.397114+00:00'
+  last_verified: '2026-01-28T00:20:48.424310+00:00'
   tags:
   - module
   - cli
@@ -813,28 +813,42 @@ files:
     target: src/meaning/meaning_inference.py
   - type: imports
     target: src/meaning/meaning_inference.py
+  - type: imports
+    target: src/meaning/constants.py
+  - type: imports
+    target: src/meaning/index_io.py
+  - type: imports
+    target: src/meaning/index_ops.py
+  - type: imports
+    target: src/meaning/project.py
+  - type: imports
+    target: src/meaning/query.py
+  - type: imports
+    target: src/meaning/validation.py
 - path: src/meaning/constants.py
   intent: 'Meaning: Constants and default values.'
   status: active
   needs_review: false
-  last_verified: '2026-01-24T05:05:41.397114+00:00'
+  last_verified: '2026-01-28T00:20:48.424310+00:00'
   tags:
   - module
 - path: src/meaning/index_io.py
   intent: 'Meaning: File I/O operations for indexes, schemas, and configs.'
   status: active
   needs_review: false
-  last_verified: '2026-01-24T05:05:41.397114+00:00'
+  last_verified: '2026-01-28T00:20:48.424310+00:00'
   tags:
   - module
   relationships:
   - type: imports
     target: src/meaning/constants.py
+  - type: imports
+    target: src/meaning/models.py
 - path: src/meaning/index_ops.py
   intent: 'Meaning: Index operations.'
   status: active
   needs_review: false
-  last_verified: '2026-01-24T05:05:41.397114+00:00'
+  last_verified: '2026-01-28T00:20:48.424310+00:00'
   tags:
   - module
   relationships:
@@ -842,11 +856,15 @@ files:
     target: src/meaning/constants.py
   - type: imports
     target: src/meaning/index_io.py
+  - type: imports
+    target: src/meaning/models.py
+  - type: imports
+    target: src/meaning/project.py
 - path: src/meaning/models.py
   intent: 'Meaning: Core data models.'
   status: active
   needs_review: false
-  last_verified: '2026-01-24T05:05:41.397114+00:00'
+  last_verified: '2026-01-28T00:20:48.424310+00:00'
   tags:
   - module
   - model
@@ -857,7 +875,7 @@ files:
   intent: 'Meaning: Project detection and scanning utilities.'
   status: active
   needs_review: false
-  last_verified: '2026-01-24T05:05:41.397114+00:00'
+  last_verified: '2026-01-28T00:20:48.424310+00:00'
   tags:
   - module
   relationships:
@@ -869,7 +887,7 @@ files:
   intent: 'Meaning: Query engine and display functions.'
   status: active
   needs_review: false
-  last_verified: '2026-01-26T05:35:32.765386+00:00'
+  last_verified: '2026-01-28T00:20:48.424310+00:00'
   tags:
   - module
   relationships:
@@ -885,7 +903,7 @@ files:
   intent: 'Meaning: Index validation.'
   status: active
   needs_review: false
-  last_verified: '2026-01-24T05:05:41.397114+00:00'
+  last_verified: '2026-01-28T00:20:48.424310+00:00'
   tags:
   - module
   - validation
@@ -896,13 +914,20 @@ files:
   intent: 'Agent session note: 2026 01 24 modular architecture refactor.'
   status: active
   needs_review: false
-  last_verified: '2026-01-24T05:09:49.480003+00:00'
+  last_verified: '2026-01-28T00:20:48.424310+00:00'
   tags:
   - x-needs-tags
 - path: .agent-sessions/2026-01-24-enhanced-status-display.md
   intent: 'Agent session note: 2026 01 24 enhanced status display.'
   status: active
   needs_review: false
-  last_verified: '2026-01-26T05:35:32.765386+00:00'
+  last_verified: '2026-01-28T00:20:48.424310+00:00'
+  tags:
+  - x-needs-tags
+- path: .agent-sessions/2026-01-28-release-v0.2.0-lint-fixes.md
+  intent: 'Agent session note: 2026 01 28 release v0.2.0 lint fixes.'
+  status: active
+  needs_review: false
+  last_verified: '2026-01-28T00:20:48.424310+00:00'
   tags:
   - x-needs-tags

@@ -1,4 +1,4 @@
-version: "0.1"
+version: "0.2.0"
 project_type: mixed
 
 # Generic schema for projects without a clear single type

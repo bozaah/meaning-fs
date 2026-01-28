@@ -4,6 +4,15 @@ All notable changes to the Meaning project will be documented in this file.
 
 ## [Unreleased]
 
+### 2026-01-28 — Release v0.2.0
+
+#### Changed
+- **Version alignment** — Bumped package/version constants and templates to 0.2.0
+
+#### Fixed
+- **Type checking** — Resolved mypy errors in CLI/query/validation paths
+- **Formatting** — Black formatting updates in CLI and inference tests
+
 ### 2026-01-24 — Enhanced Status Display
 
 #### Added

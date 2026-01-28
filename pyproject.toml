@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "meaning-fs"
-version = "0.1.1"
+version = "0.2.0"
 description = "Semantic File Index for AI Agents"
 readme = "README.md"
 license = {file = "LICENSE"}
