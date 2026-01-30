@@ -86,13 +86,13 @@ This will:
 
 **Output:**
 ```
-✓ Created .meaning/ with 6 files
-✓ Installed Claude Code hooks
-✓ Installed 5 skills
-⚠️  Not a git repository. Consider initializing git before meaning.
-✓ Indexed 47 files
-⚠️  Files needing review: 12
-✓ Validation: True
+OK Created .meaning/ with 6 files
+OK Installed Claude Code hooks
+OK Installed 5 skills
+WARN  Not a git repository. Consider initializing git before meaning.
+OK Indexed 47 files
+WARN  Files needing review: 12
+OK Validation: True
 ```
 
 ### 2. Review Suggestions
@@ -113,16 +113,16 @@ Interactive review now shows a diff-style preview of intent/tags/relationships b
 
 **Output:**
 ```
-📊 Categorizing...
+SUMMARY Categorizing...
    • 42 high-confidence (auto-accept)
    • 5 need manual review
 
-🤖 Auto-accepting 42 files...
-   ✓ src/api.py (updated intent, added 2 relationships)
-   ✓ tests/test_api.py (added 1 relationship)
+AUTO Auto-accepting 42 files...
+   OK src/api.py (updated intent, added 2 relationships)
+   OK tests/test_api.py (added 1 relationship)
    ...
 
-✅ Review complete in 0.8s
+OK Review complete in 0.8s
 ```
 
 ### 3. Explore Your Project
@@ -141,14 +141,14 @@ python -m meaning status
 
 ## Key Features
 
-### 🔍 Instant Discovery
+### QUERY Instant Discovery
 
 ```bash
 # Get project overview
 python -m meaning status
 
 # Output:
-📊 Meaning Index Status
+SUMMARY Meaning Index Status
 
 CONCEPTS (3)
   api-layer (5 files)
@@ -156,12 +156,12 @@ CONCEPTS (3)
        "HTTP client for external API communication"
 
 HEALTH
-  ✅ 47 files indexed
-  ✅ 0 need review
-  ✅ 0 validation errors
+  OK 47 files indexed
+  OK 0 need review
+  OK 0 validation errors
 ```
 
-### 🔎 Semantic Search
+### SEARCH Semantic Search
 
 ```bash
 # Natural language queries
@@ -183,7 +183,7 @@ python -m meaning query "what changed recently?"
 - **Temporal**: "what changed recently?"
 - **Concept**: "show me the API layer"
 
-### 🤖 Intelligent Inference
+### AUTO Intelligent Inference
 
 Meaning automatically suggests:
 - **Intents** from docstrings, markdown summaries, and leading comment blocks (70-80% confidence)
@@ -193,24 +193,29 @@ Meaning automatically suggests:
 
 **Time savings:** 85-90% reduction in manual indexing work
 
-### 🔄 Automatic Sync
+### UPDATE Automatic Sync
 
 ```bash
 # Detect new/modified/deleted files
 /meaning-update
 
 # Output:
-📊 Changes detected:
-   • New files: 3
-   • Modified files: 2
-   • Deleted files: 1
+UPDATE SUMMARY
+  Project files: 120
+  Indexed files: 50
+  Collections: 1
+  Collection-covered (not indexed): 12
+  Pending changes: new 3, modified 2, deleted 1, excluded 2
 
-✨ Adding 3 new files...
-🔄 Flagging 2 modified files for review...
-🗑️  Removing 1 deleted file...
-🧹 Removing 2 excluded files from index...
+ADD new files: 3
+UPDATE modified files (flag review): 2
+REMOVE deleted files: 1
+CLEAN excluded entries: 2
 
-✅ Index updated
+UPDATE RESULTS
+  Files in index: 57
+  Files needing review: 8
+  Validation: True
 ```
 
 ---

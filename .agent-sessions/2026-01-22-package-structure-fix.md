@@ -60,9 +60,9 @@ Ran `/meaning-review` workflow successfully:
 
 All CLI commands working:
 ```bash
-python -m meaning status      # ✅
-python -m meaning query "..." # ✅
-python -m meaning validate    # ✅
+python -m meaning status      # OK
+python -m meaning query "..." # OK
+python -m meaning validate    # OK
 ```
 
 Tests: 94/95 passing (99% success)
@@ -89,8 +89,8 @@ Any scripts or documentation referencing old paths must be updated.
 
 ## Outcome
 
-✅ Package installation fixed
-✅ All CLI commands working
-✅ Index updated and validated
-✅ Batch review workflow tested
-✅ 94/95 tests passing
+OK Package installation fixed
+OK All CLI commands working
+OK Index updated and validated
+OK Batch review workflow tested
+OK 94/95 tests passing

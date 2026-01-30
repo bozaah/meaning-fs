@@ -30,7 +30,7 @@ Under what conditions does this work?
 
 ## What We Accomplished
 
-### 1. Status Command ✅
+### 1. Status Command OK
 
 **Implementation** (`src/meaning_core.py:display_status`)
 - Instant project overview in <50ms
@@ -41,7 +41,7 @@ Under what conditions does this work?
 
 **Output Example:**
 ```
-📊 Meaning Index Status
+SUMMARY Meaning Index Status
 
 Project: meaning (python)
 Version: 0.1
@@ -61,11 +61,11 @@ CONCEPTS (4)
 HEALTH
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-  ✅ 33 files indexed
-  ⚠️  1 need review
-  ✅ 0 stale entries
-  ✅ 0 unindexed files
-  ✅ 0 validation errors
+  OK 33 files indexed
+  WARN  1 need review
+  OK 0 stale entries
+  OK 0 unindexed files
+  OK 0 validation errors
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 QUICK ACTIONS
@@ -83,7 +83,7 @@ QUICK ACTIONS
 
 ---
 
-### 2. Query Engine ✅
+### 2. Query Engine OK
 
 **Implementation** (`src/meaning_core.py:query_index`)
 - Natural language parsing without embeddings
@@ -93,35 +93,35 @@ QUICK ACTIONS
 
 1. **Status Queries** - "what needs review?", "what is stale?"
    - Filters by `needs_review` or `is_stale()` flags
-   - Tested: ✅ Works correctly
+   - Tested: OK Works correctly
 
 2. **Tag Queries** - "show me all test files", "config files"
    - Matches against schema tag vocabulary
-   - Tested: ✅ Returns all tagged files
+   - Tested: OK Returns all tagged files
 
 3. **Relationship Queries** - "what tests X?", "what documents Y?"
    - Traverses typed relationship graph
    - Extracts target file from query
-   - Tested: ✅ Graph traversal works
+   - Tested: OK Graph traversal works
 
 4. **Intent Queries** - "files that do parsing", "validation files"
    - Keyword matching on intent strings
    - Stop word filtering
-   - Tested: ✅ Keyword matching works
+   - Tested: OK Keyword matching works
 
 5. **Temporal Queries** - "what changed recently?", "latest files"
    - Sorts by `last_verified` timestamp
    - Returns top 10 most recent
-   - Tested: ✅ Temporal sorting works
+   - Tested: OK Temporal sorting works
 
 6. **Concept Queries** - "show me the core library"
    - Matches concept names
    - Returns all files in concept
-   - Tested: ✅ Concept lookup works
+   - Tested: OK Concept lookup works
 
 **Output Format:**
 ```
-🔍 Query Results: Files that tests src/meaning_core.py
+QUERY Query Results: Files that tests src/meaning_core.py
    Type: relationship
 
   Found 1 file (showing 1):
@@ -140,7 +140,7 @@ QUICK ACTIONS
 
 ---
 
-### 3. /meaning-query Skill ✅
+### 3. /meaning-query Skill OK
 
 **Created** (`.claude/skills/meaning-query/SKILL.md`)
 - Comprehensive documentation (~350 lines)
@@ -161,7 +161,7 @@ result = subprocess.run(
 
 ---
 
-### 4. Documentation Updates ✅
+### 4. Documentation Updates OK
 
 **CLAUDE.md:**
 - Added status/query to "Session Continuity" section (step 1)
@@ -226,32 +226,32 @@ This order ensures most specific queries match first.
 **Manual testing completed:**
 ```bash
 # Status queries
-✅ "what needs review?" → Returns files with needs_review=true
-✅ "what is stale?" → Returns files not verified in 7 days
+OK "what needs review?" → Returns files with needs_review=true
+OK "what is stale?" → Returns files not verified in 7 days
 
 # Tag queries
-✅ "show me all test files" → Returns files tagged 'test'
-✅ "config files" → Returns files tagged 'config'
+OK "show me all test files" → Returns files tagged 'test'
+OK "config files" → Returns files tagged 'config'
 
 # Relationship queries
-✅ "what tests the core?" → Finds tests/test_core.py
-✅ "what tests the inference engine?" → Finds tests/test_inference.py
-✅ "what documents the implementation?" → Returns all docs with 'documents' relationships
+OK "what tests the core?" → Finds tests/test_core.py
+OK "what tests the inference engine?" → Finds tests/test_inference.py
+OK "what documents the implementation?" → Returns all docs with 'documents' relationships
 
 # Intent queries
-✅ "files that do parsing" → Returns files with 'parsing' in intent
-✅ "files about validation" → Returns validation-related files
+OK "files that do parsing" → Returns files with 'parsing' in intent
+OK "files about validation" → Returns validation-related files
 
 # Temporal queries
-✅ "what changed recently?" → Returns 10 most recently updated files
+OK "what changed recently?" → Returns 10 most recently updated files
 
 # Concept queries
-✅ "show me the core library" → Returns src/meaning_core.py + src/meaning_inference.py
+OK "show me the core library" → Returns src/meaning_core.py + src/meaning_inference.py
 ```
 
 **Skill testing:**
 ```bash
-✅ /meaning-query what tests the inference engine?
+OK /meaning-query what tests the inference engine?
    → Successfully returns tests/test_inference.py
 ```
 
@@ -302,10 +302,10 @@ This order ensures most specific queries match first.
 
 ## Philosophy Validation
 
-✅ **Stated assumptions** - All assumptions documented upfront
-✅ **Verified correctness** - Manual testing of all query types
-✅ **Handled edge cases** - Fall-through to intent search, no results message
-✅ **Documented conditions** - Performance limits, when not to use, trade-offs
+OK **Stated assumptions** - All assumptions documented upfront
+OK **Verified correctness** - Manual testing of all query types
+OK **Handled edge cases** - Fall-through to intent search, no results message
+OK **Documented conditions** - Performance limits, when not to use, trade-offs
 
 ---
 

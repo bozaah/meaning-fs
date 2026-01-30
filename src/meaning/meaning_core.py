@@ -75,8 +75,10 @@ from meaning.index_ops import (
 # Re-exports from models module
 # =============================================================================
 from meaning.models import (
+    Collection,
     Concept,
     FileEntry,
+    FilePattern,
     MeaningConfig,
     MeaningIndex,
     MeaningSchema,
@@ -130,7 +132,9 @@ __all__ = [
     "VERSION",
     # Models
     "Concept",
+    "Collection",
     "FileEntry",
+    "FilePattern",
     "MeaningConfig",
     "MeaningIndex",
     "MeaningSchema",

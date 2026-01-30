@@ -142,10 +142,10 @@ src/meaning/
 
 ## Next Steps
 
-1. ✅ Update CLAUDE.md with new module structure
-2. ✅ Update README.md status to v0.2
-3. ✅ Add CHANGELOG.md entry for refactor
-4. ✅ Create session note documenting refactor
+1. OK Update CLAUDE.md with new module structure
+2. OK Update README.md status to v0.2
+3. OK Add CHANGELOG.md entry for refactor
+4. OK Create session note documenting refactor
 5. Consider: PyPI release with modular architecture
 6. Consider: Split `meaning_inference.py` into sub-modules (rules, intent, tags)
 

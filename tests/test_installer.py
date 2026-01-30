@@ -470,7 +470,7 @@ class TestFormatInstallResult:
             hooks_installed=True,
         )
         output = format_install_result(result, "python")
-        assert "✓" in output
+        assert "OK:" in output
         assert "python" in output
         assert "3 files" in output
         assert "hooks" in output.lower()
@@ -480,7 +480,7 @@ class TestFormatInstallResult:
         result = InstallResult(success=False)
         result.add_error("Something went wrong")
         output = format_install_result(result, "python")
-        assert "❌" in output
+        assert "ERROR:" in output
         assert "Something went wrong" in output
 
     def test_warnings_format(self):
@@ -488,7 +488,7 @@ class TestFormatInstallResult:
         result = InstallResult(success=True, meaning_dir_created=True)
         result.add_warning("Watch out")
         output = format_install_result(result, "python")
-        assert "⚠️" in output
+        assert "WARN:" in output
         assert "Watch out" in output
 
 

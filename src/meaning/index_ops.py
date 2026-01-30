@@ -124,7 +124,7 @@ def find_unindexed_files(
     """
     all_files = scan_project_files(project_root, config)
     indexed_paths = {entry.path for entry in index.files}
-    return [f for f in all_files if f not in indexed_paths]
+    return [f for f in all_files if f not in indexed_paths and not index.is_collected(f)]
 
 
 def find_deleted_files(project_root: Path, index: MeaningIndex) -> list[str]:

@@ -112,6 +112,7 @@ tag_vocabulary:
     - spec
     - dev-guide
     - history
+    - notes
     - ai
     - readme
     - changelog
@@ -125,6 +126,11 @@ tag_vocabulary:
     - config
     - migration
     - fixture
+    - data
+    - output
+    - reference
+    - metadata
+    - binary
     - data
     - template
 
@@ -149,10 +155,15 @@ tag_vocabulary:
     - bioinformatics
     - visualization
     - statistics
+    - weather
+    - disease
+    - modeling
+    - simulation
 
   infrastructure:
     - hpc
     - cloud
+    - ui
     - container
     - orchestration
     - ci-cd

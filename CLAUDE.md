@@ -155,6 +155,9 @@ python -m meaning query "what tests the core?"
 python -m meaning query "show me all config files"
 python -m meaning query "what needs review?"
 
+# Review stale files
+python -m meaning review --stale
+
 # Validate this project's .meaning/ index
 ./scripts/validate-meaning.sh
 
@@ -247,6 +250,7 @@ Completed:
 - [x] Phase 5: Discovery & Query — Natural language search, status command
 - [x] Phase 6: Distribution — Installer module, CI/CD workflows, PyPI publishing
 - [x] Phase 7: Rule-Based Inference — 80+ filename/pattern/extension rules, enhanced tag vocabulary
+- [x] Phase 8: Stale File Management — `meaning review --stale` and `meaning update --check-stale`
 
 Inference Engine:
 - **80+ built-in rules** for automatic metadata on common files
@@ -359,4 +363,4 @@ Check `IMPLEMENTATION-PLAN.md` for detailed specifications. If something isn't c
 
 ---
 
-*Last updated: 2026-01-24*
+*Last updated: 2026-01-30*

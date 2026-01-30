@@ -25,7 +25,7 @@ The feedback was documented in `audits/audit-external-repo-2026-01-23.md`.
 
 ## What Was Implemented
 
-### Phase 1: Core Infrastructure ✅
+### Phase 1: Core Infrastructure OK
 
 Added to `meaning_inference.py`:
 
@@ -51,7 +51,7 @@ Added to `meaning_inference.py`:
 - Tags are merged without duplicates
 - Content analysis only runs when `fallback_to_content=True` or no rule matched
 
-### Phase 3: Tag Vocabulary ✅
+### Phase 3: Tag Vocabulary OK
 
 Added 7 new tag categories to all schema templates:
 
@@ -153,7 +153,7 @@ python -m mypy src/meaning/ --ignore-missing-imports
 
 # Index validation passes
 ./scripts/validate-meaning.sh
-# ✅ Index is valid!
+# OK Index is valid!
 ```
 
 ## Status

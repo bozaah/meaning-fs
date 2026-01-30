@@ -32,41 +32,41 @@ Run without arguments for automatic batch processing:
 ```
 
 This will:
-- ✅ Auto-accept high-confidence suggestions (≥0.8 confidence)
-- ✅ Mark recently added files as reviewed (< 1 hour old)
-- ⚠️  Flag low-confidence files for manual review (if any)
-- 💾 Save changes and validate
+- OK Auto-accept high-confidence suggestions (≥0.8 confidence)
+- OK Mark recently added files as reviewed (< 1 hour old)
+- WARN  Flag low-confidence files for manual review (if any)
+- SAVE Save changes and validate
 
 **Example output:**
 
 ```
-✓ Loaded index with 35 files
-🔍 Found 11 files needing review
+OK Loaded index with 35 files
+QUERY Found 11 files needing review
 
-📊 Categorizing...
+SUMMARY Categorizing...
    • 9 high-confidence (auto-accept)
    • 2 recently added (mark as reviewed)
    • 0 need manual review
 
-🤖 Auto-accepting 9 files...
-   ✓ README.md (updated intent, added 2 relationships)
-   ✓ CLAUDE.md (updated intent)
-   ✓ src/meaning/meaning_core.py (added 3 relationships)
-   ✓ tests/test_core.py (added 1 relationship)
-   ✓ .claude/skills/meaning-query/SKILL.md (updated intent, added 2 rels)
+AUTO Auto-accepting 9 files...
+   OK README.md (updated intent, added 2 relationships)
+   OK CLAUDE.md (updated intent)
+   OK src/meaning/meaning_core.py (added 3 relationships)
+   OK tests/test_core.py (added 1 relationship)
+   OK .claude/skills/meaning-query/SKILL.md (updated intent, added 2 rels)
    ... 4 more files
 
-✅ Accepted 2 recently added files
-   ✓ .agent-sessions/2026-01-21-phase5-discovery-query.md
-   ✓ .claude/settings.local.json
+OK Accepted 2 recently added files
+   OK .agent-sessions/2026-01-21-phase5-discovery-query.md
+   OK .claude/settings.local.json
 
 ============================================================
-📋 REVIEW COMPLETE
+REPORT REVIEW COMPLETE
 ============================================================
-✓ Files reviewed: 11/11 (100%)
-✓ Files still needing review: 0
-✓ Applied 24 suggestions automatically
-✓ Validation: True
+OK Files reviewed: 11/11 (100%)
+OK Files still needing review: 0
+OK Applied 24 suggestions automatically
+OK Validation: True
 
 Total time: 0.8s
 ============================================================
@@ -94,20 +94,20 @@ index = load_index(project_root)
 schema = load_schema(project_root)
 config = load_config(project_root)
 
-print(f"✓ Loaded index with {len(index.files)} files")
+print(f"OK Loaded index with {len(index.files)} files")
 
 # Find files needing review
 needs_review = index.files_needing_review()
 
 if not needs_review:
-    print("✅ No files need review!")
+    print("OK No files need review!")
     exit(0)
 
-print(f"🔍 Found {len(needs_review)} files needing review")
+print(f"QUERY Found {len(needs_review)} files needing review")
 print()
 
 # Categorize files
-print("📊 Categorizing...")
+print("SUMMARY Categorizing...")
 now = datetime.now(timezone.utc)
 auto_accept = []
 recently_added = []
@@ -143,7 +143,7 @@ print()
 
 # Apply auto-accept changes
 if auto_accept:
-    print(f"🤖 Auto-accepting {len(auto_accept)} files...")
+    print(f"AUTO Auto-accepting {len(auto_accept)} files...")
     for entry, result in auto_accept:
         changes = []
 
@@ -174,17 +174,17 @@ if auto_accept:
 
         total_suggestions += len(changes)
         change_summary = ", ".join(changes) if changes else "no changes"
-        print(f"   ✓ {entry.path} ({change_summary})")
+        print(f"   OK {entry.path} ({change_summary})")
     print()
 
 # Mark recently added files as reviewed
 if recently_added:
-    print(f"✅ Accepted {len(recently_added)} recently added files")
+    print(f"OK Accepted {len(recently_added)} recently added files")
     now = infer_timestamps()
     for entry in recently_added:
         entry.needs_review = False
         entry.last_verified = now
-        print(f"   ✓ {entry.path}")
+        print(f"   OK {entry.path}")
     print()
 
 # Save changes
@@ -197,21 +197,21 @@ validation = validate_index(index, schema, config, project_root)
 
 # Report
 print("=" * 60)
-print("📋 REVIEW COMPLETE")
+print("REPORT REVIEW COMPLETE")
 print("=" * 60)
-print(f"✓ Files reviewed: {len(auto_accept) + len(recently_added)}/{len(needs_review)}")
-print(f"✓ Files still needing review: {len(manual_review)}")
+print(f"OK Files reviewed: {len(auto_accept) + len(recently_added)}/{len(needs_review)}")
+print(f"OK Files still needing review: {len(manual_review)}")
 if total_suggestions > 0:
-    print(f"✓ Applied {total_suggestions} suggestions automatically")
-print(f"✓ Validation: {validation.is_valid}")
+    print(f"OK Applied {total_suggestions} suggestions automatically")
+print(f"OK Validation: {validation.is_valid}")
 
 if validation.errors:
-    print(f"\n❌ Errors: {len(validation.errors)}")
+    print(f"\nERROR Errors: {len(validation.errors)}")
     for e in validation.errors[:3]:
         print(f"   • {e}")
 
 if manual_review:
-    print(f"\n⚠️  {len(manual_review)} files need manual review (low confidence)")
+    print(f"\nWARN  {len(manual_review)} files need manual review (low confidence)")
     for entry, result in manual_review[:5]:
         print(f"   • {entry.path}")
         if result.intent:
@@ -301,11 +301,11 @@ Automation with safety:
 ```
 
 This skill:
-- ✓ Trusts high-confidence inference (≥0.8)
-- ✓ Flags uncertain cases for human review
-- ✓ Shows all changes made
-- ✓ Validates after applying changes
-- ✓ Provides escape hatches (interactive mode, dry-run)
+- OK Trusts high-confidence inference (≥0.8)
+- OK Flags uncertain cases for human review
+- OK Shows all changes made
+- OK Validates after applying changes
+- OK Provides escape hatches (interactive mode, dry-run)
 
 ---
 

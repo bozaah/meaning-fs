@@ -89,11 +89,11 @@ echo '{"name": "test"}' > package.json
 meaning init --install-hooks --with-skills
 
 # Output:
-# ✓ Created .meaning/ with 6 files
-# ✓ Installed Claude Code hooks
-# ✓ Installed 5 skills
-# ⚠️  Not a git repository...
-# ✓ Indexed 4 files
+# OK Created .meaning/ with 6 files
+# OK Installed Claude Code hooks
+# OK Installed 5 skills
+# WARN  Not a git repository...
+# OK Indexed 4 files
 ```
 
 ## Remaining Work (Distribution)

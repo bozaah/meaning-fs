@@ -21,7 +21,7 @@ meaning/
 │   ├── __main__.py           # CLI entry point
 │   ├── meaning_core.py       # Core library
 │   ├── meaning_inference.py  # Inference engine
-│   ├── installer.py          # Installation logic ✅
+│   ├── installer.py          # Installation logic OK
 │   └── templates/
 │       ├── schema/           # Project-type schemas
 │       │   ├── python.yaml
@@ -34,7 +34,7 @@ meaning/
 │       ├── scripts/          # Self-contained hook scripts
 │       │   ├── meaning-post-write.sh
 │       │   └── meaning-validate.sh
-│       └── skills/           # Claude Code skills ✅
+│       └── skills/           # Claude Code skills OK
 │           ├── meaning-init/
 │           ├── meaning-update/
 │           ├── meaning-validate/
@@ -90,13 +90,13 @@ meaning init [project_root]
 
 6. **Report summary**
    ```
-   ✓ Created .meaning/ with 6 files
-   ✓ Installed Claude Code hooks
-   ✓ Installed 5 skills
-   ⚠️  Not a git repository. Consider initializing git before meaning.
-   ✓ Indexed 47 files
-   ⚠️  Files needing review: 12
-   ✓ Validation: True
+   OK Created .meaning/ with 6 files
+   OK Installed Claude Code hooks
+   OK Installed 5 skills
+   WARN  Not a git repository. Consider initializing git before meaning.
+   OK Indexed 47 files
+   WARN  Files needing review: 12
+   OK Validation: True
    ```
 
 ---
@@ -110,10 +110,10 @@ The hook scripts (`meaning-post-write.sh`, `meaning-validate.sh`) use **inline P
 - PyYAML (very common, often already installed)
 
 They do NOT import from `meaning_core.py`. This means:
-- ✅ Hooks work without meaning being pip-installed
-- ✅ No version drift concerns
-- ✅ No PYTHONPATH manipulation needed
-- ✅ Simpler maintenance
+- OK Hooks work without meaning being pip-installed
+- OK No version drift concerns
+- OK No PYTHONPATH manipulation needed
+- OK Simpler maintenance
 
 ### What the hooks actually do:
 
@@ -316,7 +316,7 @@ pip install git+https://github.com/bozaah/meaning-fs.git
 
 ## 8. Implementation Status
 
-### ✅ Completed
+### OK Completed
 
 - [x] `installer.py` — File copying, hook installation, skills installation
 - [x] Skills copied to `templates/skills/`
@@ -325,7 +325,7 @@ pip install git+https://github.com/bozaah/meaning-fs.git
 - [x] Tests for installer (50 tests passing)
 - [x] Empty `index.yaml` creation during install
 
-### 🔲 Remaining
+### Remaining
 
 - [ ] Update `pyproject.toml` with final package name and metadata
 - [ ] Test `pip install -e .` in fresh venv
@@ -344,9 +344,9 @@ pip install git+https://github.com/bozaah/meaning-fs.git
    pip install meaning-fs && meaning init
    ```
 
-2. **Self-contained after init**: Hooks work without global install ✅
+2. **Self-contained after init**: Hooks work without global install OK
 
-3. **Claude Code integration works**: Hooks fire, skills available ✅
+3. **Claude Code integration works**: Hooks fire, skills available OK
 
 4. **Multiple install paths**: pip, uvx, pipx all work
 

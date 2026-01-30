@@ -116,7 +116,7 @@ Explore semantic groupings.
 ## Output Format
 
 Query results include:
-- **File paths** with status indicators (⚠️ for needs_review)
+- **File paths** with status indicators (WARN for needs_review)
 - **Intents** (truncated to 80 chars)
 - **Tags** (first 5 shown)
 - **Relationships** (summarized by type)
@@ -132,7 +132,7 @@ Claude: Let me search the semantic index for parsing-related files.
 
 [Runs: python -m meaning query "files that do parsing"]
 
-🔍 Query Results: Files tagged with: parsing
+QUERY Query Results: Files tagged with: parsing
    Type: tag
 
   Found 2 files (showing 2):
@@ -244,11 +244,11 @@ Use this skill for **semantic understanding**, not code searching.
 
 ```python
 # No .meaning/ directory found
-❌ No .meaning/ directory found in /path/to/project
-💡 Initialize with: python -m meaning init
+ERROR No .meaning/ directory found in /path/to/project
+TIP Initialize with: python -m meaning init
 
 # No results found
-🔍 Query Results: No files found matching query: 'nonexistent'
+QUERY Query Results: No files found matching query: 'nonexistent'
    Type: no_match
 
   No files found.

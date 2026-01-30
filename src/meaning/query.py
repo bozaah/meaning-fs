@@ -6,10 +6,11 @@ This module handles semantic queries against the index and result display.
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 
 from meaning.models import (
+    Collection,
     FileEntry,
     MeaningIndex,
     MeaningSchema,
@@ -23,6 +24,7 @@ class QueryResult:
     files: list[FileEntry]
     explanation: str
     query_type: str
+    collections: list[Collection] = field(default_factory=list)
 
 
 def query_index(index: MeaningIndex, schema: MeaningSchema, query: str) -> QueryResult:
@@ -39,6 +41,7 @@ def query_index(index: MeaningIndex, schema: MeaningSchema, query: str) -> Query
     """
     q = query.lower().strip()
     results: list[FileEntry] = []
+    collections: list[Collection] = []
     explanation = ""
     query_type = "unknown"
 
@@ -100,6 +103,19 @@ def query_index(index: MeaningIndex, schema: MeaningSchema, query: str) -> Query
                 explanation = f"Files in concept '{concept.name}': {concept.description}"
                 query_type = "concept"
                 break
+
+    # Collection queries
+    elif "collection" in q or any(c.name.replace("-", " ") in q for c in index.collections):
+        if any(word in q for word in ["list", "show", "all"]):
+            collections = list(index.collections)
+            explanation = "All collections"
+            query_type = "collection"
+        else:
+            matches = [c for c in index.collections if c.name.replace("-", " ") in q or c.name in q]
+            if matches:
+                collections = matches
+                explanation = "Matching collections"
+                query_type = "collection"
 
     # Tag queries - look for common tag patterns
     elif any(word in q for word in ["file", "show", "find", "list"]):
@@ -164,21 +180,60 @@ def query_index(index: MeaningIndex, schema: MeaningSchema, query: str) -> Query
                 query_type = "intent"
 
     # No results found
-    if not results:
+    if not results and not collections:
         explanation = f"No files found matching query: '{query}'"
         query_type = "no_match"
 
-    return QueryResult(files=results, explanation=explanation, query_type=query_type)
+    return QueryResult(
+        files=results,
+        collections=collections,
+        explanation=explanation,
+        query_type=query_type,
+    )
 
 
 def display_query_results(result: QueryResult, max_results: int = 20) -> None:
     """Display query results in a formatted way."""
-    print(f"🔍 Query Results: {result.explanation}")
+    print(f"Query Results: {result.explanation}")
     print(f"   Type: {result.query_type}")
     print()
 
-    if not result.files:
+    if not result.files and not result.collections:
         print("  No files found.")
+        return
+
+    if result.collections:
+        total_collections = len(result.collections)
+        showing_collections = min(total_collections, max_results)
+        print(
+            f"  Found {total_collections} collection{'s' if total_collections != 1 else ''} (showing {showing_collections}):"
+        )
+        print()
+        for i, collection in enumerate(result.collections[:max_results], 1):
+            print(f"  {i}. {collection.name}")
+            print(f"      Pattern: {collection.pattern}")
+            print(f'      "{collection.intent}"')
+            if collection.tags:
+                tags_str = ", ".join(collection.tags[:5])
+                if len(collection.tags) > 5:
+                    tags_str += f" +{len(collection.tags) - 5} more"
+                print(f"      Tags: {tags_str}")
+            if collection.relationships:
+                rel_summary: dict[str, list[str]] = {}
+                for rel in collection.relationships:
+                    if rel.type not in rel_summary:
+                        rel_summary[rel.type] = []
+                    if rel.target:
+                        rel_summary[rel.type].append(rel.target)
+                rel_strs = [f"{k}({len(v)})" for k, v in rel_summary.items()]
+                print(f"      Relationships: {', '.join(rel_strs)}")
+            print()
+
+        if total_collections > showing_collections:
+            print(f"  ... and {total_collections - showing_collections} more")
+            print()
+
+    if not result.files:
         return
 
     total = len(result.files)
@@ -189,7 +244,7 @@ def display_query_results(result: QueryResult, max_results: int = 20) -> None:
 
     for i, file in enumerate(result.files[:max_results], 1):
         # File path with status indicator
-        status_icon = "⚠️ " if file.needs_review else "  "
+        status_icon = "[WARN] " if file.needs_review else ""
         print(f"  {i}. {status_icon}{file.path}")
 
         # Intent (truncated)
@@ -203,16 +258,16 @@ def display_query_results(result: QueryResult, max_results: int = 20) -> None:
                 tags_str += f" +{len(file.tags) - 5} more"
             print(f"      Tags: {tags_str}")
 
-        # Key relationships
-        if file.relationships:
-            rel_summary: dict[str, list[str]] = {}
-            for rel in file.relationships:
-                if rel.type not in rel_summary:
-                    rel_summary[rel.type] = []
-                if rel.target:
-                    rel_summary[rel.type].append(rel.target)
+            # Key relationships
+            if file.relationships:
+                file_rel_summary: dict[str, list[str]] = {}
+                for rel in file.relationships:
+                    if rel.type not in file_rel_summary:
+                        file_rel_summary[rel.type] = []
+                    if rel.target:
+                        file_rel_summary[rel.type].append(rel.target)
 
-            rel_strs = [f"{k}({len(v)})" for k, v in rel_summary.items()]
+            rel_strs = [f"{k}({len(v)})" for k, v in file_rel_summary.items()]
             print(f"      Relationships: {', '.join(rel_strs)}")
 
         print()
@@ -256,11 +311,14 @@ def display_status(project_root: Path) -> None:
     # Find unindexed files
     all_files = scan_project_files(project_root, config)
     indexed_paths = {f.path for f in index.files}
-    unindexed = [f for f in all_files if f not in indexed_paths]
+    unindexed = [f for f in all_files if f not in indexed_paths and not index.is_collected(f)]
 
-    # Calculate coverage
+    # Calculate coverage (indexed + collection coverage only)
     total_project_files = len(all_files)
-    coverage_pct = (total_files / total_project_files * 100) if total_project_files > 0 else 0
+    covered_files = {f for f in indexed_paths if f in all_files}
+    covered_files.update(f for f in all_files if index.is_collected(f))
+    covered_count = len(covered_files)
+    coverage_pct = (covered_count / total_project_files * 100) if total_project_files > 0 else 0
 
     # Count relationships and unique tags
     total_relationships = sum(len(f.relationships) for f in index.files)
@@ -310,7 +368,7 @@ def display_status(project_root: Path) -> None:
     print("=" * 70)
     print()
     print(f"Project: {project_name} ({project_type})")
-    print(f"Coverage: {total_files}/{total_project_files} files ({coverage_pct:.0f}%)")
+    print(f"Coverage: {covered_count}/{total_project_files} files ({coverage_pct:.0f}%)")
     print(f"Last Updated: {last_update_str}")
     print()
 
@@ -328,7 +386,7 @@ def display_status(project_root: Path) -> None:
             )
         print()
         print(
-            f"  Coverage: {total_files}/{total_project_files} files indexed ({coverage_pct:.0f}%)"
+            f"  Coverage: {covered_count}/{total_project_files} files indexed ({coverage_pct:.0f}%)"
         )
 
         # Count relationship types

@@ -34,11 +34,11 @@ project_root = Path.cwd()
 
 # Check if .meaning/ exists
 if not meaning_dir_exists(project_root):
-    print("❌ .meaning/ not found!")
+    print("ERROR .meaning/ not found!")
     print("Run /meaning-init to create semantic index first")
     exit(1)
 
-print("✓ Found .meaning/ directory")
+print("OK Found .meaning/ directory")
 ```
 
 ### 2. Load and Parse
@@ -48,11 +48,11 @@ try:
     index = load_index(project_root)
     schema = load_schema(project_root)
     config = load_config(project_root)
-    print(f"✓ Loaded index with {len(index.files)} files")
-    print(f"✓ Loaded {schema.project_type} schema")
-    print(f"✓ Loaded config")
+    print(f"OK Loaded index with {len(index.files)} files")
+    print(f"OK Loaded {schema.project_type} schema")
+    print(f"OK Loaded config")
 except Exception as e:
-    print(f"❌ Failed to load .meaning/ files:")
+    print(f"ERROR Failed to load .meaning/ files:")
     print(f"   {e}")
     exit(1)
 ```
@@ -65,7 +65,7 @@ from meaning.meaning_core import validate_index
 validation = validate_index(index, schema, config, project_root)
 
 print("\n" + "="*60)
-print("📋 VALIDATION RESULTS")
+print("REPORT VALIDATION RESULTS")
 print("="*60)
 ```
 
@@ -74,11 +74,11 @@ print("="*60)
 ```python
 # Overall status
 if validation.is_valid:
-    print("✅ Index is VALID")
+    print("OK Index is VALID")
 else:
-    print("❌ Index has ERRORS")
+    print("ERROR Index has ERRORS")
 
-print(f"\n📊 Summary:")
+print(f"\nSUMMARY Summary:")
 print(f"   Files indexed: {len(index.files)}")
 print(f"   Concepts: {len(index.concepts)}")
 print(f"   Errors: {len(validation.errors)}")
@@ -86,14 +86,14 @@ print(f"   Warnings: {len(validation.warnings)}")
 
 # Show all errors
 if validation.errors:
-    print(f"\n❌ ERRORS ({len(validation.errors)}):")
+    print(f"\nERROR ERRORS ({len(validation.errors)}):")
     print("   These MUST be fixed:")
     for error in validation.errors:
         print(f"   • {error}")
 
 # Categorize warnings
 if validation.warnings:
-    print(f"\n⚠️  WARNINGS ({len(validation.warnings)}):")
+    print(f"\nWARN  WARNINGS ({len(validation.warnings)}):")
     
     # Separate warning types
     unindexed = [w for w in validation.warnings if "not indexed" in w]
@@ -129,7 +129,7 @@ if validation.warnings:
 # Files needing review
 needs_review = index.files_needing_review()
 if needs_review:
-    print(f"\n🔍 Files needing review ({len(needs_review)}):")
+    print(f"\nQUERY Files needing review ({len(needs_review)}):")
     for entry in needs_review[:10]:
         print(f"   • {entry.path}")
     if len(needs_review) > 10:
@@ -146,7 +146,7 @@ print("\n" + "="*60)
 if not validation.is_valid:
     exit(1)
 else:
-    print("✅ All checks passed!")
+    print("OK All checks passed!")
     exit(0)
 ```
 
@@ -159,23 +159,23 @@ else:
 ## Example Output (Success)
 
 ```
-✓ Found .meaning/ directory
-✓ Loaded index with 57 files
-✓ Loaded python schema
-✓ Loaded config
+OK Found .meaning/ directory
+OK Loaded index with 57 files
+OK Loaded python schema
+OK Loaded config
 
 ============================================================
-📋 VALIDATION RESULTS
+REPORT VALIDATION RESULTS
 ============================================================
-✅ Index is VALID
+OK Index is VALID
 
-📊 Summary:
+SUMMARY Summary:
    Files indexed: 57
    Concepts: 3
    Errors: 0
    Warnings: 8
 
-⚠️  WARNINGS (8):
+WARN  WARNINGS (8):
 
    Stale entries (>7 days):
    • Stale entry (>7 days): src/old_module.py
@@ -184,7 +184,7 @@ else:
    Unindexed files: 6
    (Run /meaning-update to index them)
 
-🔍 Files needing review (3):
+QUERY Files needing review (3):
    • src/new_feature.py
    • tests/test_new_feature.py
    • docs/new_doc.md
@@ -192,35 +192,35 @@ else:
    (Run /meaning-review to review them)
 
 ============================================================
-✅ All checks passed!
+OK All checks passed!
 ```
 
 ## Example Output (Errors)
 
 ```
-✓ Found .meaning/ directory
-✓ Loaded index with 57 files
-✓ Loaded python schema
-✓ Loaded config
+OK Found .meaning/ directory
+OK Loaded index with 57 files
+OK Loaded python schema
+OK Loaded config
 
 ============================================================
-📋 VALIDATION RESULTS
+REPORT VALIDATION RESULTS
 ============================================================
-❌ Index has ERRORS
+ERROR Index has ERRORS
 
-📊 Summary:
+SUMMARY Summary:
    Files indexed: 57
    Concepts: 3
    Errors: 3
    Warnings: 2
 
-❌ ERRORS (3):
+ERROR ERRORS (3):
    These MUST be fixed:
    • Dangling relationship to 'src/missing.py' from: src/client.py
    • Dangling relationship to 'lib/util.py' from: tests/test_client.py
    • File in index not found: src/deleted_module.py
 
-⚠️  WARNINGS (2):
+WARN  WARNINGS (2):
 
    Unknown tags (not in schema):
    • Unknown tag 'deprecated' on file: src/old_api.py
@@ -266,11 +266,11 @@ Add to your CI pipeline:
     result = validate_index(index, schema, config, Path('.'))
     
     if not result.is_valid:
-        print('❌ Validation failed')
+        print('ERROR Validation failed')
         for e in result.errors:
             print(f'  {e}')
         exit(1)
-    print('✅ Validation passed')
+    print('OK Validation passed')
     "
 ```
 
@@ -301,7 +301,7 @@ Under what conditions does this work?
 ```
 
 This skill:
-- ✓ Checks all preconditions (.meaning/ exists, files parseable)
-- ✓ Reports all issues found (errors and warnings)
-- ✓ Categorizes problems (helps prioritize fixes)
-- ✓ Provides clear remediation steps
+- OK Checks all preconditions (.meaning/ exists, files parseable)
+- OK Reports all issues found (errors and warnings)
+- OK Categorizes problems (helps prioritize fixes)
+- OK Provides clear remediation steps

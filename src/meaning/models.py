@@ -17,6 +17,7 @@ import fnmatch
 import re
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
+from pathlib import Path
 from typing import Any
 
 from meaning.constants import (
@@ -147,6 +148,43 @@ class Concept:
 
 
 @dataclass
+class Collection:
+    """A grouped collection of files described by a glob pattern."""
+
+    name: str
+    pattern: str
+    intent: str
+    tags: list[str] = field(default_factory=list)
+    member_intent_template: str | None = None
+    relationships: list[Relationship] = field(default_factory=list)
+
+    def to_dict(self) -> dict[str, Any]:
+        d: dict[str, Any] = {
+            "name": self.name,
+            "pattern": self.pattern,
+            "intent": self.intent,
+            "tags": self.tags,
+        }
+        if self.member_intent_template:
+            d["member_intent_template"] = self.member_intent_template
+        if self.relationships:
+            d["relationships"] = [r.to_dict() for r in self.relationships]
+        return d
+
+    @classmethod
+    def from_dict(cls, data: dict[str, Any]) -> Collection:
+        relationships = [Relationship.from_dict(r) for r in data.get("relationships", [])]
+        return cls(
+            name=data["name"],
+            pattern=data.get("pattern", ""),
+            intent=data.get("intent", ""),
+            tags=data.get("tags", []),
+            member_intent_template=data.get("member_intent_template"),
+            relationships=relationships,
+        )
+
+
+@dataclass
 class MeaningIndex:
     """The complete semantic index for a project."""
 
@@ -154,6 +192,7 @@ class MeaningIndex:
     generated_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     last_updated: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     concepts: list[Concept] = field(default_factory=list)
+    collections: list[Collection] = field(default_factory=list)
     files: list[FileEntry] = field(default_factory=list)
 
     def to_dict(self) -> dict[str, Any]:
@@ -162,6 +201,7 @@ class MeaningIndex:
             "generated_at": self.generated_at.isoformat(),
             "last_updated": self.last_updated.isoformat(),
             "concepts": [c.to_dict() for c in self.concepts],
+            "collections": [c.to_dict() for c in self.collections],
             "files": [f.to_dict() for f in self.files],
         }
 
@@ -180,6 +220,7 @@ class MeaningIndex:
             last_updated = datetime.now(timezone.utc)
 
         concepts = [Concept.from_dict(c) for c in data.get("concepts", [])]
+        collections = [Collection.from_dict(c) for c in data.get("collections", [])]
         files = [FileEntry.from_dict(f) for f in data.get("files", [])]
 
         return cls(
@@ -187,6 +228,7 @@ class MeaningIndex:
             generated_at=generated_at,
             last_updated=last_updated,
             concepts=concepts,
+            collections=collections,
             files=files,
         )
 
@@ -196,6 +238,14 @@ class MeaningIndex:
             if f.path == path:
                 return f
         return None
+
+    def is_collected(self, path: str) -> bool:
+        """Check if a path is covered by any collection pattern."""
+        candidate = Path(path)
+        for collection in self.collections:
+            if collection.pattern and candidate.match(collection.pattern):
+                return True
+        return False
 
     def add_file(self, entry: FileEntry) -> None:
         """Add or update a file entry."""
@@ -354,6 +404,53 @@ class MeaningSchema:
 
 
 @dataclass
+class FilePattern:
+    """Configurable file pattern inference rule."""
+
+    pattern: str
+    intent: str | None = None
+    intent_template: str | None = None
+    tags: list[str] = field(default_factory=list)
+    confidence: float = 0.85
+    fallback_to_content: bool = False
+    capture_regex: str | None = None
+    auto_accept: bool = False
+
+    def to_dict(self) -> dict[str, Any]:
+        data: dict[str, Any] = {
+            "pattern": self.pattern,
+            "tags": self.tags,
+            "confidence": self.confidence,
+            "fallback_to_content": self.fallback_to_content,
+            "auto_accept": self.auto_accept,
+        }
+        if self.intent:
+            data["intent"] = self.intent
+        if self.intent_template:
+            data["intent_template"] = self.intent_template
+        if self.capture_regex:
+            data["capture_regex"] = self.capture_regex
+        return data
+
+    @classmethod
+    def from_dict(cls, data: dict[str, Any]) -> FilePattern:
+        confidence = float(data.get("confidence", 0.85))
+        auto_accept = bool(data.get("auto_accept", False))
+        if auto_accept and "confidence" not in data:
+            confidence = 0.95
+        return cls(
+            pattern=str(data.get("pattern", "")),
+            intent=data.get("intent"),
+            intent_template=data.get("intent_template"),
+            tags=list(data.get("tags", [])),
+            confidence=confidence,
+            fallback_to_content=bool(data.get("fallback_to_content", False)),
+            capture_regex=data.get("capture_regex"),
+            auto_accept=auto_accept,
+        )
+
+
+@dataclass
 class MeaningConfig:
     """Project settings and exclusion patterns."""
 
@@ -361,6 +458,7 @@ class MeaningConfig:
     exclude_patterns: list[str] = field(default_factory=list)
     exclude_paths: list[str] = field(default_factory=list)
     include_paths: list[str] = field(default_factory=list)
+    file_patterns: list[FilePattern] = field(default_factory=list)
     require_intent: bool = True
     require_tags: bool = False
     warn_on_unknown_tags: bool = True
@@ -378,6 +476,9 @@ class MeaningConfig:
             "include": {
                 "paths": self.include_paths,
             },
+            "inference": {
+                "file_patterns": [pattern.to_dict() for pattern in self.file_patterns],
+            },
             "settings": {
                 "require_intent": self.require_intent,
                 "require_tags": self.require_tags,
@@ -392,6 +493,7 @@ class MeaningConfig:
     def from_dict(cls, data: dict[str, Any]) -> MeaningConfig:
         exclude = data.get("exclude", {})
         include = data.get("include", {})
+        inference = data.get("inference", {})
         settings = data.get("settings", {})
 
         return cls(
@@ -399,6 +501,9 @@ class MeaningConfig:
             exclude_patterns=exclude.get("patterns", []),
             exclude_paths=exclude.get("paths", []),
             include_paths=include.get("paths", []),
+            file_patterns=[
+                FilePattern.from_dict(item) for item in inference.get("file_patterns", [])
+            ],
             require_intent=settings.get("require_intent", True),
             require_tags=settings.get("require_tags", False),
             warn_on_unknown_tags=settings.get("warn_on_unknown_tags", True),

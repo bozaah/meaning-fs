@@ -20,12 +20,12 @@ from meaning.meaning_inference import infer_file_metadata
 def display_inference_result(result):
     """Display inference results in a nice format."""
     print(f"\n{'=' * 70}")
-    print(f"📄 File: {result.path}")
+    print(f"File: {result.path}")
     print(f"{'=' * 70}")
 
     # Tags
     if result.tags:
-        print(f"\n🏷️  Tags ({len(result.tags)}):")
+        print(f"\nTags ({len(result.tags)}):")
         for tag in result.tags:
             confidence_bar = "█" * int(tag.confidence * 10)
             print(f"   • {tag.tag:20} [{confidence_bar:10}] {tag.confidence:.2f}")
@@ -33,13 +33,13 @@ def display_inference_result(result):
 
     # Intent
     if result.intent:
-        print(f"\n💡 Intent (confidence: {result.intent.confidence:.2f}):")
+        print(f"\nIntent (confidence: {result.intent.confidence:.2f}):")
         print(f"   {result.intent.intent}")
         print(f"   Reason: {result.intent.reason}")
 
     # Relationships
     if result.relationships:
-        print(f"\n🔗 Relationships ({len(result.relationships)}):")
+        print(f"\nRelationships ({len(result.relationships)}):")
         for rel in result.relationships:
             confidence_bar = "█" * int(rel.confidence * 10)
             print(f"   • {rel.relationship.type:15} → {rel.relationship.target}")
@@ -48,12 +48,12 @@ def display_inference_result(result):
 
     # Errors and warnings
     if result.errors:
-        print(f"\n❌ Errors ({len(result.errors)}):")
+        print(f"\nErrors ({len(result.errors)}):")
         for error in result.errors:
             print(f"   • {error}")
 
     if result.warnings:
-        print(f"\n⚠️  Warnings ({len(result.warnings)}):")
+        print(f"\nWarnings ({len(result.warnings)}):")
         for warning in result.warnings:
             print(f"   • {warning}")
 
@@ -91,7 +91,7 @@ def main():
 
     if args.all:
         # Find all unindexed files
-        print("🔍 Finding unindexed files...")
+        print("Finding unindexed files...")
         indexed_paths = {entry.path for entry in index.files}
 
         # Walk project directory

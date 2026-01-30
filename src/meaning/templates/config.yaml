@@ -103,6 +103,10 @@ exclude:
 include:
   paths: []
 
+# Inference configuration
+inference:
+  file_patterns: []
+
 # Behavior settings
 settings:
   # Every file must have an intent description
