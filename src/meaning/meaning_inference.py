@@ -22,6 +22,13 @@ try:  # Python 3.11+
 except ImportError:  # pragma: no cover - fallback for older runtimes
     tomllib = None
 
+from meaning.default_rules import (
+    ExtensionRule,
+    FilenameRule,
+    InferenceRules,
+    PathPatternRule,
+    get_default_rules,
+)
 from meaning.meaning_core import (
     MeaningConfig,
     MeaningIndex,
@@ -43,52 +50,6 @@ CONFIG_EXTENSIONS = {".yaml", ".yml", ".json", ".toml", ".ini"}
 DATA_EXTENSIONS = {".csv", ".tsv", ".parquet", ".nc", ".hdf5", ".h5", ".zarr"}
 BINARY_DATA_EXTENSIONS = {".parquet", ".nc", ".hdf5", ".h5", ".zarr"}
 MAX_CONFIG_BYTES = 256_000
-
-
-# =============================================================================
-# Data Classes: Inference Rules
-# =============================================================================
-
-
-@dataclass
-class FilenameRule:
-    """Rule for exact filename matching."""
-
-    filename: str  # exact filename to match (case-sensitive)
-    intent: str
-    tags: list[str]
-    confidence: float = 0.95
-
-
-@dataclass
-class PathPatternRule:
-    """Rule for glob pattern matching on full path."""
-
-    pattern: str  # glob pattern, e.g., "**/upload_*.sh"
-    intent: str
-    tags: list[str]
-    confidence: float = 0.85
-    fallback_to_content: bool = False
-
-
-@dataclass
-class ExtensionRule:
-    """Rule for file extension matching."""
-
-    extension: str  # including dot, e.g., ".slurm"
-    intent: str
-    tags: list[str]
-    confidence: float = 0.70
-    fallback_to_content: bool = True
-
-
-@dataclass
-class InferenceRules:
-    """Collection of all inference rules."""
-
-    exact_filenames: list[FilenameRule] = field(default_factory=list)
-    path_patterns: list[PathPatternRule] = field(default_factory=list)
-    extension_rules: list[ExtensionRule] = field(default_factory=list)
 
 
 # =============================================================================
@@ -167,215 +128,6 @@ class ConceptSuggestion:
     entry_point: str
     confidence: float
     reason: str
-
-
-# =============================================================================
-# Default Inference Rules (Built-in)
-# =============================================================================
-
-# These rules are applied automatically. Projects can override via config.yaml.
-
-DEFAULT_FILENAME_RULES: list[FilenameRule] = [
-    # === Git/VCS Files ===
-    FilenameRule(
-        ".gitignore", "Git version control ignore patterns", ["config", "vcs", "ignore"], 1.0
-    ),
-    FilenameRule(".gitattributes", "Git file attributes configuration", ["config", "vcs"], 1.0),
-    FilenameRule(".gitmodules", "Git submodule configuration", ["config", "vcs"], 1.0),
-    # === Python Project Files ===
-    FilenameRule(
-        "requirements.txt", "Python package dependencies (pip)", ["config", "dependencies"], 1.0
-    ),
-    FilenameRule(
-        "requirements-dev.txt",
-        "Python development dependencies",
-        ["config", "dependencies", "dev"],
-        1.0,
-    ),
-    FilenameRule("setup.py", "Python package setup script", ["config", "packaging"], 1.0),
-    FilenameRule("setup.cfg", "Python package configuration", ["config", "packaging"], 1.0),
-    FilenameRule(
-        "pyproject.toml", "Python project configuration (PEP 518)", ["config", "packaging"], 1.0
-    ),
-    FilenameRule("MANIFEST.in", "Python package manifest", ["config", "packaging"], 0.95),
-    FilenameRule("pytest.ini", "Pytest configuration", ["config", "test"], 1.0),
-    FilenameRule("conftest.py", "Pytest fixtures and configuration", ["test", "fixture"], 0.95),
-    FilenameRule(".python-version", "Python version specification", ["config"], 1.0),
-    FilenameRule("tox.ini", "Tox testing configuration", ["config", "test"], 1.0),
-    FilenameRule(".coveragerc", "Coverage.py configuration", ["config", "test"], 1.0),
-    FilenameRule("mkdocs.yml", "MkDocs documentation configuration", ["config", "doc"], 0.95),
-    FilenameRule("mkdocs.yaml", "MkDocs documentation configuration", ["config", "doc"], 0.95),
-    # === Node/JavaScript Files ===
-    FilenameRule(
-        "package.json", "Node.js package manifest", ["config", "dependencies", "packaging"], 1.0
-    ),
-    FilenameRule(
-        "package-lock.json",
-        "Node.js dependency lock file",
-        ["config", "dependencies", "generated"],
-        1.0,
-    ),
-    FilenameRule(
-        "yarn.lock", "Yarn dependency lock file", ["config", "dependencies", "generated"], 1.0
-    ),
-    FilenameRule(
-        "pnpm-lock.yaml", "pnpm dependency lock file", ["config", "dependencies", "generated"], 1.0
-    ),
-    FilenameRule("tsconfig.json", "TypeScript configuration", ["config"], 1.0),
-    FilenameRule(".nvmrc", "Node version specification", ["config"], 1.0),
-    FilenameRule(".npmrc", "npm configuration", ["config"], 1.0),
-    # === Rust Files ===
-    FilenameRule(
-        "Cargo.toml", "Rust package manifest", ["config", "dependencies", "packaging"], 1.0
-    ),
-    FilenameRule(
-        "Cargo.lock", "Rust dependency lock file", ["config", "dependencies", "generated"], 1.0
-    ),
-    # === Documentation Files ===
-    FilenameRule("README.md", "Project overview and documentation", ["doc", "overview"], 1.0),
-    FilenameRule("README", "Project overview and documentation", ["doc", "overview"], 1.0),
-    FilenameRule("README.txt", "Project overview and documentation", ["doc", "overview"], 1.0),
-    FilenameRule("README.rst", "Project overview and documentation", ["doc", "overview"], 1.0),
-    FilenameRule(
-        "CHANGELOG.md", "Project change history and release notes", ["doc", "history"], 1.0
-    ),
-    FilenameRule("CHANGELOG", "Project change history and release notes", ["doc", "history"], 1.0),
-    FilenameRule("HISTORY.md", "Project history", ["doc", "history"], 1.0),
-    FilenameRule("CONTRIBUTING.md", "Contribution guidelines", ["doc", "dev-guide"], 1.0),
-    FilenameRule("CODE_OF_CONDUCT.md", "Community code of conduct", ["doc"], 1.0),
-    FilenameRule("LICENSE", "Project license", ["doc", "legal"], 1.0),
-    FilenameRule("LICENSE.md", "Project license", ["doc", "legal"], 1.0),
-    FilenameRule("LICENSE.txt", "Project license", ["doc", "legal"], 1.0),
-    FilenameRule("AUTHORS", "Project authors list", ["doc"], 0.95),
-    FilenameRule("AUTHORS.md", "Project authors list", ["doc"], 0.95),
-    FilenameRule("SECURITY.md", "Security policy and reporting", ["doc", "security"], 1.0),
-    # === AI Agent Context Files ===
-    FilenameRule(
-        "CLAUDE.md",
-        "Claude AI agent project context and directives",
-        ["doc", "ai", "agent-context"],
-        1.0,
-    ),
-    FilenameRule(
-        "GEMINI.md", "Google Gemini agent project context", ["doc", "ai", "agent-context"], 1.0
-    ),
-    FilenameRule("AGENTS.md", "AI agent project context", ["doc", "ai", "agent-context"], 1.0),
-    FilenameRule("WARP.md", "AI/Warp agent project context", ["doc", "ai", "agent-context"], 1.0),
-    FilenameRule("COPILOT.md", "GitHub Copilot context", ["doc", "ai", "agent-context"], 1.0),
-    FilenameRule(".cursorrules", "Cursor AI editor rules", ["config", "ai", "agent-context"], 1.0),
-    FilenameRule(".cursorignore", "Cursor AI ignore patterns", ["config", "ai", "ignore"], 1.0),
-    FilenameRule(".aider.conf.yml", "Aider AI assistant configuration", ["config", "ai"], 1.0),
-    # === System/Generated Files ===
-    FilenameRule(
-        ".DS_Store", "macOS Finder metadata (should be git-ignored)", ["system", "generated"], 1.0
-    ),
-    FilenameRule(
-        "Thumbs.db", "Windows thumbnail cache (should be git-ignored)", ["system", "generated"], 1.0
-    ),
-    FilenameRule(".editorconfig", "Editor configuration", ["config"], 1.0),
-    # === CI/CD Files ===
-    FilenameRule("Makefile", "Build automation rules", ["config", "build"], 0.95),
-    FilenameRule("Dockerfile", "Docker container definition", ["config", "container"], 1.0),
-    FilenameRule(
-        "docker-compose.yml",
-        "Docker Compose service definitions",
-        ["config", "container", "orchestration"],
-        1.0,
-    ),
-    FilenameRule(
-        "docker-compose.yaml",
-        "Docker Compose service definitions",
-        ["config", "container", "orchestration"],
-        1.0,
-    ),
-    FilenameRule(
-        ".dockerignore", "Docker build ignore patterns", ["config", "container", "ignore"], 1.0
-    ),
-    FilenameRule("Jenkinsfile", "Jenkins pipeline definition", ["config", "ci-cd"], 1.0),
-    FilenameRule(".travis.yml", "Travis CI configuration", ["config", "ci-cd"], 1.0),
-    FilenameRule(".gitlab-ci.yml", "GitLab CI configuration", ["config", "ci-cd"], 1.0),
-]
-
-DEFAULT_PATH_PATTERN_RULES: list[PathPatternRule] = [
-    # === CI/CD Patterns ===
-    PathPatternRule(
-        ".github/workflows/*.yml", "GitHub Actions workflow", ["config", "ci-cd"], 0.95
-    ),
-    PathPatternRule(
-        ".github/workflows/*.yaml", "GitHub Actions workflow", ["config", "ci-cd"], 0.95
-    ),
-    PathPatternRule(".circleci/config.yml", "CircleCI configuration", ["config", "ci-cd"], 1.0),
-    # === Scientific Computing Patterns ===
-    PathPatternRule(
-        "**/compute_*.py",
-        "Computational data processing module",
-        ["module", "data-processing"],
-        0.80,
-        True,
-    ),
-    PathPatternRule(
-        "**/process_*.py", "Data processing module", ["module", "data-processing"], 0.80, True
-    ),
-    PathPatternRule(
-        "**/analyze_*.py",
-        "Data analysis module",
-        ["module", "data-processing", "statistics"],
-        0.80,
-        True,
-    ),
-    # === Data Operations Patterns ===
-    PathPatternRule(
-        "**/upload_*.sh", "Data upload script", ["script", "upload", "deployment"], 0.85
-    ),
-    PathPatternRule("**/download_*.sh", "Data download script", ["script", "download"], 0.85),
-    PathPatternRule("**/sync_*.sh", "Data synchronization script", ["script", "sync"], 0.85),
-    # === Test Patterns ===
-    PathPatternRule("**/test_*.py", "Python test module", ["test"], 0.90),
-    PathPatternRule("**/*_test.py", "Python test module", ["test"], 0.90),
-    PathPatternRule("**/tests/**/*.py", "Python test module", ["test"], 0.85, True),
-    # === Prompt/AI Patterns ===
-    # Match prompts/ at any level, with files directly in prompts/ or in subdirs
-    PathPatternRule("prompts/**/*.md", "LLM prompt template", ["doc", "ai", "llm-prompt"], 0.85),
-    PathPatternRule("prompts/**/*.txt", "LLM prompt template", ["doc", "ai", "llm-prompt"], 0.85),
-    PathPatternRule("prompts/*.md", "LLM prompt template", ["doc", "ai", "llm-prompt"], 0.85),
-    PathPatternRule("prompts/*.txt", "LLM prompt template", ["doc", "ai", "llm-prompt"], 0.85),
-]
-
-DEFAULT_EXTENSION_RULES: list[ExtensionRule] = [
-    # === Scientific/HPC Extensions ===
-    ExtensionRule(
-        ".slurm", "SLURM batch job submission script", ["script", "hpc", "slurm", "batch"], 0.95
-    ),
-    ExtensionRule(".sbatch", "SLURM batch script", ["script", "hpc", "slurm", "batch"], 0.95),
-    ExtensionRule(".pbs", "PBS/Torque batch script", ["script", "hpc", "pbs", "batch"], 0.95),
-    ExtensionRule(".sge", "Sun Grid Engine batch script", ["script", "hpc", "batch"], 0.95),
-    # === Source Code Extensions ===
-    ExtensionRule(".py", "Python source module", ["module"], 0.85, True),
-    # === Data/Config Extensions (low confidence, fallback to content) ===
-    ExtensionRule(".yaml", "YAML configuration or data", ["config"], 0.50, True),
-    ExtensionRule(".yml", "YAML configuration or data", ["config"], 0.50, True),
-    ExtensionRule(".toml", "TOML configuration", ["config"], 0.60, True),
-    ExtensionRule(".json", "JSON data or configuration", ["config"], 0.50, True),
-    ExtensionRule(".ini", "INI configuration file", ["config"], 0.60, True),
-    ExtensionRule(".env", "Environment variables file", ["config", "security"], 0.80),
-    # === Script Extensions ===
-    ExtensionRule(".sh", "Shell script", ["script"], 0.80, True),
-    ExtensionRule(".bash", "Bash script", ["script"], 0.80, True),
-    ExtensionRule(".zsh", "Zsh script", ["script"], 0.80, True),
-    # === Documentation Extensions ===
-    ExtensionRule(".md", "Markdown documentation", ["doc"], 0.60, True),
-    ExtensionRule(".rst", "reStructuredText documentation", ["doc"], 0.65, True),
-    ExtensionRule(".txt", "Plain text file", [], 0.30, True),
-]
-
-
-def get_default_rules() -> InferenceRules:
-    """Get the default built-in inference rules."""
-    return InferenceRules(
-        exact_filenames=DEFAULT_FILENAME_RULES.copy(),
-        path_patterns=DEFAULT_PATH_PATTERN_RULES.copy(),
-        extension_rules=DEFAULT_EXTENSION_RULES.copy(),
-    )
 
 
 # =============================================================================
@@ -661,92 +413,72 @@ def infer_tags_from_path(file_path: str, schema: MeaningSchema) -> list[Inferred
 # =============================================================================
 
 
-def _format_context_label(label: str | None) -> str | None:
-    if not label:
-        return None
+def _format_context_label(label: str) -> str:
+    """Format a directory name into a readable label."""
     return label.replace("_", " ").replace("-", " ").strip()
-
-
-def _context_from_path(path: Path) -> str | None:
-    parts = list(path.parts)
-    lower = [p.lower() for p in parts]
-
-    if "test_files" in lower:
-        idx = lower.index("test_files")
-        if idx + 1 < len(parts):
-            return parts[idx + 1]
-
-    if "src" in lower:
-        idx = lower.index("src")
-        if idx + 1 < len(parts):
-            return parts[idx + 1]
-    if "tests" in lower:
-        idx = lower.index("tests")
-        if idx + 1 < len(parts) and lower[idx + 1] != "test_files":
-            return parts[idx + 1]
-
-    parent = parts[-2] if len(parts) >= 2 else None
-    if parent and parent.lower() not in {
-        "config",
-        "configs",
-        "data",
-        "test_files",
-        "fixtures",
-        "tests",
-        "docs",
-        "notes",
-    }:
-        return parent
-
-    return None
 
 
 def infer_intent_from_directory_context(file_path: str) -> InferredIntent | None:
     """
     Infer intent based on directory structure for data/config/test artifacts.
+    Generalized to detect context markers like 'data', 'configs' recursively.
     """
     path = Path(file_path)
-    lower_parts = [p.lower() for p in path.parts]
-    context = _format_context_label(_context_from_path(path))
+    parts = path.parts
+    lower_parts = [p.lower() for p in parts]
 
-    if "tests" in lower_parts and "test_files" in lower_parts:
-        suffix = f" for {context}." if context else "."
-        return InferredIntent(
-            intent=f"Test output data{suffix}",
-            confidence=0.85,
-            reason="Directory context: tests/test_files",
-        )
+    # Map directory markers to base intents
+    markers = {
+        "test_files": "Test output data",
+        "fixtures": "Test fixture data",
+        "fixture": "Test fixture data",
+        "configs": "Configuration files",
+        "config": "Configuration files",
+        "data": "Data files",
+        "models": "Model definitions",
+        "schemas": "Schema definitions",
+        "migrations": "Database migrations",
+    }
 
-    if "fixtures" in lower_parts or "fixture" in lower_parts:
-        suffix = f" for {context}." if context else "."
-        return InferredIntent(
-            intent=f"Test fixture data{suffix}",
-            confidence=0.8,
-            reason="Directory context: fixtures",
-        )
-
-    if "configs" in lower_parts or "config" in lower_parts:
-        suffix = f" for {context}." if context else "."
-        return InferredIntent(
-            intent=f"Configuration files{suffix}",
-            confidence=0.8,
-            reason="Directory context: config",
-        )
-
-    if "data" in lower_parts:
-        suffix = f" for {context}." if context else "."
-        return InferredIntent(
-            intent=f"Data files{suffix}",
-            confidence=0.75,
-            reason="Directory context: data",
-        )
-
+    # Special combined case
     if "docs" in lower_parts and "notes" in lower_parts:
         return InferredIntent(
             intent="Documentation notes and data.",
             confidence=0.75,
             reason="Directory context: docs/notes",
         )
+
+    # Iterate backwards (deepest first) to find markers
+    # We skip the filename (last part)
+    for i in range(len(parts) - 2, -1, -1):
+        part = lower_parts[i]
+
+        if part in markers:
+            base_intent = markers[part]
+            context = None
+
+            # Special case: 'test_files' usually organizes by subject in subdirectories
+            # e.g., tests/test_files/integration/data.json -> context "integration"
+            if part == "test_files":
+                if i + 1 < len(parts) - 1:
+                    context = _format_context_label(parts[i + 1])
+
+            # Default: Look for context in the parent directory
+            elif i > 0:
+                parent = parts[i - 1]
+                # Skip generic source roots as context
+                if parent.lower() not in {"src", "lib", "tests", "test", "bin", "pkg"}:
+                    context = _format_context_label(parent)
+                # If parent is generic (e.g. src/configs), check if we can use grandparent?
+                # Usually no, src/configs means global configs.
+
+            intent = f"{base_intent} for {context}." if context else f"{base_intent}."
+
+            return InferredIntent(
+                intent=intent,
+                confidence=0.8,
+                reason=f"Directory context: {part}",
+            )
 
     return None
 
@@ -855,22 +587,7 @@ def infer_intent_from_config(file_path: str, project_dir: Path) -> InferredInten
             )
 
     # Directory context (configs/data)
-    context = _format_context_label(_context_from_path(path))
-    lower_parts = [p.lower() for p in path.parts]
-    if "configs" in lower_parts or "config" in lower_parts:
-        suffix = f" for {context}." if context else "."
-        return InferredIntent(
-            intent=f"Configuration files{suffix}",
-            confidence=0.8,
-            reason="Config directory context",
-        )
-    if "data" in lower_parts:
-        suffix = f" for {context}." if context else "."
-        return InferredIntent(
-            intent=f"Reference data or configuration{suffix}",
-            confidence=0.75,
-            reason="Data directory context",
-        )
+    # Handled by infer_intent_from_directory_context now
 
     return None
 

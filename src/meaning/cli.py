@@ -70,6 +70,9 @@ def main() -> None:
     update_mode.add_argument("--deleted", action="store_true")
     update_mode.add_argument("--all", action="store_true")
     update_parser.add_argument("--re-infer", action="store_true")
+    update_parser.add_argument(
+        "--check-stale", action="store_true", help="Flag stale files for review"
+    )
     update_parser.add_argument("--dry-run", action="store_true")
     update_parser.add_argument("--verbose", action="store_true")
     update_parser.add_argument("--threshold", type=float, default=DEFAULT_REVIEW_THRESHOLD)
@@ -78,6 +81,7 @@ def main() -> None:
     review_parser.add_argument("project_root", nargs="?", default=".")
     review_parser.add_argument("--interactive", action="store_true")
     review_parser.add_argument("--file", dest="file_path", default=None)
+    review_parser.add_argument("--stale", action="store_true", help="Include stale files in review")
     review_parser.add_argument("--dry-run", action="store_true")
     review_parser.add_argument("--threshold", type=float, default=DEFAULT_REVIEW_THRESHOLD)
 
@@ -310,6 +314,14 @@ def main() -> None:
                         modified_entry.needs_review = True
                         modified_entry.last_verified = now
 
+        if args.check_stale:
+            stale_entries = index.stale_files(config.stale_threshold_days)
+            if stale_entries:
+                print_file_list("FLAG stale files for review", [f.path for f in stale_entries])
+                if not args.dry_run:
+                    for f in stale_entries:
+                        f.needs_review = True
+
         if collection_skipped and args.verbose:
             print_file_list("INFO collection-covered files (not indexed)", collection_skipped)
 
@@ -346,86 +358,123 @@ def main() -> None:
             entries = [selected_entry] if selected_entry is not None else []
         else:
             entries = index.files_needing_review()
+            if args.stale:
+                stale = index.stale_files(config.stale_threshold_days)
+                existing_paths = {e.path for e in entries}
+                for s in stale:
+                    if s.path not in existing_paths:
+                        entries.append(s)
 
         if not entries:
             print("OK: No files need review")
             return
 
         now = infer_timestamps()
-        updated = 0
-        skipped = 0
+        updated_count = 0
+        verified_count = 0
+        skipped_count = 0
+        changes_log = []
 
         for entry in entries:
             inference_result = infer_file_metadata(entry.path, project_root, index, schema, config)
+
+            # Calculate diff before applying
+            diff = preview_inference_diff(entry, inference_result, args.threshold, config, now)
+
             if args.interactive:
-                diff = preview_inference_diff(entry, inference_result, args.threshold, config, now)
                 print(f"\nFile: {entry.path}")
+                has_changes = False
                 if diff["intent"]:
                     print("  Intent:")
                     print(f"    - {diff['intent'][0]}")
                     print(f"    + {diff['intent'][1]}")
+                    has_changes = True
                 if diff["tags_added"] or diff["tags_removed"]:
                     print("  Tags:")
                     for tag in diff["tags_added"]:
                         print(f"    + {tag}")
                     for tag in diff["tags_removed"]:
                         print(f"    - {tag}")
+                    has_changes = True
                 if diff["rels_added"] or diff["rels_removed"]:
                     print("  Relationships:")
                     for rel in diff["rels_added"]:
                         print(f"    + {rel.type}:{rel.target or rel.source}")
                     for rel in diff["rels_removed"]:
                         print(f"    - {rel.type}:{rel.target or rel.source}")
+                    has_changes = True
                 if diff["needs_review"]:
                     print("  Needs review:")
                     print(f"    - {diff['needs_review'][0]}")
                     print(f"    + {diff['needs_review'][1]}")
-                if not any(
+                    has_changes = True
+
+                if not has_changes:
+                    print("  (no high-confidence changes)")
+
+                choice = input("Apply changes? [y/N]: ").strip().lower()
+                if choice != "y":
+                    skipped_count += 1
+                    continue
+
+            if args.dry_run:
+                # In dry run, we just simulate
+                has_semantic_changes = any(
                     [
                         diff["intent"],
                         diff["tags_added"],
                         diff["tags_removed"],
                         diff["rels_added"],
                         diff["rels_removed"],
-                        diff["needs_review"],
                     ]
-                ):
-                    print("  (no high-confidence changes)")
-
-                choice = input("Apply changes? [y/N]: ").strip().lower()
-                if choice != "y":
-                    skipped += 1
-                    continue
-
-            if args.dry_run:
-                changed = preview_inference_changes(
-                    entry, inference_result, args.threshold, config, now
                 )
+                if has_semantic_changes:
+                    updated_count += 1
+                    changes_log.append((entry.path, diff))
+                else:
+                    verified_count += 1
             else:
                 changed = apply_inference_to_entry(
                     entry, inference_result, args.threshold, config, now
                 )
 
-            if changed:
-                updated += 1
-            else:
-                skipped += 1
+                if changed:
+                    updated_count += 1
+                    changes_log.append((entry.path, diff))
+                else:
+                    verified_count += 1
 
         if args.dry_run:
             print("\nWARN: Dry run: no changes written")
-            print(f"OK: Would update {updated} file(s)")
-            if skipped:
-                print(f"WARN: {skipped} file(s) have no high-confidence changes")
-            return
 
-        save_index(project_root, index)
-        print(f"OK: Reviewed {updated} file(s)")
-        if skipped:
-            print(f"WARN: {skipped} file(s) still need review")
-            print("   Add docstrings/markdown summaries or use --interactive")
+        if not args.dry_run:
+            save_index(project_root, index)
+
+        # Summary Report
+        print("\nREVIEW SUMMARY")
+        print(f"  Processed: {len(entries)}")
+        print(f"  Updated:   {updated_count}")
+        print(f"  Verified:  {verified_count} (timestamp updated, no semantic changes)")
+        if skipped_count:
+            print(f"  Skipped:   {skipped_count}")
+
+        if changes_log:
+            print("\nDETAILS")
+            for path, diff in changes_log:
+                print(f"  {path}")
+                if diff["intent"]:
+                    print(f'    + Intent: "{diff["intent"][1]}"')
+                if diff["tags_added"]:
+                    print(f"    + Tags: {', '.join(diff['tags_added'])}")
+                if diff["rels_added"]:
+                    rels = [f"{r.type}:{r.target or r.source}" for r in diff["rels_added"]]
+                    print(f"    + Rels: {', '.join(rels)}")
+                if diff["needs_review"] and not diff["needs_review"][1]:
+                    print("    + Status: Review cleared")
+
         remaining = len(index.files_needing_review())
         if remaining:
-            print(f"WARN: Files still needing review: {remaining}")
+            print(f"\nNOTE: {remaining} files still need review")
         return
 
 

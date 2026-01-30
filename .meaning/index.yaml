@@ -1,6 +1,6 @@
 version: 0.2.0
 generated_at: '2026-01-21T04:11:00+00:00'
-last_updated: '2026-01-28T05:51:50.442720+00:00'
+last_updated: '2026-01-30T03:20:45.578332+00:00'
 concepts:
 - name: project-documentation
   description: Project-level documentation for human and AI understanding
@@ -44,7 +44,7 @@ files:
   intent: Project overview and quick start guide for users
   status: active
   needs_review: false
-  last_verified: '2026-01-28T05:51:50.424629+00:00'
+  last_verified: '2026-01-30T03:20:45.577775+00:00'
   tags:
   - doc
   - core
@@ -66,7 +66,7 @@ files:
   intent: Symlink to CLAUDE.md providing development guide for all AI agents
   status: active
   needs_review: false
-  last_verified: '2026-01-28T00:20:48.424310+00:00'
+  last_verified: '2026-01-30T02:48:58.543549+00:00'
   tags:
   - doc
   - core
@@ -80,7 +80,7 @@ files:
   intent: Development guide and architectural reference for AI agents working on Meaning
   status: active
   needs_review: false
-  last_verified: '2026-01-28T00:20:48.424310+00:00'
+  last_verified: '2026-01-30T02:48:58.543549+00:00'
   tags:
   - doc
   - core
@@ -117,7 +117,7 @@ files:
   intent: Chronological record of project changes, decisions, and milestones
   status: active
   needs_review: false
-  last_verified: '2026-01-28T05:51:50.424629+00:00'
+  last_verified: '2026-01-30T02:48:58.543549+00:00'
   tags:
   - doc
   - core
@@ -165,7 +165,7 @@ files:
     scoring
   status: active
   needs_review: false
-  last_verified: '2026-01-28T05:51:45.713255+00:00'
+  last_verified: '2026-01-30T01:56:53.379527+00:00'
   tags:
   - core
   - module
@@ -176,6 +176,8 @@ files:
     target: src/meaning/meaning_core.py
   - type: implements
     target: IMPLEMENTATION-PLAN.md
+  - type: imports
+    target: src/meaning/default_rules.py
 - path: .agent-sessions/README.md
   intent: Guide for AI agents on documenting sessions and maintaining project continuity
   status: active
@@ -314,7 +316,7 @@ files:
   intent: Claude Code project hooks configuration for post-write and session-end validation
   status: active
   needs_review: false
-  last_verified: '2026-01-21T08:28:47.306382+00:00'
+  last_verified: '2026-01-30T02:47:47.950152+00:00'
   tags:
   - config
   - ai
@@ -414,7 +416,7 @@ files:
   intent: Post-write hook that flags modified files for review in .meaning/index.yaml
   status: active
   needs_review: false
-  last_verified: '2026-01-21T08:34:34.635323+00:00'
+  last_verified: '2026-01-30T02:47:47.950152+00:00'
   tags:
   - script
   - util
@@ -425,7 +427,7 @@ files:
   intent: Session-end validation hook checking .meaning/ index health
   status: active
   needs_review: false
-  last_verified: '2026-01-21T08:34:34.635496+00:00'
+  last_verified: '2026-01-30T02:47:47.950152+00:00'
   tags:
   - script
   - validation
@@ -437,7 +439,7 @@ files:
   intent: Placeholder to preserve empty fixtures directory in git
   status: active
   needs_review: false
-  last_verified: '2026-01-21T08:28:47.306382+00:00'
+  last_verified: '2026-01-30T02:47:47.950152+00:00'
   tags:
   - fixture
 - path: .agent-sessions/2026-01-21-phase4-dogfooding.md
@@ -511,18 +513,26 @@ files:
   intent: Entry point for python -m meaning
   status: active
   needs_review: false
-  last_verified: '2026-01-22T01:17:53.043427+00:00'
+  last_verified: '2026-01-30T02:47:47.950152+00:00'
   tags:
   - module
   - core
+  relationships:
+  - type: imports
+    target: src/meaning/meaning_core.py
 - path: src/meaning/meaning_inference.py
   intent: 'Meaning: Inference Engine Automatically infer semantic metadata for files
     to reduce manual work.'
   status: active
   needs_review: false
-  last_verified: '2026-01-22T01:17:53.043428+00:00'
+  last_verified: '2026-01-30T02:47:47.950152+00:00'
   tags:
   - module
+  relationships:
+  - type: imports
+    target: src/meaning/default_rules.py
+  - type: imports
+    target: src/meaning/meaning_core.py
 - path: .agent-sessions/2026-01-22-package-structure-fix.md
   intent: 'Agent session note: 2026 01 22 package structure fix.'
   status: active
@@ -801,7 +811,7 @@ files:
   intent: 'Meaning: Command-line interface.'
   status: active
   needs_review: false
-  last_verified: '2026-01-28T05:51:50.424629+00:00'
+  last_verified: '2026-01-30T02:48:58.543549+00:00'
   tags:
   - module
   - cli
@@ -865,7 +875,7 @@ files:
   intent: 'Meaning: Core data models.'
   status: active
   needs_review: false
-  last_verified: '2026-01-28T05:09:40.454494+00:00'
+  last_verified: '2026-01-30T01:53:00.244078+00:00'
   tags:
   - module
   - model
@@ -888,7 +898,7 @@ files:
   intent: 'Meaning: Query engine and display functions.'
   status: active
   needs_review: false
-  last_verified: '2026-01-28T05:51:50.424629+00:00'
+  last_verified: '2026-01-30T01:53:00.244078+00:00'
   tags:
   - module
   relationships:
@@ -904,7 +914,7 @@ files:
   intent: 'Meaning: Index validation.'
   status: active
   needs_review: false
-  last_verified: '2026-01-28T05:09:40.454494+00:00'
+  last_verified: '2026-01-30T01:53:00.244078+00:00'
   tags:
   - module
   - validation
@@ -954,3 +964,37 @@ files:
   last_verified: '2026-01-28T05:51:37.312736+00:00'
   tags:
   - output
+- path: audits/audit-report-2026-01-30.md
+  intent: 'Date: 2026-01-30 Version: v0.2.0 Scope: Full codebase (src/meaning/, tests/)
+    Status: Healthy / Production-Ready'
+  status: active
+  needs_review: false
+  last_verified: '2026-01-30T01:52:52.895002+00:00'
+  tags:
+  - repository
+- path: src/meaning/default_rules.py
+  intent: 'Meaning: Default Inference Rules This module contains the built-in rules
+    for the inference engine.'
+  status: active
+  needs_review: false
+  last_verified: '2026-01-30T01:52:52.895002+00:00'
+  tags:
+  - module
+- path: tests/test_inference_context.py
+  intent: Python test module
+  status: active
+  needs_review: false
+  last_verified: '2026-01-30T01:52:52.895002+00:00'
+  tags:
+  - test
+  - module
+  relationships:
+  - type: imports
+    target: src/meaning/meaning_inference.py
+- path: .agent-sessions/2026-01-30-inference-refactor-scientific-support.md
+  intent: 'Agent session note: 2026 01 30 inference refactor scientific support.'
+  status: active
+  needs_review: false
+  last_verified: '2026-01-30T02:48:58.543549+00:00'
+  tags:
+  - x-needs-tags

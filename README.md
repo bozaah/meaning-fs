@@ -29,7 +29,9 @@ When you say "update how API responses are parsed," your AI agent can read the i
 **v0.2 — Modular Architecture** OK
 
 - OK **Modular codebase** - 8 specialized modules (constants, models, index_io, validation, project, index_ops, query, cli)
-- OK **Inference engine** (`meaning_inference.py`) - 1,222 lines with **80+ built-in rules**
+- OK **Inference engine** - Refactored into modular `default_rules.py` with **90+ built-in rules**
+- OK **Context-aware inference** - Generalized directory context detection (`src/app/configs/` -> "Config for app")
+- OK **Scientific data support** - Native recognition of Parquet, HDF5, NetCDF, Zarr
 - OK **Rule-based inference** - Automatic metadata for common files (`.gitignore`, `CLAUDE.md`, `*.slurm`)
 - OK **Enhanced tag vocabulary** - 7 categories (HPC, AI agents, scientific computing, data ops)
 - OK **Status command** - Instant project overview with concepts, health metrics, and recent activity
@@ -308,6 +310,7 @@ Meaning includes built-in recognition for:
 | **AI Agents** | `CLAUDE.md`, `GEMINI.md`, `WARP.md`, `AGENTS.md`, `.cursorrules` |
 | **CI/CD** | `Dockerfile`, `docker-compose.yml`, GitHub workflows |
 | **HPC/Scientific** | `.slurm`, `.pbs`, `.sge` batch scripts |
+| **Scientific Data** | `.parquet`, `.h5`, `.hdf5`, `.nc`, `.zarr` |
 | **Data Ops** | `upload_*.sh`, `download_*.sh`, `sync_*.sh` patterns |
 
 ## License
